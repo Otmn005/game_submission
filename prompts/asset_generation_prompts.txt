@@ -1,1 +1,2 @@
+We need simple, flat UI assets (if any) in a cool, calm palette appropriate for mental health themes. Generate optional SVG icons for: dice, book, heart, sun/heat. Constraints: minimalistic, visible on dark backgrounds, size 48–64px, monochrome or subtle gradients. Avoid external dependencies; inline SVG is preferred.
 

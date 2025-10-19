@@ -1,1 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Resilience Run — Uni Life (Australia)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --bg:#0f172a; --panel:#0b1220; --ink:#e5e7eb; --muted:#9ca3af; --accent:#22d3ee; --good:#22c55e; --bad:#ef4444; --warn:#f59e0b;
+      --card:#111827; --tile:#0b1329; --tile-alt:#0f1a38; --shadow:0 8px 30px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#0b1220,#0f172a 30%,#0a1020);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}
+    .wrap{max-width:1080px;margin:0 auto;padding:24px}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    h1{font-size:28px;margin:0}
+    .card{background:var(--card);border:1px solid #1f2937;border-radius:16px;box-shadow:var(--shadow)}
+    .panel{padding:20px}
+    .row{display:flex;gap:16px;flex-wrap:wrap}
+    .btn{border:1px solid #334155;background:#0b1329;color:#e5e7eb;padding:10px 14px;border-radius:12px;cursor:pointer}
+    .btn:hover{border-color:var(--accent)}
+    .btn.primary{background:linear-gradient(135deg,#0ea5e9,#22d3ee);color:#00111a;border:none}
+    .btn.ghost{background:transparent;border-color:#374151}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .grid{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}
+    .tile{aspect-ratio:1;background:var(--tile);border:1px solid #1f2a45;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#cbd5e1;position:relative}
+    .tile:nth-child(odd){background:var(--tile-alt)}
+    .tile.start::after,.tile.finish::after{content:attr(data-tag);position:absolute;top:6px;left:6px;font-size:10px;color:var(--muted)}
+    .player{width:70%;height:70%;border-radius:50%;background:conic-gradient(from 180deg,var(--accent),#60a5fa 60%,#a78bfa);box-shadow:0 0 0 2px #0b1229,0 6px 20px rgba(34,211,238,.25)}
+    .hud{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .stat{background:#0b1329;border:1px solid #1f2937;padding:10px 12px;border-radius:12px;display:flex;gap:10px;align-items:center}
+    .bar{width:160px;height:10px;background:#111827;border-radius:999px;overflow:hidden;border:1px solid #1f2937}
+    .bar>span{display:block;height:100%;background:linear-gradient(90deg,#22d3ee,#60a5fa);transition:width .3s ease}
+    .log{height:180px;overflow:auto;background:#0b1329;border:1px solid #1f2937;border-radius:12px;padding:10px;font-size:14px;color:#cbd5e1}
+    .log p{margin:6px 0}
+    .center{display:flex;justify-content:center;align-items:center}
+    .menu{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}
+    .menu h2{margin:0 0 6px}
+    .muted{color:var(--muted)}
+    .pill{font-size:12px;padding:4px 8px;border-radius:999px;border:1px solid #334155;background:#0b1329;color:#cbd5e1}
+    footer{margin-top:14px;color:#94a3b8;font-size:12px;text-align:center}
+    @media (max-width:900px){.menu{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Resilience Run — Uni Life (Australia)</h1>
+      <div><span class="pill">2D Dice Board</span> <span class="pill">Mental Health & Wellbeing</span> <span class="pill">Front-end only</span></div>
+    </header>
+
+    <!-- ====== MENU VIEW ====== -->
+    <div id="view-menu" class="card panel">
+      <div class="menu">
+        <div>
+          <h2>Welcome</h2>
+          <p class="muted">Navigate a semester by rolling a dice, making wellbeing choices, and reaching finals with enough mental energy left. Gameplay directly ties to Australian uni life (counselling, Myki, heatwaves, GP plans, study load, work shifts).</p>
+          <ul>
+            <li>Roll the dice to move across 30 tiles (a short “semester”).</li>
+            <li>Landing on tiles reveals <b>event cards</b> with 2 choices.</li>
+            <li>Choices affect <b>Wellbeing</b> and <b>Knowledge</b>.</li>
+            <li>Reach the finish with <b>Wellbeing ≥ 60</b> to “pass with balance”.</li>
+          </ul>
+          <div class="hud" style="margin-top:12px">
+            <button class="btn primary" id="btn-start">Start Game</button>
+            <button class="btn ghost" id="btn-how">How to Play</button>
+          </div>
+        </div>
+        <div class="card panel">
+          <h3 style="margin-top:0">Why it matters</h3>
+          <p class="muted">1 in 3 Australian uni students report high psychological distress. Building simple habits (sleep, breaks, asking for help) and using campus services improves outcomes.</p>
+          <ul class="muted">
+            <li><b>Counselling & Accessibility</b> — free/low-cost on campus</li>
+            <li><b>GP Mental Health Plans</b> — Medicare rebates for sessions</li>
+            <li><b>Heatwaves</b> — hydration & shade reduce cognitive strain</li>
+          </ul>
+          <p class="muted">This game lightly teaches those decision points.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== PLAY VIEW ====== -->
+    <div id="view-play" class="card panel" style="display:none">
+      <div class="row">
+        <div class="card panel" style="flex:1 1 440px">
+          <div class="hud" style="margin-bottom:12px">
+            <div class="stat">Wellbeing
+              <div class="bar"><span id="wb-bar" style="width:70%"></span></div>
+              <span id="wb-num">70</span>
+            </div>
+            <div class="stat">Knowledge
+              <div class="bar"><span id="kn-bar" style="width:20%"></span></div>
+              <span id="kn-num">20</span>
+            </div>
+            <div class="stat">Tile <span id="tile-num">1</span>/30</div>
+            <button class="btn" id="btn-roll">🎲 Roll</button>
+            <button class="btn ghost" id="btn-end">End Early</button>
+          </div>
+          <div class="grid" id="board"></div>
+        </div>
+
+        <div class="card panel" style="flex:1 1 300px;min-width:280px">
+          <h3 style="margin-top:0">Event</h3>
+          <div id="event-area" class="card panel" style="min-height:160px;background:#0b1329"></div>
+          <div style="height:12px"></div>
+          <h3 style="margin:0 0 6px">Log</h3>
+          <div id="log" class="log"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== RESULTS VIEW ====== -->
+    <div id="view-results" class="card panel" style="display:none">
+      <h2 style="margin-top:0" id="result-title">Semester Summary</h2>
+      <p id="result-body" class="muted"></p>
+      <div class="hud" style="margin-top:10px">
+        <button class="btn primary" id="btn-restart">Play Again</button>
+        <button class="btn ghost" id="btn-menu">Back to Menu</button>
+      </div>
+    </div>
+
+    <footer>© 2025 Resilience Run • Built for RMIT GenAI & Cybersecurity Hackathon • Front-end only</footer>
+  </div>
+
+  <script>
+    // ------- Simple state -------
+    const state = {
+      tile: 1, maxTile: 30,
+      wellbeing: 70, knowledge: 20,
+      rolling: false, finished: false
+    };
+
+    // ------- Board setup -------
+    const boardEl = document.getElementById('board');
+    function drawBoard(){
+      boardEl.innerHTML = '';
+      for (let i=1;i<=state.maxTile;i++){
+        const d = document.createElement('div');
+        d.className = 'tile';
+        if (i===1){ d.classList.add('start'); d.dataset.tag='Start'; }
+        if (i===state.maxTile){ d.classList.add('finish'); d.dataset.tag='Finish'; }
+        d.dataset.index = i;
+        if (i===state.tile){
+          const p = document.createElement('div');
+          p.className = 'player';
+          d.appendChild(p);
+        } else {
+          d.textContent = i;
+        }
+        boardEl.appendChild(d);
+      }
+      document.getElementById('tile-num').textContent = state.tile;
+      updateBars();
+    }
+
+    function clamp(v,min,max){ return Math.max(min,Math.min(max,v)); }
+    function updateBars(){
+      const wb = clamp(state.wellbeing,0,100);
+      const kn = clamp(state.knowledge,0,100);
+      document.getElementById('wb-bar').style.width = wb+'%';
+      document.getElementById('kn-bar').style.width = kn+'%';
+      document.getElementById('wb-num').textContent = wb;
+      document.getElementById('kn-num').textContent = kn;
+    }
+
+    // ------- Event deck (AU context) -------
+    const events = [
+      { title:"Heatwave Week",
+        text:"It’s 37°C. Uni issues a heat alert.",
+        a:{label:"Study early + hydrate", wb:+4, kn:+2, tip:"Morning sessions reduce heat load."},
+        b:{label:"Push late-night cram", wb:-6, kn:+3, tip:"High heat harms focus and sleep."}
+      },
+      { title:"Counselling Drop-in",
+        text:"Free short consults available today.",
+        a:{label:"Attend 20-min session", wb:+8, kn:0, tip:"Early help prevents escalation."},
+        b:{label:"Skip, keep grinding", wb:-4, kn:+1, tip:"Ignoring stress can backfire."}
+      },
+      { title:"Myki Budget Squeeze",
+        text:"Fares feel steep this month.",
+        a:{label:"Plan off-peak study/home", wb:+2, kn:+1, tip:"Budgeting lowers background stress."},
+        b:{label:"Ignore & stress", wb:-3, kn:0, tip:"Financial worry saps energy."}
+      },
+      { title:"Group Assignment",
+        text:"Teammates suggest splitting tasks.",
+        a:{label:"Define roles + timeline", wb:+3, kn:+5, tip:"Clear plans = fewer crunches."},
+        b:{label:"Wing it", wb:-5, kn:+1, tip:"Chaos → last-minute burnout."}
+      },
+      { title:"Part-time Shift Offer",
+        text:"Extra shift overlaps a study block.",
+        a:{label:"Negotiate another slot", wb:+2, kn:+2, tip:"Boundaries protect recovery time."},
+        b:{label:"Accept + cut sleep", wb:-7, kn:+3, tip:"Sleep loss tanks wellbeing."}
+      },
+      { title:"GP Mental Health Plan",
+        text:"Bulk-billed clinic nearby.",
+        a:{label:"Book GP & get plan", wb:+9, kn:0, tip:"Medicare rebates for therapy."},
+        b:{label:"Postpone indefinitely", wb:-4, kn:0, tip:"Delays cost more later."}
+      },
+      { title:"Exam Crunch",
+        text:"Two finals loom.",
+        a:{label:"Pomodoro + breaks", wb:+3, kn:+6, tip:"Intervals beat marathons."},
+        b:{label:"All-nighter", wb:-10, kn:+6, tip:"Short-term gain, big crash."}
+      },
+      { title:"Peer Study Group",
+        text:"Friends invite a review session.",
+        a:{label:"Join & share notes", wb:+3, kn:+5, tip:"Relatedness boosts motivation."},
+        b:{label:"Decline, isolate", wb:-3, kn:+1, tip:"Social support = protective."}
+      },
+      { title:"Campus Sport Rec",
+        text:"Free 30-min class between lectures.",
+        a:{label:"Light exercise", wb:+5, kn:+1, tip:"Movement stabilises mood."},
+        b:{label:"Scroll phone", wb:-2, kn:0, tip:"Micro-breaks > doomscrolling."}
+      },
+      { title:"Unexpected Commute Delay",
+        text:"Signal fault. You’re stuck.",
+        a:{label:"Use time to plan", wb:+1, kn:+2, tip:"Turn dead time into review."},
+        b:{label:"Stress spiral", wb:-4, kn:0, tip:"Reframing helps."}
+      }
+    ];
+
+    function pickEvent(){
+      return events[Math.floor(Math.random()*events.length)];
+    }
+
+    // ------- UI + Flow -------
+    const logEl = document.getElementById('log');
+    function log(msg){ const p=document.createElement('p'); p.textContent = msg; logEl.prepend(p); }
+
+    function show(id){
+      document.getElementById('view-menu').style.display = id==='menu'?'block':'none';
+      document.getElementById('view-play').style.display = id==='play'?'block':'none';
+      document.getElementById('view-results').style.display = id==='results'?'block':'none';
+    }
+
+    function startGame(){
+      state.tile=1; state.wellbeing=70; state.knowledge=20; state.finished=false;
+      logEl.innerHTML=''; document.getElementById('event-area').innerHTML='';
+      drawBoard(); show('play'); log("Semester begins. Aim for Wellbeing ≥ 60 at finish.");
+    }
+
+    function endGame(reason='Finished'){
+      state.finished=true;
+      const wb=clamp(state.wellbeing,0,100), kn=clamp(state.knowledge,0,100);
+      let title, body;
+      if (state.tile>=state.maxTile){
+        if (wb>=60){ title="You finished with balance 🎓"; body=`Wellbeing ${wb}, Knowledge ${kn}. You navigated uni life with sustainable habits.`;}
+        else{ title="You finished exhausted 😵"; body=`Wellbeing ${wb}, Knowledge ${kn}. Consider earlier support and rest strategies.`;}
+      } else {
+        title="You ended early";
+        body=`Stopped at tile ${state.tile}. Wellbeing ${wb}, Knowledge ${kn}. Balance attempts with pacing and support.`;
+      }
+      document.getElementById('result-title').textContent = title;
+      document.getElementById('result-body').textContent = body;
+      show('results');
+    }
+
+    function renderEventCard(ev){
+      const el = document.getElementById('event-area');
+      el.innerHTML = `
+        <div class="card panel" style="background:#091226;border:1px solid #1f2937">
+          <h4 style="margin:0 0 6px">${ev.title}</h4>
+          <p class="muted" style="margin-top:0">${ev.text}</p>
+          <div class="row">
+            <button class="btn" id="choice-a">A) ${ev.a.label}</button>
+            <button class="btn" id="choice-b">B) ${ev.b.label}</button>
+          </div>
+          <p class="muted" style="margin:10px 0 0">Tip: <em>${ev.a.tip}</em> / <em>${ev.b.tip}</em></p>
+        </div>
+      `;
+      document.getElementById('choice-a').onclick = ()=>applyChoice(ev.a,'A');
+      document.getElementById('choice-b').onclick = ()=>applyChoice(ev.b,'B');
+    }
+
+    function applyChoice(choice,label){
+      state.wellbeing = clamp(state.wellbeing + (choice.wb||0), 0, 100);
+      state.knowledge  = clamp(state.knowledge + (choice.kn||0), 0, 100);
+      updateBars();
+      log(`Chose ${label}: WB ${choice.wb>=0?'+':''}${choice.wb||0}, KN ${choice.kn>=0?'+':''}${choice.kn||0}`);
+      document.getElementById('event-area').innerHTML='';
+      if (state.tile>=state.maxTile){ endGame(); }
+    }
+
+    function roll(){
+      if (state.rolling||state.finished) return;
+      state.rolling=true; const d = 1+Math.floor(Math.random()*6);
+      log(`You rolled a ${d}.`);
+      setTimeout(()=>{
+        state.tile = Math.min(state.tile + d, state.maxTile);
+        drawBoard();
+        const ev = pickEvent();
+        renderEventCard(ev);
+        if (state.tile>=state.maxTile){ log("Final tile reached."); }
+        state.rolling=false;
+      }, 300);
+    }
+
+    // Buttons
+    document.getElementById('btn-start').onclick = startGame;
+    document.getElementById('btn-how').onclick = ()=>alert("Roll the dice, land on tiles, make choices.\nFinish with Wellbeing ≥ 60 to win.\nAll front-end only; no sign-in or backend needed.");
+    document.getElementById('btn-roll').onclick = roll;
+    document.getElementById('btn-end').onclick = ()=>endGame('Manual');
+    document.getElementById('btn-restart').onclick = startGame;
+    document.getElementById('btn-menu').onclick = ()=>show('menu');
+
+    // Init
+    drawBoard(); // draw on load for preview
+  </script>
+</body>
+</html>
 

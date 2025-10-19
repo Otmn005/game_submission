@@ -1,1 +1,8 @@
+Goal: Design a 2D dice-based board game that teaches mental health & wellbeing for Australian university students. Mechanics must directly connect choices to wellbeing + knowledge outcomes. Constraints: HTML/CSS/JS only, front-end only, no backend. Screens: Menu, Play, Results. Win condition: finish board with Wellbeing ≥ 60.
+
+Key elements to include in ideas:
+- AU context: counselling services, GP mental health plans, Myki/commute, heatwaves, exam periods, part-time work.
+- Short events with two choices, each affecting Wellbeing/Knowledge.
+- Clear HUD: Wellbeing bar, Knowledge bar, Tile progress.
+- Accessible UI, readable on desktop and mobile.
 

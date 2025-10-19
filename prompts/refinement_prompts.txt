@@ -1,1 +1,2 @@
+Refine UI polish: add soft shadows, rounded corners, and a gradient background. Improve accessibility: larger contrast, clear focus states, larger tap targets. Keep performance snappy on low-end laptops. Ensure buttons are reachable on mobile and no text overflows. Test flows: Start → Roll → Event → Finish; and End Early path. 
 

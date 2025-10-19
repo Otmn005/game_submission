@@ -1,1 +1,2 @@
+Write a single-file HTML document that implements a 2D dice-based board game. Use semantic HTML, CSS variables, and modern JS. No external libraries. Provide three views (menu, play, results) and a 10x3-ish grid totaling ~30 tiles. Track wellbeing and knowledge (0–100). On each tile movement, present an event card with two choices that change stats. Win if reaching final tile with wellbeing ≥ 60, else “finished exhausted”. Keep code under ~400 lines, readable and commented.
 

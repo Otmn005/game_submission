@@ -2,21 +2,20 @@
 <html lang="en">
 <head>
   <!--
-    UniLife Simulator — Peak Edition
+    UniLife Simulator — Finalist Edition
     RMIT GenAI & Cybersecurity Hackathon 2025 • RMIT City • Team: The Trinity
-    Front-end only • Single file • Offline • No external libs
+    Single-file • Front-end only • Offline • No external libs
   -->
   <meta charset="utf-8" />
-  <title>UniLife Simulator — RMIT City (Peak Edition)</title>
+  <title>UniLife Simulator — RMIT City (Finalist Edition)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    /* ===================== THEME ===================== */
     :root{
       --bg1:#eaf7f4; --bg2:#eaf2fb; --panel:#ffffff; --ink:#0a2a2e; --muted:#486e73;
       --accent:#2bb6f6; --accent2:#69e6b8; --stroke:#d8e5ec; --shadow:0 8px 26px rgba(9,30,66,.15);
       --good:#16a34a; --bad:#ef4444; --warn:#f59e0b;
       --barBG:#eef6fb; --barGrad:linear-gradient(90deg,#8ee3ff,#b9fbd6);
-      --hue:0deg; /* dynamic lighting */
+      --hue:0deg;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -29,9 +28,9 @@
     }
     .wrap{max-width:1120px;margin:0 auto;padding:20px;position:relative}
     header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
-    h1{margin:0;font-size:28px;line-height:1.1}
+    h1{margin:0;font-size:28px}
     .pill{font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--stroke);background:rgba(255,255,255,.9)}
-    .card{background:var(--panel);border:1px solid var(--stroke);border-radius:16px;box-shadow:var(--shadow)}
+    .card{background:#fff;border:1px solid var(--stroke);border-radius:16px;box-shadow:var(--shadow)}
     .panel{padding:18px}
     .row{display:flex;gap:16px;flex-wrap:wrap}
     .btn{border:1px solid var(--stroke);background:#f7fbff;color:var(--ink);padding:10px 14px;border-radius:12px;cursor:pointer}
@@ -41,32 +40,26 @@
     .muted{color:var(--muted)}
     footer{margin-top:12px;color:#5a7f85;font-size:12px;text-align:center}
 
-    /* ===================== BACKGROUNDS (visual immersion) ===================== */
+    /* Backgrounds */
     .bg-stack{position:fixed;inset:0;z-index:-1}
-    .bg {position:absolute;inset:0;opacity:0;transition:opacity 1.2s ease}
+    .bg {position:absolute;inset:0;opacity:0;transition:opacity 1.0s ease}
     .bg.show{opacity:0.9}
-    /* simple gradients representing locations */
     .bg.library {background:radial-gradient(1200px 600px at 20% 10%, #fff 0%, #e8f2ff 40%, #dfe9ff 60%, #cfe0ff 100%)}
     .bg.tram    {background:linear-gradient(120deg,#e4fff4,#e0f4ff 60%, #d1e3ff)}
     .bg.dorm    {background:linear-gradient(180deg,#f7f0ff,#e8f6ff)}
     .bg.roof    {background:radial-gradient(800px 500px at 70% 20%,#fff 0%,#fff8ec 30%,#ffeed0 50%,#ffe3aa)}
     .bg.cafe    {background:linear-gradient(160deg,#fff4ea,#f0fff8)}
 
-    /* ===================== HUD ===================== */
+    /* HUD */
     .hud{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
     .stat{background:#f7fbff;border:1px solid var(--stroke);padding:10px 12px;border-radius:12px;display:flex;gap:10px;align-items:center}
     .bar{width:160px;height:10px;background:var(--barBG);border-radius:999px;overflow:hidden;border:1px solid var(--stroke)}
     .bar>span{display:block;height:100%;background:var(--barGrad);transition:width .25s ease}
     .week-pill{padding:6px 10px;border-radius:10px;border:1px solid var(--stroke);background:#fff}
-
-    /* Legend/Objectives */
-    .legend,.objective,.settings{
-      background:#f7fbff;border:1px solid var(--stroke);border-radius:12px;padding:10px 12px;font-size:13px
-    }
+    .legend,.objective,.settings{background:#f7fbff;border:1px solid var(--stroke);border-radius:12px;padding:10px 12px;font-size:13px}
     .legend span{display:inline-block;margin-right:12px}
     .objective b{color:#0f5132}
 
-    /* Event & Log */
     .log{height:260px;overflow:auto;background:#f7fbff;border:1px solid var(--stroke);border-radius:12px;padding:10px;font-size:14px;color:#335b60}
     .log p{margin:6px 0}
     .choices{display:grid;grid-template-columns:1fr;gap:10px}
@@ -74,40 +67,39 @@
     .delta{font-size:12px;font-weight:600}
     .pos{color:var(--good)} .neg{color:var(--bad)}
     .tip{margin:10px 0 0}
-
     .two-col{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}
     .play-grid{display:grid;grid-template-columns:1.3fr .7fr;gap:16px}
-    @media (max-width:980px){
-      .two-col,.play-grid{grid-template-columns:1fr}
-    }
+    @media (max-width:980px){.two-col,.play-grid{grid-template-columns:1fr}}
 
-    /* Avatar */
     .avatar{font-size:36px;line-height:1;filter:drop-shadow(0 4px 10px rgba(0,0,0,.08))}
     .avatar-wrap{display:flex;align-items:center;gap:10px}
 
-    /* Modal (reflections, feelings, trivia) */
+    /* Modals */
     .modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:50}
     .modal.show{display:flex}
-    .modal .box{max-width:640px;width:92%;background:#fff;border:1px solid var(--stroke);border-radius:16px;box-shadow:var(--shadow);padding:20px}
+    .modal .box{max-width:720px;width:92%;background:#fff;border:1px solid var(--stroke);border-radius:16px;box-shadow:var(--shadow);padding:20px}
     .center{text-align:center}
 
-    /* Study Buddy bubble */
-    .buddy{position:fixed;right:16px;bottom:16px;background:#ffffffcc;border:1px solid var(--stroke);border-radius:14px;padding:10px 12px;font-size:13px;box-shadow:var(--shadow);display:none}
-    .buddy.show{display:block;animation:floatUp 8s ease-in-out}
-    @keyframes floatUp{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}}
+    /* Toasts & Banners */
+    .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:20px;background:#ffffffee;border:1px solid var(--stroke);border-radius:12px;padding:10px 14px;box-shadow:var(--shadow);opacity:0;transition:opacity .4s, transform .4s;z-index:60}
+    .toast.show{opacity:1;transform:translate(-50%,0)}
+    .badge{position:fixed;right:16px;top:16px;background:#ffffffee;border:1px solid var(--stroke);border-radius:12px;padding:8px 12px;box-shadow:var(--shadow);opacity:0;transform:translateY(-8px);transition:opacity .4s, transform .4s;z-index:60}
+    .badge.show{opacity:1;transform:translateY(0)}
 
-    /* Confetti & Radar */
+    /* Easter Egg */
+    .egg{position:fixed;right:12px;top:60px;background:#ffffffee;border:1px solid var(--stroke);border-radius:12px;padding:8px 12px;font-size:13px;box-shadow:var(--shadow);opacity:0;transform:translateY(-8px);transition:opacity .4s, transform .4s;z-index:40}
+    .egg.show{opacity:1;transform:translateY(0)}
+
+    /* Confetti, Radar, Breathing */
     #confettiCanvas{position:fixed;inset:0;pointer-events:none;display:none;z-index:999}
-    #radar{width:340px;height:340px;max-width:100%}
-
-    /* Breathing circle */
+    #radar,#bar5{width:360px;height:360px;max-width:100%}
     .breathe{width:120px;height:120px;border-radius:50%;margin:10px auto;background:radial-gradient(circle,#b9fbd6,#8ee3ff)}
     .breathe.pulse{animation:breath 6s ease-in-out infinite}
     @keyframes breath{0%{transform:scale(.9);opacity:.9}50%{transform:scale(1.04);opacity:1}100%{transform:scale(.9);opacity:.9}}
   </style>
 </head>
 <body>
-  <!-- background stack -->
+  <!-- Background stack -->
   <div class="bg-stack" aria-hidden="true">
     <div id="bgA" class="bg library show"></div>
     <div id="bgB" class="bg tram"></div>
@@ -117,7 +109,7 @@
   <div class="wrap">
     <header>
       <h1>UniLife Simulator — RMIT City</h1>
-      <div><span class="pill">Peak Edition</span><span class="pill">Front-end only</span><span class="pill">Mental Health Focus</span></div>
+      <div><span class="pill">Finalist Edition</span><span class="pill">Front-end only</span><span class="pill">Mental Health Focus</span></div>
     </header>
 
     <!-- MENU -->
@@ -125,7 +117,7 @@
       <div class="two-col">
         <section>
           <h2>Start your semester</h2>
-          <p class="muted">Balance <b>Wellbeing</b>, <b>Knowledge</b>, <b>Money</b>, and <b>Social</b> across 15 weeks. Your aim is to succeed <em>without</em> burning out.</p>
+          <p class="muted">Balance <b>Wellbeing</b>, <b>Knowledge</b>, <b>Money</b>, and <b>Social</b> across 15 weeks. Aim to succeed <em>without</em> burning out.</p>
 
           <div class="card panel" style="padding:14px">
             <label>Display Name<br/>
@@ -146,7 +138,12 @@
                 <option value="he/him">he/him</option>
               </select>
             </label>
-            <div class="row">
+            <div class="settings" style="margin-top:10px">
+              <label><input type="checkbox" id="toggle-ambience" checked> Ambient sound</label>
+              <label style="margin-left:12px">Volume <input type="range" id="vol" min="0" max="1" step="0.02" value="0.3"></label>
+              <label style="margin-left:12px"><input type="checkbox" id="toggle-mindful"> Mindful Mode (extra pauses & breathing)</label>
+            </div>
+            <div class="row" style="margin-top:10px">
               <button class="btn primary" id="btn-start">Start Semester</button>
               <button class="btn" id="btn-continue">Continue Last Save</button>
             </div>
@@ -160,12 +157,9 @@
             <li>Each event offers <b>3–4 choices</b> with distinct impacts</li>
             <li>Stats: <b>WB</b>, <b>KN</b>, <b>$</b>, <b>SO</b></li>
             <li>Multiple endings based on balance, not just grades</li>
-            <li><b>Keyboard:</b> 1–4 choose • <b>S</b> save • <b>Enter</b> first choice</li>
+            <li><b>Keyboard:</b> 1–4 choose • <b>S</b> save • <b>Enter</b> first choice • <b>Esc</b> close</li>
           </ul>
-          <div class="settings" style="margin-top:10px">
-            <label><input type="checkbox" id="toggle-ambience" checked> Ambient sound</label>
-            <label style="margin-left:12px">Volume <input type="range" id="vol" min="0" max="1" step="0.02" value="0.3" style="vertical-align:middle"></label>
-          </div>
+          <button class="btn" id="btn-how">Tips</button>
         </aside>
       </div>
     </main>
@@ -175,21 +169,18 @@
       <div class="play-grid">
         <div>
           <div class="hud" role="group" aria-label="HUD">
-            <div class="week-pill" aria-live="polite">Week <span id="week-num">1</span>/15</div>
-            <div class="stat" title="Wellbeing">WB <div class="bar"><span id="wb-bar"></span></div><span id="wb-num" aria-label="Wellbeing">70</span></div>
-            <div class="stat" title="Knowledge">KN <div class="bar"><span id="kn-bar"></span></div><span id="kn-num" aria-label="Knowledge">40</span></div>
-            <div class="stat" title="Money">$ <div class="bar"><span id="mo-bar"></span></div><span id="mo-num" aria-label="Money">50</span></div>
-            <div class="stat" title="Social">SO <div class="bar"><span id="so-bar"></span></div><span id="so-num" aria-label="Social">40</span></div>
+            <div class="week-pill">Week <span id="week-num">1</span>/15</div>
+            <div class="stat" title="Wellbeing">WB <div class="bar"><span id="wb-bar"></span></div><span id="wb-num">70</span></div>
+            <div class="stat" title="Knowledge">KN <div class="bar"><span id="kn-bar"></span></div><span id="kn-num">40</span></div>
+            <div class="stat" title="Money">$ <div class="bar"><span id="mo-bar"></span></div><span id="mo-num">50</span></div>
+            <div class="stat" title="Social">SO <div class="bar"><span id="so-bar"></span></div><span id="so-num">40</span></div>
             <div class="avatar-wrap"><span class="muted">Mood:</span> <span id="avatar" class="avatar" aria-label="Avatar">🙂</span></div>
-            <button class="btn" id="btn-save" aria-label="Save progress">💾 Save</button>
-            <button class="btn ghost" id="btn-end" aria-label="End early">End Early</button>
+            <button class="btn" id="btn-save">💾 Save</button>
+            <button class="btn ghost" id="btn-end">End Early</button>
           </div>
 
           <div class="legend" style="margin-top:10px"><b>Legend:</b>
-            <span title="Wellbeing">WB = Wellbeing</span>
-            <span title="Knowledge">KN = Knowledge</span>
-            <span title="Money">$ = Money</span>
-            <span title="Social">SO = Social</span>
+            <span>WB = Wellbeing</span><span>KN = Knowledge</span><span>$ = Money</span><span>SO = Social</span>
           </div>
 
           <div id="event-card" class="card panel" style="background:#f7fbff;margin-top:12px">
@@ -258,7 +249,7 @@
   </div>
 
   <!-- Modals -->
-  <div id="modal-reflect" class="modal" role="dialog" aria-modal="true" aria-labelledby="reflect-title">
+  <div id="modal-reflect" class="modal" role="dialog" aria-modal="true" aria-labelledby="reflect-title" data-esc>
     <div class="box">
       <h3 id="reflect-title">Mid-Semester Check-In</h3>
       <p id="reflect-body" class="muted"></p>
@@ -266,19 +257,19 @@
     </div>
   </div>
 
-  <div id="modal-feel" class="modal" role="dialog" aria-modal="true" aria-labelledby="feel-title">
+  <div id="modal-feel" class="modal" role="dialog" aria-modal="true" aria-labelledby="feel-title" data-esc>
     <div class="box">
       <h3 id="feel-title">The semester is ending. How do you feel right now?</h3>
       <div class="row" style="justify-content:center">
-        <button class="btn" data-feel="Hopeful">Hopeful 🌤️</button>
-        <button class="btn" data-feel="Exhausted">Exhausted 😮‍💨</button>
-        <button class="btn" data-feel="Proud">Proud 🎉</button>
-        <button class="btn" data-feel="Worried">Worried 😟</button>
+        <button class="btn" data-feel="Grateful">Grateful 🌤️</button>
+        <button class="btn" data-feel="Tired">Tired 😮‍💨</button>
+        <button class="btn" data-feel="Balanced">Balanced 🎯</button>
+        <button class="btn" data-feel="Motivated">Motivated 💪</button>
       </div>
     </div>
   </div>
 
-  <div id="modal-journal" class="modal" role="dialog" aria-modal="true" aria-labelledby="journal-title">
+  <div id="modal-journal" class="modal" role="dialog" aria-modal="true" aria-labelledby="journal-title" data-esc>
     <div class="box">
       <h3 id="journal-title">Final Reflection</h3>
       <p class="muted">Choose one sentence that best summarises your term’s lesson:</p>
@@ -291,7 +282,7 @@
     </div>
   </div>
 
-  <div id="modal-trivia" class="modal" role="dialog" aria-modal="true" aria-labelledby="trivia-title">
+  <div id="modal-trivia" class="modal" role="dialog" aria-modal="true" aria-labelledby="trivia-title" data-esc>
     <div class="box">
       <h3 id="trivia-title">Did you know?</h3>
       <p id="trivia-body" class="muted"></p>
@@ -299,229 +290,187 @@
     </div>
   </div>
 
-  <!-- Study Buddy bubble -->
-  <div id="buddy" class="buddy" aria-live="polite">Stay hydrated before you decide 💧</div>
+  <div id="modal-5w" class="modal" role="dialog" aria-modal="true" aria-labelledby="w5-title" data-esc>
+    <div class="box">
+      <h3 id="w5-title">5-Week Reflection</h3>
+      <canvas id="bar5" width="420" height="320" aria-label="Last 5 weeks chart"></canvas>
+      <p id="w5-msg" class="muted center"></p>
+      <div class="center"><button class="btn primary" id="w5-continue">Continue</button></div>
+    </div>
+  </div>
+
+  <!-- Floating UI elements -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="badge" class="badge" aria-live="polite"></div>
+  <div id="egg" class="egg" aria-live="polite"></div>
+  <div id="buddy" class="buddy" aria-live="polite" style="display:none">Stay hydrated before you decide 💧</div>
 
   <script>
-    /* ===================== UTIL & STATE ===================== */
-    const $ = sel => document.querySelector(sel);
-    const rnd = arr => arr[(Math.random()*arr.length)|0];
+    /* ========= UTIL & STATE ========= */
+    const $ = s => document.querySelector(s);
+    const rnd = a => a[(Math.random()*a.length)|0];
     const clamp = (v,min,max)=>Math.max(min,Math.min(max,v));
 
     const MAX_WEEKS=15, SAVE_KEY='unilife_save', HISTORY_KEY='unilife_history';
+    let mindfulMode=false;
+
     const state = {
       name:'Alex', major:'General', pronouns:'they/them',
       week:1, wb:70, kn:40, mo:50, so:40,
-      finished:false, journal:'', feelings:'', log:[]
+      finished:false, journal:'', feelings:'', log:[],
+      eventHistory:[], lastEventIdx:-1,
+      deltaHistory:[] // {wb,kn,mo,so} per week
     };
 
-    /* ===================== BACKGROUNDS & LIGHTING ===================== */
-    const BG_CLASSES = ['library','tram','dorm','roof','cafe'];
-    let bgToggle=false;
-    function setBackground(){
-      const next = rnd(BG_CLASSES);
-      const A = $('#bgA'), B = $('#bgB');
-      if(!bgToggle){ A.className = 'bg '+next+' show'; B.className='bg '+rnd(BG_CLASSES); }
-      else { B.className='bg '+next+' show'; A.className='bg '+rnd(BG_CLASSES); }
-      bgToggle=!bgToggle;
-      document.documentElement.style.setProperty('--hue', (state.week*8)+'deg');
-    }
-
-    /* ===================== AUDIO ===================== */
+    /* ========= AUDIO ========= */
     const AudioSys = (()=>{
-      const ctx = window.AudioContext? new AudioContext(): null;
-      let master = null, volNode = null;
-      let breezeOsc=null, rainNoise=null, birdsOsc=null;
-      let ambienceOn = true;
+      const ctx = window.AudioContext? new AudioContext() : null;
+      let master=null, volNode=null;
+      let breeze=null, rain=null, birds=null;
+      let ambienceOn=true;
 
-      function setup(){
-        if(!ctx) return;
-        master = ctx.createGain(); volNode = ctx.createGain();
-        master.connect(volNode).connect(ctx.destination);
-        master.gain.value = 1; volNode.gain.value = $('#vol').value;
-      }
+      function setup(){ if(!ctx) return; master=ctx.createGain(); volNode=ctx.createGain(); master.connect(volNode).connect(ctx.destination); volNode.gain.value=$('#vol').value; }
       function setVolume(v){ if(volNode) volNode.gain.value=v; }
-      function toggle(on){ ambienceOn = on; if(!on) stopAll(); else updateAmbience(); }
-      function click(){ beep({freq:600, dur:0.08, type:'sine', vol:0.04}); }
-      function good(){ beep({freq:740, dur:0.12, type:'triangle', vol:0.04}); }
-      function bad(){ beep({freq:300, dur:0.16, type:'sawtooth', vol:0.035}); }
-      function beep({freq=440,dur=0.1,type='sine',vol=0.03}){
-        if(!ctx) return;
-        const o=ctx.createOscillator(), g=ctx.createGain();
-        o.type=type; o.frequency.value=freq; g.gain.value=vol;
-        o.connect(g).connect(ctx.destination); o.start();
-        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + dur);
-        o.stop(ctx.currentTime + dur + 0.02);
-      }
-
-      // Ambient synths (lightweight):
-      function startBreeze(){
-        if(!ctx) return;
-        if(breezeOsc) return;
-        breezeOsc = ctx.createOscillator();
-        const g = ctx.createGain(); g.gain.value = 0.02;
-        breezeOsc.type='sine'; breezeOsc.frequency.value=180;
-        breezeOsc.connect(g).connect(master); breezeOsc.start();
-      }
-      function startRain(){
-        if(!ctx) return;
-        if(rainNoise) return;
-        const buffer = ctx.createBuffer(1, ctx.sampleRate*2, ctx.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let i=0;i<data.length;i++){ data[i] = (Math.random()*2-1) * 0.3; } // white noise
-        rainNoise = ctx.createBufferSource(); rainNoise.buffer=buffer; rainNoise.loop=true;
-        const g = ctx.createGain(); g.gain.value = 0.04;
-        rainNoise.connect(g).connect(master); rainNoise.start();
-      }
-      function startBirds(){
-        if(!ctx) return;
-        if(birdsOsc) return;
-        birdsOsc = ctx.createOscillator();
-        const g = ctx.createGain(); g.gain.value = 0.015;
-        birdsOsc.type='triangle'; birdsOsc.frequency.value=880;
-        birdsOsc.connect(g).connect(master); birdsOsc.start();
-      }
-      function stopAll(){
-        if(breezeOsc){ breezeOsc.stop(); breezeOsc.disconnect(); breezeOsc=null; }
-        if(rainNoise){ try{rainNoise.stop()}catch{}; rainNoise.disconnect(); rainNoise=null; }
-        if(birdsOsc){ birdsOsc.stop(); birdsOsc.disconnect(); birdsOsc=null; }
-      }
-      function updateAmbience(){
-        if(!ctx || !ambienceOn) return;
-        stopAll();
-        // mood-based: high WB -> breeze + birds; low WB -> rain
-        if(state.wb >= 70){ startBreeze(); startBirds(); }
-        else if(state.wb < 40){ startRain(); }
-        else { startBreeze(); }
-      }
-      return {setup,setVolume,toggle,click,good,bad,updateAmbience};
+      function toggle(on){ ambienceOn=on; if(!on) stopAll(); else updateAmbience(); }
+      function beep({freq=440,dur=0.1,type='sine',vol=0.03}){ if(!ctx) return; const o=ctx.createOscillator(), g=ctx.createGain(); o.type=type;o.frequency.value=freq;g.gain.value=vol; o.connect(g).connect(ctx.destination); o.start(); g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+dur); o.stop(ctx.currentTime+dur+0.02); }
+      const click=()=>beep({freq:600,dur:.08,type:'sine',vol:.04});
+      const good =()=>beep({freq:740,dur:.12,type:'triangle',vol:.04});
+      const bad  =()=>beep({freq:300,dur:.16,type:'sawtooth',vol:.035});
+      function startBreeze(){ if(!ctx||breeze) return; breeze=ctx.createOscillator(); const g=ctx.createGain(); g.gain.value=0.02; breeze.type='sine'; breeze.frequency.value=180; breeze.connect(g).connect(master); breeze.start(); }
+      function startRain(){ if(!ctx||rain) return; const buf=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate); const d=buf.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*0.3; rain=ctx.createBufferSource(); rain.buffer=buf; rain.loop=true; const g=ctx.createGain(); g.gain.value=0.04; rain.connect(g).connect(master); rain.start(); }
+      function startBirds(){ if(!ctx||birds) return; birds=ctx.createOscillator(); const g=ctx.createGain(); g.gain.value=0.015; birds.type='triangle'; birds.frequency.value=880; birds.connect(g).connect(master); birds.start(); }
+      function stopAll(){ if(breeze){breeze.stop();breeze.disconnect();breeze=null} if(rain){try{rain.stop()}catch{} rain.disconnect();rain=null} if(birds){birds.stop();birds.disconnect();birds=null} }
+      function updateAmbience(){ if(!ctx||!ambienceOn) return; stopAll(); if(state.wb>=70){ startBreeze(); startBirds(); } else if(state.wb<40){ startRain(); } else { startBreeze(); } }
+      return {setup,setVolume,toggle,click,good,bad,updateAmbience,beep};
     })();
 
-    /* ===================== CONFETTI ===================== */
+    /* ========= CONFETTI ========= */
     const Confetti = (()=>{
-      const cvs = $('#confettiCanvas'), x = cvs.getContext('2d');
-      let parts=[], running=false, raf=null;
-      function resize(){ cvs.width=innerWidth; cvs.height=innerHeight; }
-      addEventListener('resize', resize); resize();
-      function burst(n=160){
-        parts=[];
-        for(let i=0;i<n;i++){
-          parts.push({
-            x: innerWidth/2, y: innerHeight/3,
-            vx:(Math.random()-0.5)*6, vy:(Math.random()-0.8)*6 - 2,
-            g:0.12+Math.random()*0.1, s:4+Math.random()*4, a:1,
-            c:`hsl(${Math.random()*360},80%,70%)`, rot:Math.random()*6.28, vr:(Math.random()-0.5)*0.2
-          });
-        }
-        cvs.style.display='block'; running=true; loop();
-        setTimeout(()=>{running=false; cvs.style.display='none';}, 2600);
-      }
-      function loop(){
-        if(!running){ cancelAnimationFrame(raf); return; }
-        raf=requestAnimationFrame(loop);
-        x.clearRect(0,0,cvs.width,cvs.height);
-        parts.forEach(p=>{
-          p.vy+=p.g; p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr; p.a*=0.996;
-          x.save(); x.globalAlpha=p.a; x.translate(p.x,p.y); x.rotate(p.rot);
-          x.fillStyle=p.c; x.fillRect(-p.s/2,-p.s/2,p.s,p.s); x.restore();
-        });
-      }
+      const c=$('#confettiCanvas'), x=c.getContext('2d'); let parts=[], running=false, raf=null;
+      function resize(){ c.width=innerWidth; c.height=innerHeight; } addEventListener('resize',resize); resize();
+      function burst(n=160){ parts=[]; for(let i=0;i<n;i++) parts.push({x:innerWidth/2,y:innerHeight/3,vx:(Math.random()-.5)*6,vy:(Math.random()-.8)*6-2,g:.12+Math.random()*.1,s:4+Math.random()*4,a:1,c:`hsl(${Math.random()*360},80%,70%)`,rot:Math.random()*6.28,vr:(Math.random()-.5)*.2}); c.style.display='block'; running=true; loop(); setTimeout(()=>{running=false;c.style.display='none'},2600) }
+      function loop(){ if(!running){ cancelAnimationFrame(raf); return } raf=requestAnimationFrame(loop); x.clearRect(0,0,c.width,c.height); parts.forEach(p=>{p.vy+=p.g;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;p.a*=.996;x.save();x.globalAlpha=p.a;x.translate(p.x,p.y);x.rotate(p.rot);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/2,p.s,p.s);x.restore()}) }
       return {burst};
     })();
 
-    /* ===================== EVENTS (≥15) ===================== */
+    /* ========= BACKGROUNDS + EASTER EGG ========= */
+    const BG_CLASSES=['library','tram','dorm','roof','cafe']; let bgToggle=false;
+    const EASTER = [
+      "📍 You overhear students debating AI ethics outside Building 80.",
+      "📍 The tram passes Swanston Street as sunlight hits the RMIT logo.",
+      "📍 You find a quiet corner in the RMIT Library — peace at last.",
+      "📍 A poster about wellbeing workshops catches your eye near Bowen St.",
+      "📍 A tutor mentions study skills sessions at Building 8."
+    ];
+    function setBackground(){
+      const next = rnd(BG_CLASSES);
+      const A=$('#bgA'), B=$('#bgB');
+      if(!bgToggle){ A.className='bg '+next+' show'; B.className='bg '+rnd(BG_CLASSES); }
+      else { B.className='bg '+next+' show'; A.className='bg '+rnd(BG_CLASSES); }
+      bgToggle=!bgToggle;
+      document.documentElement.style.setProperty('--hue', (state.week*8)+'deg');
+      if(Math.random()<0.10) showEgg(rnd(EASTER));
+    }
+    function showEgg(text){ const e=$('#egg'); e.textContent=text; e.classList.add('show'); setTimeout(()=>e.classList.remove('show'), 3500); }
+
+    /* ========= TOASTS & BADGES ========= */
+    function showToast(text){ const t=$('#toast'); t.textContent=text; t.classList.add('show'); AudioSys.beep({freq:680,type:'triangle',dur:.12,vol:.03}); setTimeout(()=>t.classList.remove('show'), 2800); }
+    function showBadge(text){ const b=$('#badge'); b.innerHTML=text; b.classList.add('show'); setTimeout(()=>b.classList.remove('show'), 2200); }
+
+    /* ========= DATA: EVENTS with tags for DDA ========= */
+    // tag: 'selfcare' | 'study' | 'budget' | 'social'
     const EVENTS = [
-      { title:"Week start routine", text:"How do you set your rhythm this week?",
+      { title:"Week start routine", tag:'selfcare', text:"How do you set your rhythm this week?",
         options:[
           {label:"Plan Pomodoro + breaks", delta:{wb:+4, kn:+4, mo:0, so:+1}, tip:"Intervals support focus & recovery."},
           {label:"Grind long sessions",   delta:{wb:-6, kn:+6, mo:0, so:-1}, tip:"Overwork harms sleep & mood."},
           {label:"Light start + coffee with a mate", delta:{wb:+3, kn:+1, mo:-2, so:+4}, tip:"Connection boosts motivation."}
         ]},
-      { title:"Heatwave alert", text:"It’s 36–38°C with high UV in Melbourne.",
+      { title:"Heatwave alert", tag:'selfcare', text:"It’s 36–38°C with high UV in Melbourne.",
         options:[
           {label:"Study early indoors + hydrate", delta:{wb:+4, kn:+2, mo:0, so:0}, tip:"Heat & dehydration impair cognition."},
           {label:"Outdoor cram", delta:{wb:-6, kn:+2, mo:0, so:0}, tip:"High heat worsens fatigue."},
           {label:"Short gym session", delta:{wb:+3, kn:+1, mo:-1, so:+1}, tip:"Light exercise stabilises mood."}
         ]},
-      { title:"Group assignment", text:"Team proposes splitting tasks and milestones.",
+      { title:"Group assignment", tag:'study', text:"Team proposes splitting tasks and milestones.",
         options:[
           {label:"Define roles & deadlines", delta:{wb:+3, kn:+5, mo:0, so:+2}, tip:"Clarity lowers stress."},
           {label:"Let it evolve organically", delta:{wb:-4, kn:+1, mo:0, so:-1}, tip:"Chaos → crunch later."},
           {label:"Volunteer for heavy part", delta:{wb:-3, kn:+6, mo:0, so:+1}, tip:"Growth, but mind the load."}
         ]},
-      { title:"Part-time shift offer", text:"Manager asks for an extra evening shift.",
+      { title:"Part-time shift offer", tag:'budget', text:"Manager asks for an extra evening shift.",
         options:[
           {label:"Negotiate different slot", delta:{wb:+2, kn:+2, mo:+2, so:0}, tip:"Boundaries protect sleep & study."},
           {label:"Accept & cut sleep", delta:{wb:-7, kn:+2, mo:+5, so:0}, tip:"Sleep loss tanks mood."},
           {label:"Decline this week", delta:{wb:+1, kn:+1, mo:0, so:-1}, tip:"Short-term no, long-term wellbeing."}
         ]},
-      { title:"Counselling drop-in", text:"Free short consults available this week.",
+      { title:"Counselling drop-in", tag:'selfcare', text:"Free short consults available this week.",
         options:[
           {label:"Attend 20-min session", delta:{wb:+8, kn:0, mo:0, so:+1}, tip:"Early support prevents escalation."},
           {label:"Read self-help page", delta:{wb:+3, kn:+1, mo:0, so:0}, tip:"Psychoeducation helps too."},
           {label:"Skip — no time", delta:{wb:-3, kn:+1, mo:0, so:0}, tip:"Avoidance often backfires."}
         ]},
-      { title:"Myki fares & budget", text:"Transport costs are tight this month.",
+      { title:"Myki fares & budget", tag:'budget', text:"Transport costs are tight this month.",
         options:[
           {label:"Batch on-campus days", delta:{wb:+2, kn:+2, mo:+3, so:0}, tip:"Fewer trips = lower stress & cost."},
           {label:"Travel daily as usual", delta:{wb:0, kn:+1, mo:-3, so:+1}, tip:"Routine ok, but costs add up."},
           {label:"Study from home", delta:{wb:+1, kn:+1, mo:+2, so:-2}, tip:"Remote helps, less social."}
         ]},
-      { title:"Exam prep", text:"Two finals are approaching.",
+      { title:"Exam prep", tag:'study', text:"Two finals are approaching.",
         options:[
           {label:"Timetable + breaks", delta:{wb:+3, kn:+6, mo:0, so:0}, tip:"Structure beats panic."},
           {label:"All-nighter blitz", delta:{wb:-10,kn:+6, mo:0, so:-1}, tip:"Crash risk next week."},
           {label:"Peer study circle", delta:{wb:+3, kn:+5, mo:0, so:+3}, tip:"Belonging lifts motivation."}
         ]},
-      { title:"Sleep hygiene", text:"It’s late. Caffeine is tempting.",
+      { title:"Sleep hygiene", tag:'selfcare', text:"It’s late. Caffeine is tempting.",
         options:[
           {label:"Wind-down + water", delta:{wb:+4, kn:+1, mo:0, so:0}, tip:"Sleep quality compounds."},
           {label:"Late coffee & scroll", delta:{wb:-5, kn:0, mo:0, so:-1}, tip:"Stimulants disrupt sleep."},
           {label:"Tea + journaling", delta:{wb:+3, kn:+1, mo:0, so:0}, tip:"Reflection regulates stress."}
         ]},
-      { title:"Inclusion event", text:"Cultural society invites you to an evening gathering.",
+      { title:"Inclusion event", tag:'social', text:"Cultural society invites you to an evening gathering.",
         options:[
           {label:"Attend & connect", delta:{wb:+4, kn:+1, mo:-2, so:+5}, tip:"Belonging protects mental health."},
           {label:"Drop by briefly", delta:{wb:+2, kn:+1, mo:-1, so:+2}, tip:"Micro-social boosts morale."},
           {label:"Skip to study", delta:{wb:-1, kn:+3, mo:0, so:-2}, tip:"Over-isolation risks burnout."}
         ]},
-      { title:"Rent pressure", text:"Your rent increases mid-semester.",
+      { title:"Rent pressure", tag:'budget', text:"Your rent increases mid-semester.",
         options:[
           {label:"Budget & seek advice", delta:{wb:+1, kn:+1, mo:+4, so:0}, tip:"Student services can help."},
           {label:"Cut social for savings", delta:{wb:-2, kn:+1, mo:+5, so:-4}, tip:"Balance cost & connection."},
           {label:"Ignore for now", delta:{wb:-5, kn:0, mo:-3, so:0}, tip:"Uncertainty magnifies stress."}
         ]},
-      { title:"Digital overload", text:"Screen time hit 5+ hours/day.",
+      { title:"Digital overload", tag:'selfcare', text:"Screen time hit 5+ hours/day.",
         options:[
           {label:"App timers + focus mode", delta:{wb:+3, kn:+2, mo:0, so:0}, tip:"Boundaries restore attention."},
           {label:"No change", delta:{wb:-3, kn:0, mo:0, so:0}, tip:"Doomscroll drains mood."},
           {label:"Reading group", delta:{wb:+2, kn:+3, mo:0, so:+2}, tip:"Analog focus + community."}
         ]},
-      { title:"Library workshop", text:"Referencing & research workshop on campus.",
+      { title:"Library workshop", tag:'study', text:"Referencing & research workshop on campus.",
         options:[
           {label:"Attend session", delta:{wb:+1, kn:+5, mo:0, so:+1}, tip:"Skills reduce future stress."},
           {label:"Browse slides later", delta:{wb:+1, kn:+2, mo:0, so:0}, tip:"Better than skipping."},
           {label:"Skip", delta:{wb:0, kn:0, mo:0, so:0}, tip:"Missed opportunity."}
         ]},
-      { title:"Healthy snack", text:"You’ve got 20 minutes between lectures.",
+      { title:"Healthy snack", tag:'selfcare', text:"You’ve got 20 minutes between lectures.",
         options:[
           {label:"Fruit + water", delta:{wb:+2, kn:+1, mo:-1, so:0}, tip:"Steady energy > sugar spikes."},
           {label:"Energy drink", delta:{wb:-1, kn:+1, mo:-2, so:0}, tip:"Crash likely later."},
           {label:"Walk with a mate", delta:{wb:+2, kn:+1, mo:0, so:+3}, tip:"Movement + connection help mood."}
         ]},
-      { title:"Commute delay", text:"Signal fault on the line, you’re stuck.",
+      { title:"Commute delay", tag:'selfcare', text:"Signal fault on the line, you’re stuck.",
         options:[
           {label:"Plan tasks & revise", delta:{wb:+1, kn:+2, mo:0, so:0}, tip:"Reframe dead time."},
           {label:"Mindfulness break", delta:{wb:+2, kn:+1, mo:0, so:0}, tip:"Brief resets aid focus."},
           {label:"Panic & scroll", delta:{wb:-3, kn:0, mo:0, so:0}, tip:"Anxiety drains energy."}
         ]},
-      { title:"Peer check-in", text:"A friend asks how you’re coping.",
+      { title:"Peer check-in", tag:'social', text:"A friend asks how you’re coping.",
         options:[
           {label:"Open up & plan week", delta:{wb:+5, kn:+1, mo:0, so:+3}, tip:"Social support is protective."},
           {label:"Short chat", delta:{wb:+2, kn:+1, mo:0, so:+2}, tip:"Even brief contact helps."},
           {label:"Ghost them", delta:{wb:-3, kn:0, mo:0, so:-3}, tip:"Isolation raises risk."}
         ]},
-      { title:"Clinic visit", text:"GP bookings for Mental Health Plans (Medicare rebates).",
+      { title:"Clinic visit", tag:'selfcare', text:"GP bookings for Mental Health Plans (Medicare rebates).",
         options:[
           {label:"Book GP this week", delta:{wb:+9, kn:0, mo:-1, so:+1}, tip:"Early care, lower cost."},
           {label:"Read about options", delta:{wb:+3, kn:+1, mo:0, so:0}, tip:"Inform first — then act."},
@@ -529,7 +478,7 @@
         ]}
     ];
 
-    /* ===================== TRIVIA ===================== */
+    /* ========= TRIVIA ========= */
     const TRIVIA = [
       "7–9 hours of sleep improves memory consolidation.",
       "Brief daylight exposure supports circadian rhythm and mood.",
@@ -537,28 +486,25 @@
       "Hydration can improve attention and reduce fatigue.",
       "Short movement breaks help sustain focus during study.",
       "Early support (counselling/GP plan) reduces escalation risk.",
-      "Planning study with breaks beats cramming for long-term retention."
+      "Planning with breaks beats cramming for long-term retention."
     ];
 
-    /* ===================== RENDER HELPERS ===================== */
+    /* ========= RENDER HELPERS ========= */
     const wbBar = () => $('#wb-bar'), knBar=()=>$('#kn-bar'), moBar=()=>$('#mo-bar'), soBar=()=>$('#so-bar');
     const logEl = $('#log');
-    function fmt(v){ return (v>=0?'+':'') + v; }
-    function color(v){ return `<span class="${v>=0?'pos':'neg'}">${fmt(v)}</span>`; }
+    const fmt = v => (v>=0?'+':'')+v;
+    const colorSpan = v => `<span class="${v>=0?'pos':'neg'}">${fmt(v)}</span>`;
     function updateHUD(){
-      $('#week-num').textContent = state.week;
-      $('#wb-num').textContent = clamp(state.wb,0,100);
-      $('#kn-num').textContent = clamp(state.kn,0,100);
-      $('#mo-num').textContent = clamp(state.mo,0,100);
-      $('#so-num').textContent = clamp(state.so,0,100);
-      wbBar().style.width = clamp(state.wb,0,100) + '%';
-      knBar().style.width = clamp(state.kn,0,100) + '%';
-      moBar().style.width = clamp(state.mo,0,100) + '%';
-      soBar().style.width = clamp(state.so,0,100) + '%';
-      // Avatar mood
-      const a=$('#avatar');
-      a.textContent = state.wb>=70?'😄': state.wb>=40?'🙂': state.wb>=20?'😓':'🥵';
-      // Atmosphere & ambience
+      $('#week-num').textContent=state.week;
+      $('#wb-num').textContent=clamp(state.wb,0,100);
+      $('#kn-num').textContent=clamp(state.kn,0,100);
+      $('#mo-num').textContent=clamp(state.mo,0,100);
+      $('#so-num').textContent=clamp(state.so,0,100);
+      wbBar().style.width=clamp(state.wb,0,100)+'%';
+      knBar().style.width=clamp(state.kn,0,100)+'%';
+      moBar().style.width=clamp(state.mo,0,100)+'%';
+      soBar().style.width=clamp(state.so,0,100)+'%';
+      const a=$('#avatar'); a.textContent = state.wb>=70?'😄': state.wb>=40?'🙂': state.wb>=20?'😓':'🥵';
       document.body.style.filter = `hue-rotate(${state.wb>=70?0: state.wb<40?20:10}deg)`;
       AudioSys.updateAmbience();
     }
@@ -568,83 +514,138 @@
       $('#view-results').style.display= view==='results'?'block':'none';
     }
     function log(html){ const p=document.createElement('p'); p.innerHTML=html; logEl.prepend(p); state.log.push(strip(html)); if(state.log.length>120) state.log.shift(); }
-    function strip(html){ const d=document.createElement('div'); d.innerHTML=html; return d.textContent||d.innerText||''; }
+    const strip = html => { const d=document.createElement('div'); d.innerHTML=html; return d.textContent||d.innerText||''; };
 
-    /* ===================== EVENT FLOW ===================== */
-    function renderEvent(ev){
+    /* ========= EVENT PICKING with DDA + no repeats ========= */
+    function pickEventIndex(){
+      // Build candidate indices excluding used ones
+      const used = new Set(state.eventHistory);
+      let candidates = EVENTS.map((_,i)=>i).filter(i=>!used.has(i));
+      if(candidates.length===0){ state.eventHistory=[]; candidates = EVENTS.map((_,i)=>i); }
+
+      // Avoid immediate repeat
+      candidates = candidates.filter(i=>i!==state.lastEventIdx);
+      if(candidates.length===0) candidates = EVENTS.map((_,i)=>i).filter(i=>i!==state.lastEventIdx);
+
+      // Dynamic Difficulty weighting
+      const weights = candidates.map(i=>{
+        const t = EVENTS[i].tag;
+        let w=1;
+        if(state.wb<30 && t==='selfcare') w+=2.5;
+        if(state.kn<40 && t==='study')    w+=2.0;
+        if(state.mo<25 && t==='budget')   w+=2.0;
+        if(state.so<30 && t==='social')   w+=2.0;
+        return w;
+      });
+
+      // weighted random
+      const sum = weights.reduce((a,b)=>a+b,0);
+      let r = Math.random()*sum;
+      for(let idx=0; idx<candidates.length; idx++){
+        if((r-=weights[idx])<=0) return candidates[idx];
+      }
+      return candidates[0];
+    }
+
+    let currentEventIdx = -1;
+    function renderEventByIndex(i){
+      currentEventIdx = i;
+      const ev = EVENTS[i];
       $('#ev-title').textContent=ev.title; $('#ev-text').textContent=ev.text;
       const box=$('#ev-choices'); box.innerHTML='';
-      ev.options.forEach((opt,i)=>{
+
+      // Ensure buttons render on Week 1 and prevent double-click
+      ev.options.forEach((opt,ix)=>{
         const b=document.createElement('button');
         b.className='btn choice-btn';
-        b.setAttribute('aria-label',`Choice ${i+1}: ${opt.label}`);
-        b.innerHTML=`<span>${String.fromCharCode(65+i)}) ${opt.label}</span>
-                     <span class="delta">WB ${color(opt.delta.wb||0)} • KN ${color(opt.delta.kn||0)} • $ ${color(opt.delta.mo||0)} • SO ${color(opt.delta.so||0)}</span>`;
-        b.addEventListener('click',()=>applyChoice(opt));
+        b.setAttribute('aria-label',`Choice ${ix+1}: ${opt.label}`);
+        b.innerHTML=`<span>${String.fromCharCode(65+ix)}) ${opt.label}</span>
+          <span class="delta">WB ${colorSpan(opt.delta.wb||0)} • KN ${colorSpan(opt.delta.kn||0)} • $ ${colorSpan(opt.delta.mo||0)} • SO ${colorSpan(opt.delta.so||0)}</span>`;
+        b.addEventListener('click', ()=>{
+          // Disable all choice buttons momentarily
+          Array.from(document.querySelectorAll('#ev-choices .btn')).forEach(btn=>btn.disabled=true);
+          applyChoice(opt);
+          setTimeout(()=>Array.from(document.querySelectorAll('#ev-choices .btn')).forEach(btn=>btn.disabled=false),400);
+        });
         box.appendChild(b);
       });
       $('#ev-tip').textContent='';
-      // Show weekly trivia (non-blocking)
       $('#trivia').textContent = rnd(TRIVIA);
-      // Rotate backgrounds weekly
       setBackground();
     }
 
+    /* ========= APPLY CHOICE / ADVANCE ========= */
     function applyChoice(opt){
-      state.wb = clamp(state.wb + (opt.delta.wb||0), 0, 100);
-      state.kn = clamp(state.kn + (opt.delta.kn||0), 0, 100);
-      state.mo = clamp(state.mo + (opt.delta.mo||0), 0, 100);
-      state.so = clamp(state.so + (opt.delta.so||0), 0, 100);
+      const d = { wb:opt.delta.wb||0, kn:opt.delta.kn||0, mo:opt.delta.mo||0, so:opt.delta.so||0 };
+      state.wb=clamp(state.wb+d.wb,0,100);
+      state.kn=clamp(state.kn+d.kn,0,100);
+      state.mo=clamp(state.mo+d.mo,0,100);
+      state.so=clamp(state.so+d.so,0,100);
       updateHUD();
-      log(`${opt.label} → WB ${color(opt.delta.wb||0)} • KN ${color(opt.delta.kn||0)} • $ ${color(opt.delta.mo||0)} • SO ${color(opt.delta.so||0)}`);
+      log(`${opt.label} → WB ${colorSpan(d.wb)} • KN ${colorSpan(d.kn)} • $ ${colorSpan(d.mo)} • SO ${colorSpan(d.so)}`);
       $('#ev-tip').textContent='Tip: '+(opt.tip||'');
-      const sum=(opt.delta.wb||0)+(opt.delta.kn||0)+(opt.delta.mo||0)+(opt.delta.so||0);
-      if(sum>=0) AudioSys.good(); else AudioSys.bad();
+      const sum=d.wb+d.kn+d.mo+d.so; if(sum>=0) AudioSys.good(); else AudioSys.bad();
 
-      // Check reflections (Week 7 & 14)
-      if(state.week===7 || state.week===14){
-        openReflection();
-        return; // reflection will advance week after close
+      // Track deltas for 5-week reflection
+      state.deltaHistory.push(d);
+
+      // Mood toast
+      const toastBank = [
+        "You feel calmer after setting boundaries.",
+        "Your social battery feels recharged.",
+        "It feels good to make steady progress.",
+        "Tiny wins stack up over time.",
+        "A short break was worth it."
+      ];
+      showToast(rnd(toastBank));
+
+      // Mini achievements
+      if(d.wb>=+5) showBadge("🧘 Calm Restored");
+      if(d.kn>=+5) showBadge("💡 Insight Gained");
+      if(d.so>=+4) showBadge("🤝 Connected");
+      if(d.mo>=+4) showBadge("💸 Budget Boost");
+
+      // Breathing assist if really low WB (Mindful mode or critical)
+      if((mindfulMode && state.wb<30) || state.wb<20) openBreathing();
+
+      // Reflection checkpoints every 5 weeks (5,10) and pre-final feelings at 15
+      if(state.week % 5 === 0 && state.week < 15){
+        open5WReflection();
+        return;
       }
-
-      // Pre-final feelings at week 15 start
-      if(state.week===14){ /* next advance goes to 15 -> feelings modal in advanceWeek */ }
+      if(state.week===14){ openFeelings(); return; }
 
       advanceWeekOrEnd();
       saveLocal();
     }
 
     function advanceWeekOrEnd(){
+      // mark history for current event
+      if(currentEventIdx!==-1 && !state.eventHistory.includes(currentEventIdx)){
+        state.eventHistory.push(currentEventIdx);
+        state.lastEventIdx = currentEventIdx;
+      }
+
       if(state.week >= MAX_WEEKS){ openJournal(); return; }
       state.week += 1;
       updateHUD();
-      renderEvent(rnd(EVENTS));
+
+      // pick next event
+      const idx = pickEventIndex();
+      renderEventByIndex(idx);
       saveLocal();
     }
 
-    /* ===================== MODALS: Reflection & Feelings & Journal ===================== */
+    /* ========= MODALS ========= */
     function openReflection(){
-      const modal = $('#modal-reflect');
-      const strong = strongestStat(); const weak = weakestStat();
-      const lines = {
-        wb:"You’ve cared for your energy even when deadlines loomed.",
-        kn:"You’ve pushed your learning steadily — nice pacing.",
-        mo:"You’ve kept a careful eye on costs under pressure.",
-        so:"You’ve made time for people who lift you up."
-      };
-      const concerns = {
-        wb:"But rest has been thin — small daily resets could help.",
-        kn:"But learning felt frantic at times — structure beats panic.",
-        mo:"Money stress is heavy — batching trips or budgeting may ease it.",
-        so:"Connection dipped — even one weekly catch-up protects wellbeing."
-      };
+      const modal=$('#modal-reflect');
+      const strong = strongestStat(), weak = weakestStat();
+      const lines = { wb:"You’ve cared for your energy even when deadlines loomed.", kn:"You’ve pushed your learning steadily — nice pacing.", mo:"You’ve kept a careful eye on costs under pressure.", so:"You’ve made time for people who lift you up." };
+      const concerns = { wb:"But rest has been thin — small daily resets could help.", kn:"But learning felt frantic — structure beats panic.", mo:"Money stress is heavy — batching trips or budgeting may ease it.", so:"Connection dipped — even one weekly catch-up protects wellbeing." };
       $('#reflect-title').textContent = state.week===7? "Mid-Semester Check-In":"Second Wind Check-In";
       $('#reflect-body').textContent = `So far, your strength is ${labelOf(strong)}. ${lines[strong]} Your lowest area is ${labelOf(weak)}. ${concerns[weak]}`;
       modal.classList.add('show');
-      $('#reflect-continue').onclick = ()=>{
-        modal.classList.remove('show');
-        advanceWeekOrEnd();
-      };
+      $('#reflect-continue').onclick = ()=>{ modal.classList.remove('show'); };
     }
 
     function openFeelings(){
@@ -652,11 +653,10 @@
       modal.querySelectorAll('button[data-feel]').forEach(btn=>{
         btn.onclick=()=>{
           const val=btn.getAttribute('data-feel'); state.feelings=val;
-          // small stat nudge
-          if(val==='Hopeful'){ state.wb=clamp(state.wb+2,0,100); }
-          if(val==='Exhausted'){ state.wb=clamp(state.wb-2,0,100); }
-          if(val==='Proud'){ state.so=clamp(state.so+2,0,100); }
-          if(val==='Worried'){ state.kn=clamp(state.kn+1,0,100); state.wb=clamp(state.wb-1,0,100); }
+          if(val==='Grateful'){ state.wb=clamp(state.wb+2,0,100); }
+          if(val==='Tired'){ state.wb=clamp(state.wb-2,0,100); }
+          if(val==='Balanced'){ state.so=clamp(state.so+1,0,100); state.kn=clamp(state.kn+1,0,100); }
+          if(val==='Motivated'){ state.kn=clamp(state.kn+2,0,100); }
           updateHUD();
           modal.classList.remove('show');
           advanceWeekOrEnd();
@@ -675,48 +675,66 @@
       });
     }
 
-    /* ===================== STUDY BUDDY PROMPTS ===================== */
-    const BUDDY = [
-      "Drink water before you decide 💧",
-      "Short stretch = better focus 🧘",
-      "Text a mate — connection helps ☕",
-      "Write a tiny plan then act ✍️",
-      "Breathe in… out… you’ve got this 🌿"
-    ];
-    function showBuddy(){
-      const el=$('#buddy'); el.textContent = rnd(BUDDY);
-      el.classList.add('show'); setTimeout(()=>el.classList.remove('show'), 4000);
+    function open5WReflection(){
+      const modal=$('#modal-5w');
+      // compute average of last up to 5 deltas
+      const slice = state.deltaHistory.slice(-5);
+      const sums = slice.reduce((a,d)=>({wb:a.wb+d.wb,kn:a.kn+d.kn,mo:a.mo+d.mo,so:a.so+d.so}),{wb:0,kn:0,mo:0,so:0});
+      const avg = { wb:slice.length?Math.round(sums.wb/slice.length):0,
+                    kn:slice.length?Math.round(sums.kn/slice.length):0,
+                    mo:slice.length?Math.round(sums.mo/slice.length):0,
+                    so:slice.length?Math.round(sums.so/slice.length):0 };
+      drawBars(avg);
+      const msg = avg.kn>avg.wb? "You’ve made steady growth in Knowledge but seem more drained — remember to rest." : "Nice balance emerging — keep small recovery habits.";
+      $('#w5-msg').textContent = msg;
+      modal.classList.add('show');
+      $('#w5-continue').onclick = ()=>{ modal.classList.remove('show'); };
     }
-    setInterval(()=>{ if($('#view-play').style.display==='block' && Math.random()<0.25) showBuddy(); }, 10000);
 
-    /* ===================== RESULTS & RADAR ===================== */
+    function openBreathing(){
+      if(!mindfulMode) return;
+      const m=document.createElement('div');
+      m.className='modal show'; m.setAttribute('role','dialog'); m.setAttribute('aria-modal','true'); m.setAttribute('data-esc','');
+      m.innerHTML=`<div class="box center"><h3>Take a breath</h3><p class="muted">10 seconds to reset — your health matters too.</p><div class="breathe pulse"></div><button class="btn" id="breath-skip">Skip</button></div>`;
+      document.body.appendChild(m);
+      const timeout = setTimeout(()=>{ close(); }, 10000);
+      $('#breath-skip').onclick=()=>{ clearTimeout(timeout); close(); };
+      function close(){ m.remove(); }
+    }
+
+    /* ========= CHARTS ========= */
     function drawRadar(wb,kn,mo,so){
-      const c = $('#radar'), x=c.getContext('2d');
-      const W=c.width,H=c.height,cx=W/2,cy=H/2,r=Math.min(W,H)/2-30;
-      x.clearRect(0,0,W,H);
-      x.strokeStyle='#dbe7ee'; x.lineWidth=1;
+      const c=$('#radar'),x=c.getContext('2d'); const W=c.width,H=c.height,cx=W/2,cy=H/2,r=Math.min(W,H)/2-30;
+      x.clearRect(0,0,W,H); x.strokeStyle='#dbe7ee'; x.lineWidth=1;
       for(let i=1;i<=3;i++){ x.beginPath(); x.arc(cx,cy,(r*i)/3,0,Math.PI*2); x.stroke(); }
       const labels=['Wellbeing','Knowledge','Money','Social'];
       x.fillStyle='#486e73'; x.font='12px system-ui';
-      for(let i=0;i<4;i++){
-        const a=(-Math.PI/2)+(i*Math.PI/2);
-        const ex=cx+Math.cos(a)*r, ey=cy+Math.sin(a)*r;
+      for(let i=0;i<4;i++){ const a=(-Math.PI/2)+(i*Math.PI/2),ex=cx+Math.cos(a)*r,ey=cy+Math.sin(a)*r;
         x.beginPath(); x.moveTo(cx,cy); x.lineTo(ex,ey); x.stroke();
         const lx=cx+Math.cos(a)*(r+12), ly=cy+Math.sin(a)*(r+12);
-        x.textAlign='center'; x.textBaseline='middle'; x.fillText(labels[i],lx,ly);
-      }
+        x.textAlign='center'; x.textBaseline='middle'; x.fillText(labels[i],lx,ly); }
       const vals=[wb,kn,mo,so].map(v=>clamp(v,0,100));
-      x.beginPath();
-      for(let i=0;i<4;i++){
-        const a=(-Math.PI/2)+(i*Math.PI/2), pr=r*(vals[i]/100);
-        const px=cx+Math.cos(a)*pr, py=cy+Math.sin(a)*pr;
-        i?x.lineTo(px,py):x.moveTo(px,py);
-      }
-      x.closePath();
-      const grad=x.createLinearGradient(0,0,W,H); grad.addColorStop(0,'#8ee3ff88'); grad.addColorStop(1,'#b9fbd688');
-      x.fillStyle=grad; x.fill(); x.strokeStyle='#2bb6f6'; x.lineWidth=2; x.stroke();
+      x.beginPath(); for(let i=0;i<4;i++){ const a=(-Math.PI/2)+(i*Math.PI/2), pr=r*(vals[i]/100); const px=cx+Math.cos(a)*pr, py=cy+Math.sin(a)*pr; i?x.lineTo(px,py):x.moveTo(px,py); } x.closePath();
+      const g=x.createLinearGradient(0,0,W,H); g.addColorStop(0,'#8ee3ff88'); g.addColorStop(1,'#b9fbd688'); x.fillStyle=g; x.fill(); x.strokeStyle='#2bb6f6'; x.lineWidth=2; x.stroke();
+    }
+    function drawBars(avg){
+      const c=$('#bar5'), x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height);
+      const keys=['WB','KN','$','SO']; const vals=[avg.wb,avg.kn,avg.mo,avg.so];
+      const max= Math.max(10, ...vals.map(v=>Math.abs(v)));
+      const w=60, gap=40, base=240, scale=10;
+      x.font='12px system-ui'; x.textAlign='center';
+      keys.forEach((k,i)=>{
+        const v=vals[i]; const h=(v/max)*120;
+        const cx=60+i*(w+gap);
+        x.fillStyle='#dfeffc'; x.fillRect(cx, base-120, w, 120); // backdrop
+        x.fillStyle= v>=0 ? '#7cd992' : '#f28b82';
+        x.fillRect(cx, base - (v>=0?h:0), w, Math.abs(h));
+        x.fillStyle='#486e73'; x.fillText(k, cx+w/2, base+16);
+        x.fillText((v>=0?'+':'')+v, cx+w/2, base-130);
+      });
     }
 
+    /* ========= RESULTS ========= */
     function insightFromLowest(){
       const lowK = weakestStat();
       const map = {
@@ -727,7 +745,6 @@
       };
       return map[lowK];
     }
-
     function achievements(){
       const arr=[];
       if(state.wb>=70 && state.kn>=60) arr.push("Balanced Success 🎓");
@@ -737,7 +754,6 @@
       if(state.kn>=80) arr.push("Top Scorer 📚");
       return arr;
     }
-
     function endGame(){
       state.finished=true; show('results');
       const {wb,kn,mo,so}=state;
@@ -761,72 +777,60 @@
       }
       $('#result-title').textContent=title; $('#result-body').textContent=body;
       $('#final-wb').textContent=wb; $('#final-kn').textContent=kn; $('#final-mo').textContent=mo; $('#final-so').textContent=so;
-      drawRadar(wb,kn,mo,so);
-      $('#insight').textContent = insightFromLowest();
+      drawRadar(wb,kn,mo,so); $('#insight').textContent = insightFromLowest();
+      const badges = achievements(); $('#badge-list').textContent = badges.length? badges.join(' • ') : 'None — try balancing next time';
 
-      const badges = achievements();
-      $('#badge-list').textContent = badges.length? badges.join(' • ') : 'None — try balancing next time';
-
-      // Local leaderboard (compare to previous best average)
       const avg = Math.round((wb+kn+mo+so)/4);
       const history = JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');
       const best = history.length? Math.max(...history.map(h=>h.avg)) : null;
       let msg = `This run average: <b>${avg}</b>`;
-      if(best!==null){
-        const diff = avg - best;
-        msg += ` • Previous best: <b>${best}</b> • ${diff>=0? 'Improved':'Down'} ${Math.abs(diff)} pts`;
-      } else msg += ' • First recorded run 🎉';
-      $('#leaderboard').innerHTML = msg;
-
+      if(best!==null){ const diff=avg-best; msg += ` • Previous best: <b>${best}</b> • ${diff>=0? 'Improved':'Down'} ${Math.abs(diff)} pts`; }
+      else msg += ' • First recorded run 🎉';
+      $('#leaderboard').innerHTML=msg;
       history.push({time:Date.now(), avg}); localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-      localStorage.removeItem(SAVE_KEY); // fresh replays
+      localStorage.removeItem(SAVE_KEY);
     }
 
-    /* ===================== STATS HELPERS ===================== */
-    function labelOf(k){ return ({wb:"Wellbeing",kn:"Knowledge",mo:"Money",so:"Social"})[k]; }
-    function strongestStat(){
-      const entries=[['wb',state.wb],['kn',state.kn],['mo',state.mo],['so',state.so]];
-      return entries.sort((a,b)=>b[1]-a[1])[0][0];
-    }
-    function weakestStat(){
-      const entries=[['wb',state.wb],['kn',state.kn],['mo',state.mo],['so',state.so]];
-      return entries.sort((a,b)=>a[1]-b[1])[0][0];
-    }
+    /* ========= STATS HELPERS ========= */
+    const labelOf = k => ({wb:"Wellbeing",kn:"Knowledge",mo:"Money",so:"Social"})[k];
+    function strongestStat(){ const e=[['wb',state.wb],['kn',state.kn],['mo',state.mo],['so',state.so]]; return e.sort((a,b)=>b[1]-a[1])[0][0]; }
+    function weakestStat(){ const e=[['wb',state.wb],['kn',state.kn],['mo',state.mo],['so',state.so]]; return e.sort((a,b)=>a[1]-b[1])[0][0]; }
 
-    /* ===================== SAVE / LOAD ===================== */
+    /* ========= SAVE / LOAD ========= */
     function saveLocal(){ localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }
-    function loadLocal(){
-      const raw=localStorage.getItem(SAVE_KEY); if(!raw) return false;
-      try{ Object.assign(state, JSON.parse(raw)); return true; } catch{ return false; }
-    }
+    function loadLocal(){ const raw=localStorage.getItem(SAVE_KEY); if(!raw) return false; try{ Object.assign(state, JSON.parse(raw)); return true; }catch{ return false; } }
 
-    /* ===================== VIEW CONTROL ===================== */
+    /* ========= START / FLOW ========= */
     function startNew(){
-      state.name = $('#char-name').value || 'Alex';
-      state.major = $('#char-major').value;
-      state.pronouns = $('#char-pronouns').value;
+      state.name=$('#char-name').value||'Alex';
+      state.major=$('#char-major').value;
+      state.pronouns=$('#char-pronouns').value;
+      mindfulMode = $('#toggle-mindful').checked;
       state.week=1; state.wb=70; state.kn=40; state.mo=50; state.so=40;
       state.finished=false; state.journal=''; state.feelings=''; state.log=[];
-      if (state.major==='Engineering'){ state.kn += 8; state.wb -= 5; }
-      if (state.major==='Health'){      state.wb += 8; state.mo -= 6; }
-      if (state.major==='Business'){    state.mo += 8; state.so += 4; }
-      show('play'); updateHUD(); renderEvent(rnd(EVENTS));
+      state.eventHistory=[]; state.lastEventIdx=-1; state.deltaHistory=[];
+      if (state.major==='Engineering'){ state.kn+=8; state.wb-=5; }
+      if (state.major==='Health'){      state.wb+=8; state.mo-=6; }
+      if (state.major==='Business'){    state.mo+=8; state.so+=4; }
+      show('play'); updateHUD();
+      // Week 1 event must render immediately & reliably
+      const idx = pickEventIndex();
+      renderEventByIndex(idx);
       log(`New semester started for <b>${state.name}</b> (${state.pronouns}), Major: ${state.major}.`);
       AudioSys.click(); setBackground(); saveLocal();
     }
 
-    /* ===================== BUTTONS ===================== */
-    $('#btn-start').addEventListener('click', ()=>{ startNew(); });
+    /* ========= BUTTONS ========= */
+    $('#btn-start').addEventListener('click', ()=>startNew());
     $('#btn-continue').addEventListener('click', ()=>{
-      if(loadLocal()){ show('play'); updateHUD(); renderEvent(rnd(EVENTS)); log(`Resumed save at Week ${state.week} for ${state.name}.`); AudioSys.click(); }
+      if(loadLocal()){ mindfulMode = $('#toggle-mindful').checked; show('play'); updateHUD(); const idx=pickEventIndex(); renderEventByIndex(idx); log(`Resumed save at Week ${state.week} for ${state.name}.`); AudioSys.click(); }
       else alert("No save found. Start a new semester.");
     });
     $('#btn-save').addEventListener('click', ()=>{ saveLocal(); log('<span class="pos">Progress saved.</span>'); AudioSys.click(); });
     $('#btn-end').addEventListener('click', ()=>{ openJournal(); });
 
-    $('#btn-restart').addEventListener('click', ()=>{ show('menu'); });
-    $('#btn-menu').addEventListener('click', ()=>{ show('menu'); });
-
+    $('#btn-restart').addEventListener('click', ()=>show('menu'));
+    $('#btn-menu').addEventListener('click', ()=>show('menu'));
     $('#btn-download').addEventListener('click', ()=>{
       const {name,major,pronouns,wb,kn,mo,so,feelings,journal}=state;
       const txt = `UniLife Simulator — Journey Summary
@@ -842,10 +846,8 @@ Recent Log:
 Tips:
 ${insightFromLowest()}
 `;
-      const blob = new Blob([txt], {type:'text/plain'});
-      const url = URL.createObjectURL(blob);
-      const a=document.createElement('a'); a.href=url; a.download=`unilife_summary_${Date.now()}.txt`; a.click();
-      URL.revokeObjectURL(url);
+      const blob=new Blob([txt],{type:'text/plain'}); const url=URL.createObjectURL(blob);
+      const a=document.createElement('a'); a.href=url; a.download=`unilife_summary_${Date.now()}.txt`; a.click(); URL.revokeObjectURL(url);
     });
 
     $('#btn-how').addEventListener('click', ()=>alert(
@@ -856,50 +858,43 @@ ${insightFromLowest()}
 • Money stress is real: batching trips and budgeting helps.
 • Social connection protects mental health.`
     ));
-
-    // Settings
     $('#toggle-ambience').addEventListener('change', e=>AudioSys.toggle(e.target.checked));
     $('#vol').addEventListener('input', e=>AudioSys.setVolume(parseFloat(e.target.value)));
 
-    // Keyboard: 1–4 choose, S save, Enter = first option
+    // Keyboard shortcuts
     document.addEventListener('keydown', (e)=>{
+      // Close modals with Esc
+      if(e.key==='Escape'){ document.querySelectorAll('.modal.show[data-esc]').forEach(m=>m.classList.remove('show')); }
+      // In play: numeric choices, S save, Enter first
       if($('#view-play').style.display!=='block') return;
-      const keys={'1':0,'2':1,'3':2,'4':3};
-      if(e.key in keys){
-        const idx=keys[e.key];
-        const btns = Array.from(document.querySelectorAll('#ev-choices .btn'));
-        btns[idx]?.click();
-      }
+      const map={'1':0,'2':1,'3':2,'4':3};
+      if(e.key in map){ const i=map[e.key]; const btns=Array.from(document.querySelectorAll('#ev-choices .btn')); btns[i]?.click(); }
       if(e.key.toLowerCase()==='s'){ $('#btn-save').click(); }
-      if(e.key==='Enter'){
-        const first = document.querySelector('#ev-choices .btn'); first?.click();
-      }
+      if(e.key==='Enter'){ const first=document.querySelector('#ev-choices .btn'); first?.click(); }
     });
 
-    /* ===================== WEEKLY ADVANCE HOOK (feelings) ===================== */
-    // Intercept going from week 14 -> 15 to ask feelings
-    const _advance = advanceWeekOrEnd;
-    advanceWeekOrEnd = function(){
-      if(state.week===14){ openFeelings(); return; }
-      _advance();
-    }
-
-    /* ===================== INIT ===================== */
+    /* ========= INIT ========= */
     (function init(){
-      // Prepare audio graph
       AudioSys.setup();
-      // Seed bars
+      // seed bars (Week 1)
       wbBar().style.width='70%'; knBar().style.width='40%'; moBar().style.width='50%'; soBar().style.width='40%';
-      // Trivia popup (optional blocking modal once in a while)
+      setBackground();
+      // Random trivia popup every ~12s while playing
       setInterval(()=>{
         if($('#view-play').style.display==='block' && Math.random()<0.12){
           $('#trivia-body').textContent = rnd(TRIVIA);
           $('#modal-trivia').classList.add('show');
-          $('#trivia-ok').onclick = ()=>$('#modal-trivia').classList.remove('show');
+          $('#trivia-ok').onclick=()=>$('#modal-trivia').classList.remove('show');
         }
       }, 12000);
-      // Initial background
-      setBackground();
+      // Reflection checkpoints Week 7 & 14 appear when those weeks occur (in logics we can also call openReflection())
+      // Hook: show reflection modal exactly at weeks 7 and 14 upon landing those weeks
+      const observer = new MutationObserver(()=>{
+        if($('#view-play').style.display==='block'){
+          if(state.week===7 || state.week===14) openReflection();
+        }
+      });
+      observer.observe($('#week-num'),{childList:true});
     })();
   </script>
 </body>

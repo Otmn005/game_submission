@@ -1,128 +1,443 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DataHeist: Cyber Choices — Presented by The Trinity</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>DataHeist: Cyber Choices — v3.3 (Full Cinematic)</title>
+<meta name="description" content="Full DataHeist build with silent cinematic intro and stable 3D dice. Single-file, offline.">
 <style>
-  body {
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    background: radial-gradient(circle at top, #0a0f2c, #05070f);
-    color: #e8f7ff;
-    overflow: hidden;
-  }
-  /* Cinematic Intro */
-  #intro {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: linear-gradient(180deg, #020611, #060b22);
-    display: flex; align-items: center; justify-content: center;
-    flex-direction: column;
-    opacity: 1; transition: opacity 1s ease-in-out;
-    z-index: 999;
-  }
-  #intro h1 {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 2.5em;
-    color: #4de2f8;
-    margin-bottom: 0.3em;
-    text-shadow: 0 0 15px #4de2f8;
-  }
-  #intro p {
-    color: #b0c9ff;
-    font-size: 1em;
-    letter-spacing: 1px;
-  }
-  /* Dice */
-  .dice {
-    width: 80px;
-    height: 80px;
-    position: relative;
-    margin: 50px auto;
-    transform-style: preserve-3d;
-    transform: rotateX(0deg) rotateY(0deg);
-    transition: transform 1s ease-out;
-  }
-  .dice div {
-    position: absolute;
-    width: 80px; height: 80px;
-    background: rgba(20, 40, 70, 0.95);
-    border: 2px solid #4de2f8;
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 2em; font-weight: bold; color: #4de2f8;
-    box-shadow: 0 0 20px rgba(77,226,248,0.6);
-  }
-  .front  { transform: translateZ(40px); }
-  .back   { transform: rotateY(180deg) translateZ(40px); }
-  .right  { transform: rotateY(90deg) translateZ(40px); }
-  .left   { transform: rotateY(-90deg) translateZ(40px); }
-  .top    { transform: rotateX(90deg) translateZ(40px); }
-  .bottom { transform: rotateX(-90deg) translateZ(40px); }
-  #menu, #game, #results { display: none; text-align: center; margin-top: 100px; }
-  button {
-    background: linear-gradient(90deg, #4de2f8, #1b99ff);
-    border: none; color: #fff; padding: 12px 28px; margin: 8px;
-    border-radius: 50px; font-size: 1em; cursor: pointer;
-    box-shadow: 0 0 10px #4de2f8; transition: all 0.2s ease;
-  }
-  button:hover { transform: scale(1.05); box-shadow: 0 0 20px #4de2f8; }
+:root{
+  --bg0:#060a17; --bg1:#0c1734; --ink:#eaf2ff; --muted:#a7b8d6;
+  --panel:rgba(12,23,52,.6); --stroke:#2a406a;
+  --accent:#58d3ff; --good:#16a34a; --bad:#ef4444; --warn:#f59e0b;
+  --gold:#ffd36b; --mint:#caff70;
+}
+*{box-sizing:border-box} html,body{height:100%}
+body{
+  margin:0; color:var(--ink);
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  background:linear-gradient(180deg,var(--bg0),var(--bg1));
+  overflow-x:hidden;
+}
+h1,h2,h3{margin:.2rem 0 .6rem} p{margin:.35rem 0}
+small{color:var(--muted)}
+.container{max-width:1200px;margin:0 auto;padding:16px}
+.card{background:var(--panel); border:1px solid var(--stroke); border-radius:14px; backdrop-filter:blur(12px) saturate(160%);
+  box-shadow:0 20px 40px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.03)}
+.panel{padding:14px}
+
+/* Buttons & inputs */
+.btn{background:linear-gradient(135deg,#0c1f46,#0a1734); color:#eaf2ff; border:1px solid #2a3f6a; border-radius:999px; padding:10px 16px; cursor:pointer;
+  transition:transform .08s ease, box-shadow .25s ease, border-color .2s ease}
+.btn:hover{transform:translateY(-1px); box-shadow:0 10px 18px rgba(0,0,0,.35), 0 0 16px rgba(88,211,255,.25); border-color:#375f9b}
+.btn.small{padding:6px 10px; font-size:.9rem}
+input,select{width:100%; background:rgba(10,22,44,.65); border:1px solid #284a7a; color:#eaf4ff; border-radius:10px; padding:8px 10px}
+input::placeholder{color:#93a8ca}
+label{display:block}
+
+/* Layout grids */
+.grid{display:grid; grid-template-columns:1.1fr .9fr; gap:12px}
+@media (max-width:980px){ .grid{grid-template-columns:1fr} }
+.row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+
+/* Progress */
+#progress{height:6px;border-radius:999px;background:#0a1532;overflow:hidden}
+#progress>div{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--mint));
+  box-shadow:0 0 12px #58d3ff55 inset; transition:width .6s cubic-bezier(.2,.6,.2,1)}
+
+/* Badges */
+.badge{border:1px solid #2a406a;border-radius:999px;background:#0c1734;color:#d9e7ff;padding:6px 10px;display:inline-block}
+
+/* Rings */
+.rings{display:flex;gap:10px;flex-wrap:wrap}
+.ring{position:relative;width:100px;height:100px}
+.ring canvas{position:absolute;inset:0;filter:drop-shadow(0 0 6px rgba(88,211,255,.25))}
+.ring .label{position:absolute;inset:0;display:grid;place-items:center;font-weight:700}
+.ring .label small{display:block;color:#a8bddc;font-weight:500}
+
+/* Dice 3D */
+#diceWrap{position:relative;width:78px;height:78px;perspective:700px}
+#dice{position:absolute;inset:0;transform-style:preserve-3d;transition:transform 1000ms cubic-bezier(.2,.7,.2,1)}
+.face{position:absolute;width:100%;height:100%;display:grid;place-items:center;backface-visibility:hidden;
+  background:linear-gradient(180deg,#0f1835,#0a142a);border:1px solid #2c3f69;border-radius:14px;
+  color:#eaf4ff; font-size:24px; font-weight:800}
+.front{transform:translateZ(39px)} .back{transform:rotateY(180deg) translateZ(39px)}
+.right{transform:rotateY(90deg) translateZ(39px)} .left{transform:rotateY(-90deg) translateZ(39px)}
+.top{transform:rotateX(90deg) translateZ(39px)} .bottom{transform:rotateX(-90deg) translateZ(39px)}
+.landPulse{animation:pulse .24s ease both} @keyframes pulse{from{transform:scale(1.02)}to{transform:scale(1)}}
+
+/* Toast */
+.toast{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:80;pointer-events:none}
+.toast .bubble{background:#0e1a34;border:1px solid #2a3a60;padding:10px 14px;border-radius:12px;color:#dff2ff;
+  box-shadow:0 10px 24px rgba(0,0,0,.35),0 0 18px #85d6ff22;animation:rise 2.2s ease both}
+@keyframes rise{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,-6px)}}
+
+/* Modal */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:85}
+.modal.show{display:flex}
+.modal .box{background:linear-gradient(180deg,#14223f,#0f1a2b);border:1px solid var(--stroke);border-radius:16px;padding:16px;max-width:760px;width:92%;
+  box-shadow:0 20px 44px rgba(0,0,0,.5)}
+
+/* Results */
+.results-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:12px}
+@media (max-width:980px){.results-grid{grid-template-columns:1fr}}
+#credits{background:linear-gradient(180deg,#0d1a36,#0b152a);border:1px solid var(--stroke);padding:14px;border-radius:12px}
+
+/* Intro splash */
+.hidden{display:none}
+.fadeOut{animation:fadeOut .9s ease both} @keyframes fadeOut{to{opacity:0;visibility:hidden}}
+#intro{position:fixed;inset:0;display:grid;place-items:center;background:linear-gradient(180deg,#071126,#0b1d3c);
+  z-index:100;color:var(--accent);text-align:center}
+#intro h1{margin:0;font-size:clamp(28px,6vw,56px);text-shadow:0 0 24px rgba(88,211,255,.5)}
+#intro p{color:#a8c3e6;margin-top:8px}
+
+/* Focus */
+:focus{outline:none} .btn:focus, input:focus, select:focus{box-shadow:0 0 0 2px rgba(88,211,255,.6) inset, 0 0 0 2px rgba(88,211,255,.3)}
 </style>
 </head>
 <body>
 
-<div id="intro">
-  <h1>DataHeist: Cyber Choices</h1>
-  <p>Presented by The Trinity</p>
-</div>
-
-<div id="menu">
-  <h1>Welcome to DataHeist</h1>
-  <p>Choose your difficulty and start defending your organization.</p>
-  <button onclick="startGame()">Start Game</button>
-</div>
-
-<div id="game">
-  <h2>Cyber Risk Roll</h2>
-  <div class="dice" id="dice">
-    <div class="front">1</div>
-    <div class="back">6</div>
-    <div class="right">3</div>
-    <div class="left">4</div>
-    <div class="top">5</div>
-    <div class="bottom">2</div>
+<!-- Silent Cinematic Intro -->
+<div id="intro" role="dialog" aria-label="Intro">
+  <div>
+    <h1>DataHeist: Cyber Choices</h1>
+    <p>Presented by The Trinity</p>
   </div>
-  <button onclick="rollDice()">Roll Dice</button>
 </div>
+
+<div id="root" class="container hidden">
+  <header class="panel card row" style="justify-content:space-between">
+    <div><h1>DataHeist: Cyber Choices</h1><small>Full build • AU/VN context • Front‑end only</small></div>
+    <div class="row">
+      <button id="save" class="btn small">💾 Save</button>
+    </div>
+  </header>
+
+  <!-- MENU -->
+  <main id="view-menu" class="panel card">
+    <h2>New Operation</h2>
+    <div id="progress" style="margin:8px 0"><div id="progressFill"></div></div>
+    <div class="grid" style="margin-top:6px">
+      <section class="panel card">
+        <div class="row">
+          <label style="flex:1 1 240px">Organisation
+            <input id="org" placeholder="RMIT Lab / SME / Startup">
+          </label>
+          <label style="flex:1 1 160px">Difficulty
+            <select id="difficulty">
+              <option value="casual">Casual</option>
+              <option value="analyst">Analyst</option>
+              <option value="ciso">CISO</option>
+            </select>
+          </label>
+          <label style="flex:1 1 160px">Game Length
+            <select id="length">
+              <option value="6">Fast (6)</option>
+              <option value="12" selected>Standard (12)</option>
+              <option value="18">Long (18)</option>
+            </select>
+          </label>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <button id="start" class="btn">Start</button>
+          <button id="resume" class="btn">Continue</button>
+        </div>
+        <p style="color:var(--muted);margin-top:6px">Shortcuts: R roll • 1–4 pick • S save • Esc close</p>
+      </section>
+      <aside class="panel card">
+        <h3>How to play</h3>
+        <p>Each round: a <b>risk</b> appears. <b>Roll</b> to reveal severity. Pick a <b>defense</b>. Your choice changes <b>SEC</b>, <b>TRU</b>, and <b>BDG</b>.</p>
+        <p>Make resilient choices, unlock <b>perks</b>, and avoid event chains. End with a strong <b>radar</b> and <b>final report</b>.</p>
+      </aside>
+    </div>
+  </main>
+
+  <!-- PLAY -->
+  <section id="view-play" class="panel card hidden" aria-live="polite">
+    <div class="row" style="justify-content:space-between">
+      <div class="badges">
+        <span class="badge">Round <b id="round">1</b>/<span id="total">12</span></span>
+        <span class="badge" id="org-badge">Org: —</span>
+        <span class="badge" id="diff-badge">Mode: Casual</span>
+      </div>
+      <div class="rings">
+        <div class="ring"><canvas id="ring-sec" width="100" height="100"></canvas><div class="label"><div><span id="sec-num">55</span><small>SEC</small></div></div></div>
+        <div class="ring"><canvas id="ring-tru" width="100" height="100"></canvas><div class="label"><div><span id="tru-num">55</span><small>TRU</small></div></div></div>
+        <div class="ring"><canvas id="ring-bdg" width="100" height="100"></canvas><div class="label"><div><span id="bdg-num">50</span><small>BDG</small></div></div></div>
+      </div>
+      <div class="row">
+        <button class="btn" id="end">End Early</button>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:10px">
+      <article class="panel card" id="play-left">
+        <h3 id="card-title">Risk</h3>
+        <p id="card-body" style="color:#d4e6ff"></p>
+        <p id="card-region" style="color:#9fb3d6"></p>
+        <div class="row" style="margin:8px 0">
+          <div id="diceWrap" role="button" tabindex="0" aria-label="Risk die">
+            <div id="dice">
+              <div class="face front">1</div>
+              <div class="face back">6</div>
+              <div class="face right">3</div>
+              <div class="face left">4</div>
+              <div class="face top">5</div>
+              <div class="face bottom">2</div>
+            </div>
+          </div>
+          <button class="btn" id="roll">Roll Risk</button>
+          <span id="severity" style="color:#cfe0ff"></span>
+        </div>
+        <div id="choices" style="display:flex;flex-direction:column;gap:8px"></div>
+        <p id="tip" style="color:#a9c4e6;margin-top:4px"></p>
+      </article>
+      <aside class="panel card" id="play-right">
+        <div id="analyst" aria-live="polite">🧠 Analyst: I’ll observe your posture and suggest improvements.</div>
+        <h4 style="margin-top:8px">Objective</h4>
+        <p>Finish with strong <b>SEC</b> and <b>TRU</b> without draining <b>BDG</b>.</p>
+        <h4 style="margin-top:8px">Legend</h4>
+        <p>SEC = Security • TRU = Trust • BDG = Budget</p>
+        <h4 style="margin-top:8px">Recent</h4>
+        <div id="log" style="height:220px;overflow:auto;background:#0e1730;border:1px solid var(--stroke);border-radius:10px;padding:10px"></div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="view-results" class="panel card hidden">
+    <div class="results-grid">
+      <div>
+        <h2 id="result-title">Operation Summary</h2>
+        <p id="result-body" style="color:#cfe0ff"></p>
+        <canvas id="radar" width="420" height="380" style="max-width:100%"></canvas>
+        <div class="row" style="margin-top:10px">
+          <button class="btn" id="download">📄 Download Journey</button>
+          <button class="btn" id="restart">Play Again</button>
+          <button class="btn" id="menu">Back to Menu</button>
+        </div>
+      </div>
+      <aside id="credits" class="card">
+        <h3>Thank you for playing</h3>
+        <p>Made with care by <b>Team Trinity — RMIT City Campus (Australia)</b>.</p>
+        <h4 style="margin-top:8px">Cyber Awareness Resources</h4>
+        <ul style="margin:6px 0 0 16px">
+          <li>Australia — Cyber.gov.au (ACSC)</li>
+          <li>eSafety Commissioner — esafety.gov.au</li>
+          <li>Vietnam — VNCERT/CC</li>
+          <li>Guide — Stay Smart Online</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <footer class="panel" style="text-align:center;color:#9fb1c8">© 2025 The Trinity — RMIT City Campus</footer>
+</div>
+
+<div id="toast" class="toast" aria-live="polite"></div>
 
 <script>
-let dice = document.getElementById('dice');
+/* ===== Utilities ===== */
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const SAVE_KEY='dh_v33_full';
 
-window.onload = () => {
-  setTimeout(() => {
-    document.getElementById('intro').style.opacity = '0';
-    setTimeout(() => {
-      document.getElementById('intro').style.display = 'none';
-      document.getElementById('menu').style.display = 'block';
-    }, 1000);
-  }, 3000);
+/* ===== Intro control (silent 3s, then fade to menu) ===== */
+const intro=document.getElementById('intro');
+const root=document.getElementById('root');
+function revealApp(){ intro.classList.add('fadeOut'); setTimeout(()=>{ intro.remove(); root.classList.remove('hidden'); }, 900); }
+setTimeout(revealApp, 3000);
+intro.addEventListener('click', revealApp, {passive:true});
+
+/* ===== Toast & Analyst ===== */
+function toast(msg){ const t=$('#toast'); const b=document.createElement('div'); b.className='bubble'; b.textContent=msg; t.appendChild(b); setTimeout(()=>b.remove(),2200); }
+function analystSay(text){ $('#analyst').textContent='🧠 Analyst: '+text; }
+function addLog(html){ const p=document.createElement('p'); p.innerHTML=html; $('#log').prepend(p); }
+
+/* ===== Facts / Cards ===== */
+const FACTS=[
+ "2FA blocks most credential-stuffing attacks.","Restoring from clean backups is the fastest way out of ransomware.",
+ "Password managers reduce reuse and weak passwords.","Patching browsers/plugins closes common exploit chains.",
+ "Staff awareness cuts phishing click-through significantly.","Zero-trust limits blast radius after compromise."
+];
+const CARDS=[
+ { id:"phish_ai_mygov", region:"AU", title:"AI-Generated Phishing (MyGov lookalike)", base:3, text:"Realistic email asks staff to verify benefits. Slight domain misspelling.",
+   options:[
+     {label:"Enforce 2FA across accounts", d:{SEC:+9, TRU:+3, BDG:-2}, tip:"2FA breaks credential-stuffing."},
+     {label:"Run phishing drill + awareness", d:{SEC:+5, TRU:+5, BDG:-1}, tip:"Training reduces clicks."},
+     {label:"Ignore for now", d:{SEC:-10, TRU:-6, BDG:+1}, tip:"Delay equals exposure.", risky:true}
+   ]},
+ { id:"sms_spoof_zalo", region:"VN", title:"Banking SMS Spoof via Zalo/OTP Bait", base:2, text:"Spoofed SMS links to a fake banking page requesting OTP.",
+   options:[
+     {label:"Password manager + unique pwds", d:{SEC:+6, TRU:+2, BDG:-1}, tip:"Prevents reuse damage."},
+     {label:"2FA + out-of-band confirmations", d:{SEC:+7, TRU:+3, BDG:-2}, tip:"Stops OTP theft impact."},
+     {label:"Ignore", d:{SEC:-8, TRU:-5, BDG:+1}, tip:"Attackers automate resend.", risky:true}
+   ]},
+ { id:"unpatched_browser", region:"AU", title:"Unpatched Browser 0-day Emerges", base:4, text:"Widely-used browser has an active exploit; your fleet lags updates.",
+   options:[
+     {label:"Force auto-update & patch now", d:{SEC:+9, TRU:+1, BDG:-2}, tip:"Closes exploit window."},
+     {label:"Virtualize sensitive apps", d:{SEC:+6, TRU:+2, BDG:-3}, tip:"Adds isolation."},
+     {label:"Delay a week", d:{SEC:-9, TRU:-3, BDG:+1}, tip:"Risk compounds daily.", risky:true}
+   ]},
+ { id:"public_wifi_mitm", region:"AU", title:"Public Wi-Fi MITM near RMIT City", base:2, text:"Café Wi-Fi evil-twin captures credentials.",
+   options:[
+     {label:"Mandate VPN + HSTS checks", d:{SEC:+7, TRU:+2, BDG:-2}, tip:"Encrypts traffic end-to-end."},
+     {label:"Awareness: avoid sensitive logins", d:{SEC:+4, TRU:+3, BDG:-1}, tip:"Reduces exposure."},
+     {label:"Do nothing", d:{SEC:-7, TRU:-4, BDG:+1}, tip:"Credentials at risk.", risky:true}
+   ]},
+ { id:"malicious_usb_b80", region:"AU", title:"Malicious USB found near Building 80", base:2, text:"A labeled USB stick ‘HR Payroll’ appears. Temptation is real.",
+   options:[
+     {label:"Disable autorun + block unknown", d:{SEC:+7, TRU:+2, BDG:-1}, tip:"Stops BadUSB."},
+     {label:"Awareness: turn in to IT", d:{SEC:+4, TRU:+3, BDG:-1}, tip:"Removes lure."},
+     {label:"Plug it in quickly", d:{SEC:-10, TRU:-5, BDG:+0}, tip:"Classic initial access.", risky:true}
+   ]},
+ { id:"password_reuse_portal", region:"VN", title:"Password Reuse on University Portal", base:3, text:"Credentials reused across services; one provider breached.",
+   options:[
+     {label:"Enforce SSO + manager", d:{SEC:+8, TRU:+3, BDG:-2}, tip:"Unique creds + central auth."},
+     {label:"2FA & rotation campaign", d:{SEC:+7, TRU:+2, BDG:-1}, tip:"Layers reduce risk."},
+     {label:"Ignore", d:{SEC:-10, TRU:-6, BDG:+1}, tip:"Stuffing inevitable.", risky:true}
+   ]}
+];
+
+/* ===== State ===== */
+const S={ org:"—", diff:"casual", round:1, total:12,
+  SEC:55, TRU:55, BDG:50, deck:[], used:[], last:-1, rolled:false, severity:0,
+  perkSEC:0, perkTRU:0, chosenPerk:false
 };
+const numEls={SEC:$('#sec-num'), TRU:$('#tru-num'), BDG:$('#bdg-num')};
+const ringEls={SEC:$('#ring-sec'), TRU:$('#ring-tru'), BDG:$('#ring-bdg')};
 
-function startGame() {
-  document.getElementById('menu').style.display = 'none';
-  document.getElementById('game').style.display = 'block';
+/* ===== Rings draw ===== */
+function ring(canvas,val,colors=['#93e7ff','#bdf4da']){
+  const ctx=canvas.getContext('2d'), W=canvas.width, H=canvas.height, cx=W/2, cy=H/2, r=W/2-9;
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle='#142340'; ctx.lineWidth=9; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+  const grd=ctx.createLinearGradient(0,0,W,H); grd.addColorStop(0,colors[0]); grd.addColorStop(1,colors[1]);
+  const a0=-Math.PI/2, a=a0+(Math.PI*2)*(val/100);
+  ctx.strokeStyle=grd; ctx.lineCap='round'; ctx.lineWidth=9; ctx.shadowColor=colors[0]; ctx.shadowBlur=10;
+  ctx.beginPath(); ctx.arc(cx,cy,r,a0,a); ctx.stroke(); ctx.shadowBlur=0;
+}
+function setHUD(){
+  numEls.SEC.textContent=S.SEC; numEls.TRU.textContent=S.TRU; numEls.BDG.textContent=S.BDG;
+  ring(ringEls.SEC,S.SEC,['#86dcff','#c4f3df']); ring(ringEls.TRU,S.TRU,['#a7d0ff','#dbe8ff']); ring(ringEls.BDG,S.BDG,['#ffd36b','#fff1b7']);
+  $('#round').textContent=S.round; $('#total').textContent=S.total;
+  $('#org-badge').textContent='Org: '+S.org;
+  $('#diff-badge').textContent='Mode: '+(S.diff==='casual'?'Casual':S.diff==='analyst'?'Analyst':'CISO');
+  $('#progressFill').style.width = (100*(S.round-1)/S.total)+'%';
 }
 
-function rollDice() {
-  const x = Math.floor(Math.random() * 4 + 3) * 360;
-  const y = Math.floor(Math.random() * 4 + 3) * 360;
-  const result = Math.floor(Math.random() * 6) + 1;
-  dice.style.transform = `rotateX(${x + (result * 60)}deg) rotateY(${y + (result * 60)}deg)`;
+/* ===== Deck control ===== */
+function buildDeck(){ S.deck = CARDS.map((_,i)=>i); for(let i=S.deck.length-1;i>0;i--){const j=(Math.random()*(i+1))|0; [S.deck[i],S.deck[j]]=[S.deck[j],S.deck[i]];} S.used=[]; S.last=-1; }
+function bumpFront(ids){ const set=new Set(ids); S.deck = S.deck.sort((a,b)=> (set.has(CARDS[a].id)?-1:0) - (set.has(CARDS[b].id)?-1:0) ); }
+function biasDeck(){ const low=['SEC','TRU','BDG'].sort((a,b)=>S[a]-S[b])[0]; if(low==='SEC'){bumpFront(['unpatched_browser','phish_ai_mygov']);} else if(low==='TRU'){bumpFront(['phish_ai_mygov']);} }
+function pickCardIndex(){ if(!S.deck.length) buildDeck(); if(S.deck[0]===S.last && S.deck.length>1){ [S.deck[0],S.deck[1]]=[S.deck[1],S.deck[0]]; } const idx=S.deck.shift(); S.last=idx; S.used.push(idx); return idx; }
+
+/* ===== Render card ===== */
+function renderCard(ci){
+  const card=CARDS[ci];
+  $('#card-title').textContent='Risk: '+card.title;
+  $('#card-body').textContent=card.text;
+  $('#card-region').textContent='Context: '+(card.region==='AU'?'Australia':'Vietnam');
+  $('#choices').innerHTML='';
+  $('#severity').textContent='— (roll to reveal severity)';
+  $('#tip').textContent='';
+  S.rolled=false; S.severity=0;
+  resetDicePose();
+  card.options.forEach((opt,ix)=>{
+    const d=opt.d, delta=`SEC <span class="${d.SEC>=0?'pos':'neg'}">${d.SEC>=0?'+':''}${d.SEC}</span> • TRU <span class="${d.TRU>=0?'pos':'neg'}">${d.TRU>=0?'+':''}${d.TRU}</span> • BDG <span class="${d.BDG>=0?'pos':'neg'}">${d.BDG>=0?'+':''}${d.BDG}</span>`;
+    const b=document.createElement('button'); b.className='btn'; b.innerHTML=`<b>${String.fromCharCode(65+ix)}) ${opt.label}</b> <span style="float:right;font-size:12px">${delta}</span>`;
+    b.addEventListener('click',()=>applyChoice(card,opt)); $('#choices').appendChild(b);
+  });
 }
+
+/* ===== 3D Dice (upright faces) ===== */
+const dice = document.getElementById('dice');
+const poses = {1:[0,0], 2:[-90,0], 3:[0,-90], 4:[0,90], 5:[90,0], 6:[0,180]};
+function resetDicePose(){ dice.style.transition='none'; dice.style.transform='rotateX(0deg) rotateY(0deg)'; void dice.offsetWidth; }
+function rollDice(){
+  const roll = 1 + ((Math.random()*6)|0);
+  const [rx, ry] = poses[roll];
+  dice.style.transition='none'; dice.style.transform='rotateX(0deg) rotateY(0deg)'; void dice.offsetWidth;
+  const extraX = 720 + (Math.random()<0.5?0:360);
+  const extraY = 720 + (Math.random()<0.5?0:360);
+  dice.style.transition='transform 1000ms cubic-bezier(.2,.7,.2,1)';
+  dice.style.transform=`rotateX(${rx+extraX}deg) rotateY(${ry+extraY}deg)`;
+  setTimeout(()=>{
+    dice.classList.remove('landPulse'); void dice.offsetWidth; dice.classList.add('landPulse');
+    const base = CARDS[S.last]?.base ?? 2;
+    S.severity = base + roll + (S.diff==='casual'?0:(S.diff==='analyst'?1:2));
+    $('#severity').innerHTML = `Severity: <b>${S.severity}</b> (roll ${roll})`;
+    S.rolled=true;
+  }, 1005);
+}
+
+/* ===== Apply choice (balanced BDG) ===== */
+function applyChoice(card,opt){
+  if(!S.rolled){ toast('Roll the risk die first (R or click).'); return; }
+  if(S.BDG<40) S.BDG = clamp(S.BDG+1,0,100); // small safety
+  let SEC=S.SEC + (opt.d.SEC||0), TRU=S.TRU + (opt.d.TRU||0), BDG=S.BDG + (opt.d.BDG||0);
+  if(opt.d.SEC>=0){ SEC += Math.max(0, 6 - Math.min(6, S.severity)); BDG -= Math.ceil(S.severity/4); } else { SEC -= (S.severity*2); TRU -= Math.ceil(S.severity/2); }
+  if(S.SEC>=60 && S.TRU>=60) BDG += 1;
+  S.SEC=clamp(SEC,0,100); S.TRU=clamp(TRU,0,100); S.BDG=clamp(BDG,0,100);
+  setHUD(); $('#tip').textContent='Why: '+(opt.tip||''); addLog(`${card.title} → <b>${opt.label}</b> | SEC ${S.SEC} • TRU ${S.TRU} • BDG ${S.BDG}`);
+  if(opt.risky){ analystSay("That choice increases risk exposure. Consider layered defenses."); } else if(opt.d.TRU>0){ analystSay("Trust grows with transparency and training."); } else if(opt.d.SEC>0){ analystSay("Technical posture improving. Keep patching and verifying."); }
+  if(!S.chosenPerk && S.round === Math.ceil(S.total/2)){ openPerks(); return; }
+  advance();
+}
+
+/* ===== Perks ===== */
+function openPerks(){ const m=document.createElement('div'); m.className='modal show'; m.innerHTML=`<div class="box"><h3>Choose a Perk</h3><div id="perk-choices" style="display:flex;flex-direction:column;gap:8px;margin-top:8px"></div></div>`; document.body.appendChild(m);
+  const pc=m.querySelector('#perk-choices');
+  const perks=[
+    {name:'Crisis Response',desc:'+5 SEC now, +1 SEC next 3 rounds',apply:()=>{S.SEC=clamp(S.SEC+5,0,100); S.perkSEC=3;}},
+    {name:'Awareness Program',desc:'+4 TRU now, +1 TRU next 3 rounds',apply:()=>{S.TRU=clamp(S.TRU+4,0,100); S.perkTRU=3;}},
+    {name:'Zero-Trust Upgrade',desc:'+3 SEC & +2 TRU, −1 BDG',apply:()=>{S.SEC=clamp(S.SEC+3,0,100); S.TRU=clamp(S.TRU+2,0,100); S.BDG=clamp(S.BDG-1,0,100);}}
+  ];
+  perks.forEach(p=>{ const b=document.createElement('button'); b.className='btn'; b.innerHTML=`<b>${p.name}</b> — <small>${p.desc}</small>`; b.onclick=()=>{ p.apply(); S.chosenPerk=true; setHUD(); m.remove(); advance(); }; pc.appendChild(b); });
+  document.addEventListener('keydown', escClose, {once:true});
+  function escClose(e){ if(e.key==='Escape') m.remove(); }
+}
+
+/* ===== Advance & End ===== */
+function advance(){ if(S.round>=S.total){ endGame(); return; } S.round += 1; if(S.perkSEC){ S.SEC=clamp(S.SEC+1,0,100); S.perkSEC--; } if(S.perkTRU){ S.TRU=clamp(S.TRU+1,0,100); S.perkTRU--; }
+  setHUD(); biasDeck(); renderCard(pickCardIndex()); S.rolled=false; S.severity=0; }
+function drawRadar(sec,tru,bdg){ const c=$('#radar'),x=c.getContext('2d'),W=c.width,H=c.height,cx=W/2,cy=H/2,r=Math.min(W,H)/2-40; x.clearRect(0,0,W,H); x.strokeStyle='#243145';
+  for(let i=1;i<=3;i++){x.beginPath();x.arc(cx,cy,(r*i)/3,0,Math.PI*2);x.stroke()}
+  const labs=['SEC','TRU','BDG']; x.fillStyle='#cfe1ff'; x.font='12px system-ui';
+  for(let i=0;i<3;i++){const a=(-Math.PI/2)+(i*(2*Math.PI/3)), ex=cx+Math.cos(a)*r, ey=cy+Math.sin(a)*r; x.beginPath();x.moveTo(cx,cy);x.lineTo(ex,ey);x.stroke();x.textAlign='center';x.fillText(labs[i],ex,ey+(i===0?-12:12))}
+  const vals=[sec,tru,bdg].map(v=>Math.max(0,Math.min(100,v))); x.beginPath();
+  for(let i=0;i<3;i++){const a=(-Math.PI/2)+(i*(2*Math.PI/3)), pr=r*(vals[i]/100), px=cx+Math.cos(a)*pr, py=cy+Math.sin(a)*pr; i?x.lineTo(px,py):x.moveTo(px,py)}
+  x.closePath(); x.fillStyle='rgba(88,211,255,.18)'; x.fill(); x.lineWidth=2; x.strokeStyle='rgba(88,211,255,.95)'; x.shadowColor='#58d3ff'; x.shadowBlur=24; x.stroke(); x.shadowBlur=0;
+}
+function endGame(){ show('results'); const {SEC,TRU,BDG}=S; let title='Solid Outcome ✅', body=`SEC ${SEC}, TRU ${TRU}, BDG ${BDG}.`;
+  if(SEC>=80 && TRU>=70 && BDG>=40){ title='Cyber-Resilient Visionary 🏆'; }
+  else if(BDG<20){ title='Budget Collapse 💸'; } else if(SEC<50 && TRU>=60){ title='Innovation Overexposed 📉'; } else if(SEC>=60 && TRU<50){ title='Tactical Containment — Reputation Bruised 📰'; }
+  const weakest=[['SEC',SEC],['TRU',TRU],['BDG',BDG]].sort((a,b)=>a[1]-b[1])[0][0];
+  const hint = weakest==='SEC' ? 'Prioritise patching, 2FA and testable backups.' : weakest==='TRU' ? 'Communicate, document, and disclose responsibly.' : 'Invest where impact is highest; avoid false economies.';
+  $('#result-title').textContent=title; $('#result-body').textContent=body+' • Focus next time: '+hint; drawRadar(SEC,TRU,BDG); localStorage.removeItem(SAVE_KEY);
+}
+
+/* ===== Save / Load / Views ===== */
+function save(){ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); toast('Progress saved.'); }
+function load(){ try{ const raw=localStorage.getItem(SAVE_KEY); if(!raw) return false; Object.assign(S, JSON.parse(raw)); return true; }catch(e){ return false; } }
+function show(view){ $('#view-menu').classList.toggle('hidden', view!=='menu'); $('#view-play').classList.toggle('hidden', view!=='play'); $('#view-results').classList.toggle('hidden', view!=='results'); }
+
+/* ===== Controls ===== */
+$('#start').onclick=()=>{ S.org=$('#org').value||'RMIT Team'; S.diff=$('#difficulty').value; S.total=+$('#length').value;
+  S.round=1; S.SEC=55; S.TRU=55; S.BDG=50; S.chosenPerk=false; buildDeck(); biasDeck(); show('play'); setHUD(); renderCard(pickCardIndex()); save(); analystSay("Baseline established. We’ll adapt to your decisions."); };
+$('#resume').onclick=()=>{ if(load()){ show('play'); setHUD(); renderCard(S.last>=0?S.last:pickCardIndex()); } else $('#start').click(); };
+$('#save').onclick=save; $('#end').onclick=()=> endGame(); $('#restart').onclick=()=> show('menu'); $('#menu').onclick=()=> show('menu');
+$('#download').onclick=()=>{ const txt=`DataHeist — Summary
+Org: ${S.org}
+Mode: ${S.diff}
+Rounds: ${S.total}
+Final SEC ${S.SEC} • TRU ${S.TRU} • BDG ${S.BDG}
+`; const blob=new Blob([txt],{type:'text/plain'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='dataheist_summary.txt'; a.click(); URL.revokeObjectURL(url); };
+$('#roll').onclick=rollDice; $('#diceWrap').addEventListener('click', rollDice); $('#diceWrap').addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' ') rollDice(); });
+document.addEventListener('keydown', e=>{ if($('#view-play').classList.contains('hidden')) return; if(e.key.toLowerCase()==='r') $('#roll').click(); if(e.key.toLowerCase()==='s') $('#save').click(); if(e.key==='Escape'){ $$('.modal.show').forEach(m=>m.remove()); } const map={'1':0,'2':1,'3':2,'4':3}; if(map[e.key]!=null){ const btn=$$('#choices .btn')[map[e.key]]; if(btn) btn.click(); } });
+
+/* ===== Init ===== */
+function init(){ setHUD(); } init();
 </script>
-
 </body>
 </html>

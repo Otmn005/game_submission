@@ -1,35 +1,26 @@
 # game_submission
+
 RMIT GenAI &amp; Cybersecurity Hackathon 2025 – Challenge 3: Vibe Coding
+# DataHeist — Cyber Choices (Neon Cinematic Edition)
+**Team:** The Trinity — RMIT City Campus  
+**What:** Browser-only, front-end single-file game teaching cyber awareness via scenario-driven choices.  
+**How to run:** Open `game_app/index.html` in any modern browser (Chrome/Edge/Firefox). No server or internet required.
 
-# Resilience Run — Uni Life (Australia)
+## Controls
+- Click / Tap to choose event options.
+- Keyboard shortcuts: 1–4 choose options, `S` = Save, `R` = Roll/Resolve (if shown), `Enter` = Continue dialogs, `Esc` = Open menu/close modal.
+- Save/Continue use localStorage key: `dataheist_save`.
 
-A 2D dice-based board game that teaches and reinforces mental health & wellbeing strategies for Australian university students. Play through a short “semester,” make trade-offs, and finish with enough **Wellbeing** to succeed sustainably.
 
-## Why this topic
-Australian students face high psychological distress. Small, timely choices (counselling, pacing, hydration in heatwaves, budgeting, peer support) improve outcomes. The game connects those decisions to simple, memorable mechanics.
+## Notes for judges
+- Game purpose: teach practical cybersecurity tradeoffs (Security, Trust, Budget) for AU/VN contexts via scenario-based decisions.
+- Accessibility: ARIA attributes, keyboard shortcuts, responsive layout for mobile and desktop.
+- Offline: fully client-side, single file `index.html` (no CDNs).
+- Seeded runs: optional reproducibility toggle inside the game (if available).
 
-## How to run
-1. Clone/download this repository.
-2. Open `game_submission/game_app/index.html` in your browser (double-click).  
-   *No build, no backend, no setup.*
+## Contact
+Team: **The Trinity** — RMIT City  
+Lead dev / contact: *Mohamad Otman motman005@gmail.com 0466166721*
 
-## How to play
-- Click **Start Game**.
-- Press **🎲 Roll** to move along 30 tiles.
-- Each landing triggers an **Event** with two choices. Choices change **Wellbeing** and **Knowledge**.
-- Reach the final tile with **Wellbeing ≥ 60** to “pass with balance.”
+Good luck! 🔒✨
 
-## Tech stack
-- HTML, CSS, JavaScript (front-end only).  
-- No external libraries.
-
-## Files of interest
-- `game_submission/game_app/index.html` — entire game (single file)
-- `game_submission/prompts/` — prompt logs (concept, assets, code, refinement)
-- `game_submission/screenshots/` — required screenshots
-- `game_submission/youtube_link.txt` — demo video link
-- `game_submission/project_report.pdf` — full report
-
-## Credits
-- Built for **RMIT GenAI & Cybersecurity Hackathon 2025**.
-- Educational insights based on common AU student support pathways (counselling services, GP mental health plans, heatwave guidance).

@@ -1,106 +1,136 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>DataHeist: Cyber Choices — MVP</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>DataHeist: Cyber Choices — AAA Edition</title>
+<meta name="description" content="A cinematic cyber awareness simulator about Security, Trust, and Budget."/>
 <style>
+/* =======================
+   AAA Visual System
+======================= */
 :root{
-  --bg1:#0f172a; --bg2:#17233d;
-  --glass:#0d1526b3; --stroke:#22314b;
-  --ink:#e8f1ff; --muted:#a8b8d3;
+  --bg1:#0b0f29; --bg2:#121a3a; --ink:#eaf2ff; --muted:#a7b9d9;
+  --glass:rgba(13,20,41,.68); --stroke:#213154;
   --good:#16a34a; --bad:#ef4444; --warn:#f59e0b; --accent:#B71C1C;
-  --glow:#85d6ff;
+  --blue:#5bd6ff; --green:#7dffb7; --gold:#ffd36b;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
   margin:0; color:var(--ink); font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
-  background:radial-gradient(1200px 800px at 20% -10%, #1a2a47 0%, transparent 60%),linear-gradient(180deg,var(--bg1),var(--bg2));
+  background: radial-gradient(1600px 900px at 70% -10%, #19305d 0%, transparent 50%),
+              radial-gradient(1200px 700px at 10% 110%, #10213f 0%, transparent 55%),
+              linear-gradient(180deg,var(--bg1),var(--bg2));
   overflow-x:hidden;
 }
-/* Ambient layers */
-.layer{position:fixed; inset:0; pointer-events:none; z-index:-2; opacity:.25}
-#glow{background:radial-gradient(900px 600px at 70% 10%, #6bd0ff55 0%, transparent 60%)}
-#grid{
-  background-image:
-   linear-gradient(transparent 95%, #143 96%),
-   linear-gradient(90deg, transparent 95%, #143 96%);
-  background-size: 40px 40px;
-  opacity:.1;
-}
-/* Layout */
-.container{max-width:1100px; margin:0 auto; padding:18px}
-.card{background:var(--glass); border:1px solid var(--stroke); border-radius:16px; box-shadow:0 14px 36px rgba(0,0,0,.35); backdrop-filter:blur(10px)}
+
+/* Parallax / Atmosphere */
+.layer{position:fixed; inset:0; pointer-events:none; z-index:-3}
+#city-back{background:
+  linear-gradient(180deg,rgba(91,214,255,.12),transparent),
+  repeating-linear-gradient(0deg,rgba(255,255,255,.05),rgba(255,255,255,.05) 1px,transparent 1px,transparent 20px);}
+#particles{position:fixed; inset:0; z-index:-2; pointer-events:none; opacity:.35}
+#tone{position:fixed; inset:0; z-index:-1; pointer-events:none; mix-blend-mode:screen; transition:background .6s ease}
+
+/* Holographic glass UI */
+.container{max-width:1200px; margin:0 auto; padding:18px}
+.card{background:var(--glass); border:1px solid var(--stroke); border-radius:16px; box-shadow:0 16px 44px rgba(0,0,0,.45); backdrop-filter:blur(10px)}
 .panel{padding:16px}
-h1,h2,h3,h4{margin:0 0 8px}
+h1,h2,h3{margin:0 0 8px}
 p{margin:0 0 10px}
 small{color:var(--muted)}
-/* Header */
-header.card{display:flex; align-items:center; justify-content:space-between; gap:10px}
-.badge{display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; background:#0f1a2c; border:1px solid var(--stroke); color:#d6e7ff; font-size:13px}
-/* Grid */
-.grid{display:grid; grid-template-columns:1.2fr .8fr; gap:14px}
-@media (max-width:960px){ .grid{grid-template-columns:1fr} }
+.grid{display:grid; grid-template-columns:1.35fr .65fr; gap:14px}
+@media (max-width:980px){ .grid{grid-template-columns:1fr} }
+
 /* Buttons */
 .btn{
-  border:1px solid var(--stroke); border-radius:12px; background:linear-gradient(135deg,#0f1a2c,#0c1626);
-  color:#e7f0ff; padding:10px 14px; cursor:pointer; transition:transform .08s ease, box-shadow .2s ease, border-color .2s ease;
+  background:linear-gradient(135deg,#0f1831,#0c1427); color:#e9f1ff; border:1px solid #2b426d;
+  border-radius:12px; padding:10px 14px; cursor:pointer;
+  transition:transform .08s ease, box-shadow .25s ease, border-color .2s ease, background .2s ease;
 }
-.btn:hover{transform:translateY(-1px); box-shadow:0 10px 20px rgba(0,0,0,.35); border-color:#2f4e7e}
-.btn.primary{background:linear-gradient(135deg,#1b2c49,#152540); border-color:#38598f}
+.btn:hover{transform:translateY(-1px); box-shadow:0 12px 24px rgba(0,0,0,.4); border-color:#3a5d9b}
+.btn.primary{background:linear-gradient(135deg,#162649,#14213f); border-color:#3a5d9b}
 .btn.ghost{background:transparent}
 .btn:disabled{opacity:.6; cursor:not-allowed}
+
+/* Dice */
+#dice{
+  width:72px;height:72px; border-radius:14px; border:1px solid #2a3a60;
+  background:linear-gradient(180deg,#0f1733,#0a1226); display:grid; place-items:center; user-select:none;
+  font-size:28px; box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+}
+#dice.spin{animation:die .7s cubic-bezier(.2,.6,.2,1)}
+@keyframes die{0%{transform:rotate(0) scale(1)}50%{transform:rotate(140deg) scale(1.1)}100%{transform:rotate(180deg) scale(1)}}
+
 /* Rings */
 .rings{display:flex; gap:12px; flex-wrap:wrap}
-.ring{position:relative; width:96px; height:96px}
+.ring{position:relative; width:100px; height:100px}
 .ring canvas{position:absolute; inset:0}
 .ring .label{position:absolute; inset:0; display:grid; place-items:center; font-weight:600}
 .ring .label small{display:block; color:#a9bad2; font-weight:400}
-/* Dice */
-#dice{
-  width:64px; height:64px; display:grid; place-items:center;
-  border-radius:14px; border:1px solid var(--stroke); background:#0f1a2c; user-select:none;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
-  font-size:26px;
-}
-#dice.rolling{animation:roll .6s ease}
-@keyframes roll{ 0%{transform:rotate(0)} 50%{transform:rotate(90deg) scale(1.1)} 100%{transform:rotate(180deg)} }
+
 /* Choices */
 #choices .btn{width:100%; text-align:left}
 .delta{float:right; font-size:12px}
 .pos{color:var(--good)} .neg{color:var(--bad)} .warn{color:var(--warn)}
+
 /* Sidebar */
-#log{height:220px; overflow:auto; background:#0f1a2b; border:1px solid var(--stroke); border-radius:12px; padding:10px}
-kbd{background:#0e1828;border:1px solid var(--stroke);border-bottom-width:2px;border-radius:6px;padding:2px 6px;color:#c2d4ef}
+.kbd{background:#0e1828;border:1px solid var(--stroke);border-bottom-width:2px;border-radius:6px;padding:2px 6px;color:#c2d4ef}
+#log{height:240px; overflow:auto; background:#0e1730; border:1px solid var(--stroke); border-radius:12px; padding:10px}
+
+/* Analyst hologram */
+#analyst{
+  position:relative; padding:10px 12px; border-radius:12px;
+  background:linear-gradient(180deg,#142542,#0f1a31);
+  border:1px solid #28426a; color:#dff1ff; box-shadow:0 8px 22px rgba(0,0,0,.35), 0 0 22px #5bd6ff22;
+}
+#analyst:before{
+  content:""; position:absolute; left:-8px; top:16px; width:8px; height:8px; border:1px solid #28426a; border-right:none; border-bottom:none; transform:rotate(45deg);
+  background:linear-gradient(180deg,#142542,#0f1a31);
+}
+
 /* Toasts */
-.toast{position:fixed; left:50%; bottom:18px; transform:translateX(-50%); z-index:70; pointer-events:none}
-.toast .bubble{background:#0e1828; border:1px solid var(--stroke); padding:10px 14px; border-radius:12px; color:#dff2ff; box-shadow:0 10px 26px rgba(0,0,0,.35), 0 0 18px #85d6ff22; animation:rise 2s ease both}
-@keyframes rise{ from{opacity:0; transform:translate(-50%,10px)} to{opacity:1; transform:translate(-50%,-6px)} }
+.toast{position:fixed; left:50%; bottom:18px; transform:translateX(-50%); z-index:80; pointer-events:none}
+.toast .bubble{background:#0e1828; border:1px solid #2a3a60; padding:10px 14px; border-radius:12px; color:#dff2ff; box-shadow:0 10px 26px rgba(0,0,0,.35), 0 0 18px #85d6ff22; animation:rise 2.2s ease both}
+@keyframes rise{from{opacity:0; transform:translate(-50%,10px)} to{opacity:1; transform:translate(-50%,-6px)}}
+
 /* Modal */
-.modal{position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:80}
+.modal{position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; align-items:center; justify-content:center; z-index:85}
 .modal.show{display:flex}
-.modal .box{background:linear-gradient(180deg,#13213a,#0f1a2b); border:1px solid var(--stroke); border-radius:16px; padding:18px; max-width:760px; width:92%; box-shadow:0 20px 44px rgba(0,0,0,.5)}
-/* Results */
-#radar{max-width:100%}
+.modal .box{background:linear-gradient(180deg,#14223f,#0f1a2b); border:1px solid #29426d; border-radius:16px; padding:18px; max-width:780px; width:92%; box-shadow:0 20px 44px rgba(0,0,0,.5)}
+
 /* Confetti */
 #confetti{position:fixed; inset:0; pointer-events:none; display:none; z-index:90}
-/* Accessibility helpers */
+
+/* Views */
+.hidden{display:none}
+
+/* Cyber Lens overlay */
+#lens{position:fixed; inset:0; pointer-events:none; z-index:60; display:none}
+#lens.show{display:block; background:
+  radial-gradient(400px 400px at 20% 30%, rgba(91,214,255,.14), transparent 60%),
+  radial-gradient(500px 700px at 80% 60%, rgba(239,68,68,.12), transparent 60%);}
 .visually-hidden{position:absolute !important; height:1px; width:1px; overflow:hidden; clip:rect(1px,1px,1px,1px); white-space:nowrap}
 </style>
 </head>
 <body>
-<div id="glow" class="layer"></div>
-<div id="grid" class="layer"></div>
-<canvas id="confetti"></canvas>
+<!-- Atmosphere -->
+<canvas id="particles" aria-hidden="true"></canvas>
+<div id="tone" aria-hidden="true"></div>
+<canvas id="confetti" aria-hidden="true"></canvas>
+<div id="lens" aria-hidden="true"></div>
 
 <div class="container">
-  <header class="card panel">
+  <header class="card panel" style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap">
     <div>
       <h1>DataHeist: Cyber Choices</h1>
-      <small>AU/VN cyber literacy • 12 rounds • cards + dice • front-end only</small>
+      <small>Cinematic cyber awareness • AU/VN context • Front-end only</small>
     </div>
-    <span class="badge">🎯 Goal: Finish with strong <b>SEC</b>/<b>TRU</b> and non-zero <b>BDG</b></span>
+    <div style="display:flex; gap:8px; flex-wrap:wrap">
+      <button id="toggleLens" class="btn">🛰️ Cyber Lens</button>
+      <button id="mute" class="btn">🔊 Sound</button>
+    </div>
   </header>
 
   <!-- MENU -->
@@ -109,56 +139,63 @@ kbd{background:#0e1828;border:1px solid var(--stroke);border-bottom-width:2px;bo
     <div class="grid" style="margin-top:8px">
       <section class="panel">
         <div style="display:flex; gap:10px; flex-wrap:wrap">
-          <label style="flex:1 1 220px">Organisation Name<br><input id="org" style="width:100%" placeholder="RMIT Lab / SME / Startup"></label>
-          <label style="flex:1 1 200px">Difficulty<br>
+          <label style="flex:1 1 240px">Organisation<br><input id="org" placeholder="RMIT Lab / SME / Startup" style="width:100%"></label>
+          <label style="flex:1 1 160px">Difficulty<br>
             <select id="difficulty" style="width:100%">
               <option value="casual">Casual</option>
               <option value="analyst">Analyst</option>
               <option value="ciso">CISO</option>
             </select>
           </label>
+          <label style="flex:1 1 160px">Game Length<br>
+            <select id="length" style="width:100%">
+              <option value="6">Fast (6)</option>
+              <option value="12" selected>Standard (12)</option>
+              <option value="18">Long (18)</option>
+            </select>
+          </label>
         </div>
         <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap">
           <button class="btn primary" id="start">Start</button>
-          <button class="btn" id="resume">Continue Last Save</button>
+          <button class="btn" id="resume">Continue</button>
         </div>
-        <p style="color:var(--muted); margin-top:8px">Keyboard: <kbd>R</kbd> roll • <kbd>1–4</kbd> pick • <kbd>S</kbd> save</p>
+        <p style="color:var(--muted); margin-top:8px">Shortcuts: <span class="kbd">R</span> roll • <span class="kbd">1–4</span> pick • <span class="kbd">S</span> save • <span class="kbd">Esc</span> close</p>
       </section>
       <aside class="panel card">
-        <h3>How it works</h3>
-        <p>Each round draws a <b>risk card</b> (phishing, unpatched software, ransomware…). Roll a <b>die</b>, then pick a <b>defense</b>. Your choice changes <b>SEC</b> (security), <b>TRU</b> (trust), and <b>BDG</b> (budget).</p>
-        <p>Every 4 rounds you’ll see a quick <b>posture snapshot</b>. At the end, review your radar and insights, then try to beat your score.</p>
+        <h3>How to play</h3>
+        <p>Each round: a <b>risk</b> appears. <b>Roll</b> to reveal severity. Pick a <b>defense</b>. Your choice changes <b>SEC</b>, <b>TRU</b>, and <b>BDG</b>.</p>
+        <p>Make resilient choices, unlock <b>perks</b>, and avoid event chains. End with a strong <b>radar</b> and <b>final report</b>.</p>
       </aside>
     </div>
   </main>
 
   <!-- PLAY -->
-  <section id="view-play" class="card panel" style="display:none">
+  <section id="view-play" class="card panel hidden" aria-live="polite">
     <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap">
       <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
-        <span class="badge">Round <b id="round">1</b>/12</span>
-        <span class="badge" id="org-badge">Org: —</span>
-        <span class="badge" id="diff-badge">Mode: Casual</span>
+        <span class="btn ghost" style="cursor:default;border-style:dashed">Round <b id="round">1</b>/<span id="total">12</span></span>
+        <span class="btn ghost" id="org-badge" style="cursor:default;border-style:dashed">Org: —</span>
+        <span class="btn ghost" id="diff-badge" style="cursor:default;border-style:dashed">Mode: Casual</span>
       </div>
       <div class="rings">
-        <div class="ring"><canvas id="ring-sec" width="96" height="96"></canvas><div class="label"><div><span id="sec-num">55</span><small>SEC</small></div></div></div>
-        <div class="ring"><canvas id="ring-tru" width="96" height="96"></canvas><div class="label"><div><span id="tru-num">55</span><small>TRU</small></div></div></div>
-        <div class="ring"><canvas id="ring-bdg" width="96" height="96"></canvas><div class="label"><div><span id="bdg-num">50</span><small>BDG</small></div></div></div>
+        <div class="ring"><canvas id="ring-sec" width="100" height="100"></canvas><div class="label"><div><span id="sec-num">55</span><small>SEC</small></div></div></div>
+        <div class="ring"><canvas id="ring-tru" width="100" height="100"></canvas><div class="label"><div><span id="tru-num">55</span><small>TRU</small></div></div></div>
+        <div class="ring"><canvas id="ring-bdg" width="100" height="100"></canvas><div class="label"><div><span id="bdg-num">50</span><small>BDG</small></div></div></div>
       </div>
-      <div style="display:flex; gap:8px">
+      <div style="display:flex; gap:8px; flex-wrap:wrap">
         <button class="btn" id="save">💾 Save</button>
-        <button class="btn ghost" id="end">End Early</button>
+        <button class="btn" id="end">End Early</button>
       </div>
     </div>
 
     <div class="grid" style="margin-top:12px">
-      <article class="panel card">
-        <h3 id="card-title">Risk Card</h3>
-        <p id="card-body" style="color:#cfe0ff"></p>
+      <article class="panel card" id="play-left">
+        <h3 id="card-title">Risk</h3>
+        <p id="card-body" style="color:#cee2ff"></p>
         <p id="card-region" style="color:#9fb3d6"></p>
 
         <div style="display:flex; align-items:center; gap:12px; margin:10px 0">
-          <div id="dice" role="button" tabindex="0" aria-label="Risk dice">🎲</div>
+          <div id="dice" role="button" tabindex="0" aria-label="Risk die">🎲</div>
           <button class="btn primary" id="roll">Roll Risk</button>
           <span id="severity" style="color:#cfe0ff"></span>
         </div>
@@ -168,9 +205,10 @@ kbd{background:#0e1828;border:1px solid var(--stroke);border-bottom-width:2px;bo
         <p id="fact" style="color:#cfe4ff; font-style:italic; margin-top:4px"></p>
       </article>
 
-      <aside class="panel card">
-        <h4>Objective</h4>
-        <p>Finish with strong <b>SEC</b> and <b>TRU</b> without running out of <b>BDG</b>.</p>
+      <aside class="panel card" id="play-right">
+        <div id="analyst" aria-live="polite">🧠 Analyst: I’ll observe your posture and suggest improvements.</div>
+        <h4 style="margin-top:10px">Objective</h4>
+        <p>Finish with strong <b>SEC</b> and <b>TRU</b> without draining <b>BDG</b>.</p>
         <h4 style="margin-top:8px">Legend</h4>
         <p>SEC = Security • TRU = Trust • BDG = Budget</p>
         <h4 style="margin-top:8px">Recent</h4>
@@ -180,10 +218,10 @@ kbd{background:#0e1828;border:1px solid var(--stroke);border-bottom-width:2px;bo
   </section>
 
   <!-- RESULTS -->
-  <section id="view-results" class="card panel" style="display:none">
+  <section id="view-results" class="card panel hidden">
     <h2 id="result-title">Operation Summary</h2>
     <p id="result-body" style="color:#cfe0ff"></p>
-    <canvas id="radar" width="380" height="380"></canvas>
+    <canvas id="radar" width="400" height="380" style="max-width:100%"></canvas>
     <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap">
       <button class="btn" id="download">📄 Download Journey</button>
       <button class="btn primary" id="restart">Play Again</button>
@@ -195,47 +233,69 @@ kbd{background:#0e1828;border:1px solid var(--stroke);border-bottom-width:2px;bo
   <footer class="panel" style="text-align:center; color:#9fb1c8">© 2025 The Trinity — RMIT City Campus</footer>
 </div>
 
-<!-- Modals -->
-<div id="modal-snap" class="modal" role="dialog" aria-modal="true">
+<!-- Snapshot Modal -->
+<div id="modal-snap" class="modal" role="dialog" aria-modal="true" aria-label="Posture Snapshot">
   <div class="box">
     <h3>Posture Snapshot</h3>
-    <canvas id="bar4" width="460" height="240" style="max-width:100%"></canvas>
+    <canvas id="bar4" width="520" height="260" style="max-width:100%"></canvas>
     <p id="snap-msg" style="text-align:center; color:#cfe0ff"></p>
     <div style="text-align:center; margin-top:8px"><button class="btn primary" id="snap-continue">Continue</button></div>
+  </div>
+</div>
+
+<!-- Perks Modal -->
+<div id="modal-perk" class="modal" role="dialog" aria-modal="true" aria-label="Perk Selection">
+  <div class="box">
+    <h3>Choose a Perk</h3>
+    <p style="color:#cfe0ff">Pick one initiative to boost your posture for the remaining rounds.</p>
+    <div id="perk-choices" style="display:flex; flex-direction:column; gap:8px; margin-top:8px"></div>
   </div>
 </div>
 
 <div id="toast" class="toast" aria-live="polite"></div>
 
 <script>
-/* ==============================
-   Utilities & Audio
-============================== */
+/* =======================================================
+   Utility & Audio
+======================================================= */
 const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
 const rnd=a=>a[(Math.random()*a.length)|0];
 const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
-const ROUNDS=12, SAVE_KEY='dataheist_save_v1';
+const SAVE_KEY='dh_aaa_save_v1';
 
 const AC=window.AudioContext||window.webkitAudioContext;
-const audio={ctx:null, started:false, pip:null};
-function ensureAudio(){
+const audio={ctx:null, started:false, master:null, mus:{}, mute:false};
+function bootAudio(){
   if(audio.started) return;
   try{
     audio.ctx=new AC();
+    audio.master=audio.ctx.createGain(); audio.master.gain.value=0.12;
+    audio.master.connect(audio.ctx.destination);
+    // Ambient layers
+    audio.mus.base=osc(110,'sine',.02);
+    audio.mus.pad=osc(220,'triangle',.015);
+    connect(audio.mus.base, audio.master); connect(audio.mus.pad, audio.master);
     audio.started=true;
   }catch(e){}
 }
-['click','keydown','touchstart'].forEach(ev=>document.addEventListener(ev,()=>{ if(AC && audio.ctx && audio.ctx.state==='suspended'){audio.ctx.resume()} ensureAudio(); },{once:true,passive:true}));
-function pip(freq=660,dur=.08,type='sine',vol=.05){
-  if(!audio.ctx) return;
+function connect(n, dest){ n && n.connect && n.connect(dest); }
+function osc(freq,type='sine',gain=0.02){
   const o=audio.ctx.createOscillator(), g=audio.ctx.createGain();
-  o.type=type; o.frequency.value=freq; g.gain.value=vol; o.connect(g).connect(audio.ctx.destination);
+  o.type=type; o.frequency.value=freq; g.gain.value=gain; o.connect(g);
+  o.start();
+  return g;
+}
+function blip(freq=640,dur=.08,type='sine',vol=.07){
+  if(!audio.ctx || audio.mute) return;
+  const o=audio.ctx.createOscillator(), g=audio.ctx.createGain();
+  o.type=type; o.frequency.value=freq; g.gain.value=vol; o.connect(g).connect(audio.master);
   o.start(); g.gain.exponentialRampToValueAtTime(1e-4, audio.ctx.currentTime+dur); o.stop(audio.ctx.currentTime+dur+.02);
 }
+['click','touchstart','keydown'].forEach(ev=>document.addEventListener(ev,()=>{ if(AC&&!audio.ctx) bootAudio(); if(audio.ctx&&audio.ctx.state==='suspended') audio.ctx.resume(); },{once:true,passive:true}));
 
-/* ==============================
-   Data: Facts & Cards (12)
-============================== */
+/* =======================================================
+   Content: Facts & Cards
+======================================================= */
 const FACTS=[
   "2FA blocks most credential-stuffing attacks.",
   "Restoring from clean backups is the fastest way out of ransomware.",
@@ -246,9 +306,7 @@ const FACTS=[
   "Public S3 buckets expose data; use least-privilege.",
   "Deepfake voice scams target finance approvals.",
   "Use HTTPS + VPN on public Wi-Fi; avoid sensitive logins.",
-  "Malicious USBs are still used for initial access.",
-  "Audit logs must be monitored and retained securely.",
-  "Disclosure builds trust after incidents."
+  "Malicious USBs are still used for initial access."
 ];
 
 const CARDS=[
@@ -256,10 +314,11 @@ const CARDS=[
     title:"AI-Generated Phishing (MyGov lookalike)",
     base:3,
     text:"A realistic email asks staff to ‘verify benefits’. Domain is slightly misspelled.",
+    chain:"ransomware_plugin",
     options:[
       {label:"Enforce 2FA across accounts", d:{SEC:+9, TRU:+3, BDG:-3}, tip:"2FA breaks credential-stuffing."},
       {label:"Run phishing drill + awareness", d:{SEC:+5, TRU:+5, BDG:-2}, tip:"Training reduces clicks."},
-      {label:"Ignore for now", d:{SEC:-10, TRU:-6, BDG:+1}, tip:"Delay equals exposure."}
+      {label:"Ignore for now", d:{SEC:-10, TRU:-6, BDG:+1}, tip:"Delay equals exposure.", risky:true}
     ]
   },
   { id:"sms_spoof_zalo", region:"VN",
@@ -269,230 +328,229 @@ const CARDS=[
     options:[
       {label:"Password manager + unique pwds", d:{SEC:+6, TRU:+2, BDG:-2}, tip:"Prevents reuse damage."},
       {label:"2FA + out-of-band confirmations", d:{SEC:+7, TRU:+3, BDG:-3}, tip:"Stops OTP theft impact."},
-      {label:"Ignore", d:{SEC:-8, TRU:-5, BDG:+1}, tip:"Attackers automate resend."}
+      {label:"Ignore", d:{SEC:-8, TRU:-5, BDG:+1}, tip:"Attackers automate resend.", risky:true}
     ]
   },
   { id:"unpatched_browser", region:"AU",
     title:"Unpatched Browser 0-day Emerges",
-    base:4,
-    text:"A widely-used browser has an active exploit; your fleet is behind on updates.",
+    base:4, text:"A widely-used browser has an active exploit; your fleet is behind on updates.",
     options:[
       {label:"Force auto-update & patch now", d:{SEC:+9, TRU:+1, BDG:-3}, tip:"Closes exploit window."},
       {label:"Virtualize sensitive apps", d:{SEC:+6, TRU:+2, BDG:-4}, tip:"Adds isolation."},
-      {label:"Delay a week", d:{SEC:-9, TRU:-3, BDG:+1}, tip:"Risk compounds daily."}
+      {label:"Delay a week", d:{SEC:-9, TRU:-3, BDG:+1}, tip:"Risk compounds daily.", risky:true}
     ]
   },
   { id:"public_wifi_mitm", region:"AU",
     title:"Public Wi-Fi MITM near RMIT City",
-    base:2,
-    text:"Staff connect to café Wi-Fi; credentials observed via evil-twin AP.",
+    base:2, text:"Staff connect to café Wi-Fi; credentials observed via evil-twin AP.",
     options:[
       {label:"Mandate VPN + HSTS checks", d:{SEC:+7, TRU:+2, BDG:-3}, tip:"Encrypts traffic end-to-end."},
       {label:"Awareness: avoid sensitive logins", d:{SEC:+4, TRU:+3, BDG:-1}, tip:"Reduces exposure."},
-      {label:"Do nothing", d:{SEC:-7, TRU:-4, BDG:+1}, tip:"Credentials at risk."}
+      {label:"Do nothing", d:{SEC:-7, TRU:-4, BDG:+1}, tip:"Credentials at risk.", risky:true}
     ]
   },
   { id:"malicious_usb_b80", region:"AU",
     title:"Malicious USB found near Building 80",
-    base:2,
-    text:"A labeled USB stick appears ‘HR Payroll’. Temptation is real.",
+    base:2, text:"A labeled USB stick appears ‘HR Payroll’. Temptation is real.",
     options:[
-      {label:"Disable USB autorun + block unknown", d:{SEC:+7, TRU:+2, BDG:-2}, tip:"Stops BadUSB."},
+      {label:"Disable autorun + block unknown", d:{SEC:+7, TRU:+2, BDG:-2}, tip:"Stops BadUSB."},
       {label:"Awareness: turn in to IT", d:{SEC:+4, TRU:+3, BDG:-1}, tip:"Removes lure."},
-      {label:"Plug it in quickly", d:{SEC:-10, TRU:-5, BDG:+0}, tip:"Classic initial access."}
+      {label:"Plug it in quickly", d:{SEC:-10, TRU:-5, BDG:+0}, tip:"Classic initial access.", risky:true}
     ]
   },
   { id:"password_reuse_portal", region:"VN",
     title:"Password Reuse on University Portal",
-    base:3,
-    text:"Credentials were reused across multiple services; one provider had a breach.",
+    base:3, text:"Credentials were reused across multiple services; one provider had a breach.",
     options:[
       {label:"Enforce SSO + pwd manager", d:{SEC:+8, TRU:+3, BDG:-3}, tip:"Unique creds + central auth."},
       {label:"2FA & rotation campaign", d:{SEC:+7, TRU:+2, BDG:-2}, tip:"Layers reduce risk."},
-      {label:"Ignore", d:{SEC:-10, TRU:-6, BDG:+1}, tip:"Stuffing inevitable."}
+      {label:"Ignore", d:{SEC:-10, TRU:-6, BDG:+1}, tip:"Stuffing inevitable.", risky:true}
     ]
   },
   { id:"shadow_ai_docs", region:"AU",
     title:"Shadow AI Tool Uploading Docs",
-    base:3,
-    text:"Team uses an external GenAI tool; confidential notes may be leaving the org.",
+    base:3, text:"Team uses an external GenAI tool; confidential notes may be leaving the org.",
     options:[
       {label:"Approved AI platform + policy", d:{SEC:+7, TRU:+3, BDG:-3}, tip:"Govern usage safely."},
       {label:"DLP on outbound traffic", d:{SEC:+6, TRU:+2, BDG:-4}, tip:"Detects sensitive data."},
-      {label:"Let teams decide", d:{SEC:-8, TRU:-4, BDG:+1}, tip:"Data exfil risk."}
+      {label:"Let teams decide", d:{SEC:-8, TRU:-4, BDG:+1}, tip:"Data exfil risk.", risky:true}
     ]
   },
   { id:"ransomware_plugin", region:"VN",
     title:"Ransomware via Outdated Plugin",
-    base:3,
-    text:"A popular CMS plugin has a remote-exec flaw; backups were untested.",
+    base:3, text:"A popular CMS plugin has a remote-exec flaw; backups were untested.",
     options:[
       {label:"Patch + 3-2-1 backups tested", d:{SEC:+8, TRU:+3, BDG:-4}, tip:"Restorable state matters."},
       {label:"Segment affected servers", d:{SEC:+6, TRU:+2, BDG:-3}, tip:"Limits blast radius."},
-      {label:"Pay ransom quietly", d:{SEC:-6, TRU:-8, BDG:-6}, tip:"Encourages re-attack."}
+      {label:"Pay ransom quietly", d:{SEC:-6, TRU:-8, BDG:-6}, tip:"Encourages re-attack.", risky:true}
     ]
   },
   { id:"s3_public_bucket", region:"AU",
     title:"Public S3 Bucket Discovered",
-    base:2,
-    text:"A misconfigured bucket exposes documents to the internet.",
+    base:2, text:"A misconfigured bucket exposes documents to the internet.",
     options:[
       {label:"Lock access + audit logs", d:{SEC:+7, TRU:+3, BDG:-2}, tip:"Least-privilege + visibility."},
       {label:"Rotate keys + notify affected", d:{SEC:+6, TRU:+4, BDG:-3}, tip:"Transparency builds trust."},
-      {label:"Quietly fix without notice", d:{SEC:+3, TRU:-4, BDG:-1}, tip:"Trust erosion later."}
+      {label:"Quietly fix without notice", d:{SEC:+3, TRU:-4, BDG:-1}, tip:"Trust erosion later.", risky:true}
     ]
   },
   { id:"deepfake_cfo", region:"AU",
-    title:"Deepfake CFO Voice Requests Urgent Transfer",
-    base:3,
-    text:"Finance receives a voice call that sounds like the CFO asking for a large transfer.",
+    title:"Deepfake CFO Voice Requests Transfer",
+    base:3, text:"Finance receives a voice call like the CFO asking for a large transfer.",
     options:[
       {label:"Out-of-band verification", d:{SEC:+7, TRU:+3, BDG:-1}, tip:"Stops approval fraud."},
-      {label:"Payment delay + multi-sign", d:{SEC:+6, TRU:+2, BDG:-2}, tip:"Requires consensus."},
-      {label:"Approve to be helpful", d:{SEC:-10, TRU:-6, BDG:-5}, tip:"Classic BEC pattern."}
+      {label:"Delay + multi-sign approval", d:{SEC:+6, TRU:+2, BDG:-2}, tip:"Requires consensus."},
+      {label:"Approve to be helpful", d:{SEC:-10, TRU:-6, BDG:-5}, tip:"Classic BEC pattern.", risky:true}
     ]
   },
   { id:"privacy_mishandle", region:"VN",
     title:"Privacy Request Mishandled",
-    base:2,
-    text:"A data subject access request was ignored; data retention unclear.",
+    base:2, text:"A data subject access request was ignored; retention unclear.",
     options:[
       {label:"Build DSAR workflow", d:{SEC:+4, TRU:+6, BDG:-3}, tip:"Compliance is trust."},
       {label:"Data mapping & minimisation", d:{SEC:+6, TRU:+3, BDG:-3}, tip:"Less data = less risk."},
-      {label:"Ignore", d:{SEC:-6, TRU:-7, BDG:+1}, tip:"Regulatory risk grows."}
+      {label:"Ignore", d:{SEC:-6, TRU:-7, BDG:+1}, tip:"Regulatory risk grows.", risky:true}
     ]
   },
   { id:"linkedin_se", region:"AU",
     title:"LinkedIn Social Engineering",
-    base:2,
-    text:"An attacker builds rapport with staff over weeks; requests internal info.",
+    base:2, text:"An attacker builds rapport with staff; requests internal info.",
     options:[
       {label:"Awareness + reporting channel", d:{SEC:+5, TRU:+4, BDG:-1}, tip:"Culture detects fraud."},
       {label:"Least-privilege & approvals", d:{SEC:+6, TRU:+2, BDG:-2}, tip:"Access scoped tightly."},
-      {label:"No action", d:{SEC:-7, TRU:-5, BDG:+1}, tip:"Humans are targets."}
+      {label:"No action", d:{SEC:-7, TRU:-5, BDG:+1}, tip:"Humans are targets.", risky:true}
     ]
   }
 ];
 
-/* ==============================
+/* =======================================================
    State
-============================== */
+======================================================= */
 const S={
   org:"—", diff:"casual",
-  round:1,
+  round:1, total:12,
   SEC:55, TRU:55, BDG:50,
   deck:[], used:[], last:-1,
-  deltas:[], // for snapshots
-  rolled:false, severity:0,
-  finished:false
+  deltas:[], rolled:false, severity:0,
+  finished:false, chosenPerk:false,
+  flags:{ // for event chains
+    ignoredPhish:false, ransomwareTriggered:false
+  }
 };
 
-/* ==============================
-   UI Refs
-============================== */
+/* =======================================================
+   UI & Draw Helpers
+======================================================= */
 const numEls={SEC:$('#sec-num'), TRU:$('#tru-num'), BDG:$('#bdg-num')};
 const ringEls={SEC:$('#ring-sec'), TRU:$('#ring-tru'), BDG:$('#ring-bdg')};
 
-/* ==============================
-   Drawing: Rings & Radar & Bars
-============================== */
 function ring(canvas,val,colors=['#93e7ff','#bdf4da']){
   const ctx=canvas.getContext('2d'), W=canvas.width, H=canvas.height, cx=W/2, cy=H/2, r=W/2-8;
   ctx.clearRect(0,0,W,H);
   ctx.strokeStyle='#20324f'; ctx.lineWidth=10; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
   const grd=ctx.createLinearGradient(0,0,W,H); grd.addColorStop(0,colors[0]); grd.addColorStop(1,colors[1]);
   const a0=-Math.PI/2, a=a0+(Math.PI*2)*(val/100);
-  ctx.strokeStyle=grd; ctx.lineCap='round'; ctx.lineWidth=10;
-  ctx.shadowColor=colors[0]; ctx.shadowBlur=10;
+  ctx.strokeStyle=grd; ctx.lineCap='round'; ctx.lineWidth=10; ctx.shadowColor=colors[0]; ctx.shadowBlur=10;
   ctx.beginPath(); ctx.arc(cx,cy,r,a0,a); ctx.stroke(); ctx.shadowBlur=0;
 }
 
-function drawRadar(sec,tru,bdg){
-  const c=$('#radar'),x=c.getContext('2d'),W=c.width,H=c.height,cx=W/2,cy=H/2,r=Math.min(W,H)/2-28;
-  x.clearRect(0,0,W,H); x.strokeStyle='#243145';
-  for(let i=1;i<=3;i++){x.beginPath();x.arc(cx,cy,(r*i)/3,0,Math.PI*2);x.stroke()}
-  const labs=['SEC','TRU','BDG']; x.fillStyle='#cfe1ff'; x.font='12px system-ui';
-  for(let i=0;i<3;i++){const a=(-Math.PI/2)+(i*(2*Math.PI/3)), ex=cx+Math.cos(a)*r, ey=cy+Math.sin(a)*r; x.beginPath();x.moveTo(cx,cy);x.lineTo(ex,ey);x.stroke();x.textAlign='center';x.fillText(labs[i],ex,ey+(i===0?-12:12))}
-  const vals=[sec,tru,bdg].map(v=>clamp(v,0,100));
-  x.beginPath();
-  for(let i=0;i<3;i++){const a=(-Math.PI/2)+(i*(2*Math.PI/3)), pr=r*(vals[i]/100), px=cx+Math.cos(a)*pr, py=cy+Math.sin(a)*pr; i?x.lineTo(px,py):x.moveTo(px,py)}
-  x.closePath(); x.fillStyle='rgba(183,28,28,.24)'; x.fill(); x.lineWidth=2; x.strokeStyle='rgba(255,150,150,.8)'; x.stroke();
-}
-
-function drawBars(avg){
-  const c=$('#bar4'),x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height);
-  const labels=['SEC','TRU','BDG'],vals=[avg.SEC,avg.TRU,avg.BDG];
-  x.font='12px system-ui';
-  for(let i=0;i<3;i++){
-    const v=vals[i], x0=70+i*120;
-    x.fillStyle='#102035'; x.fillRect(x0,180,80,-120);
-    x.strokeStyle='#22344f'; x.strokeRect(x0,60,80,120);
-    x.fillStyle = v>=0?'#16a34a':'#ef4444';
-    const h=Math.min(120,Math.abs(v));
-    x.fillRect(x0,180,80,-Math.sign(v)*h);
-    x.fillStyle='#cfe1ff'; x.textAlign='center'; x.fillText(labels[i], x0+40, 198);
-    x.fillText((v>=0?'+':'')+v, x0+40, 54);
+function setHUD(){
+  numEls.SEC.textContent=S.SEC; numEls.TRU.textContent=S.TRU; numEls.BDG.textContent=S.BDG;
+  ring(ringEls.SEC,S.SEC,['#79d2ff','#b5f4d6']);
+  ring(ringEls.TRU,S.TRU,['#a9b7ff','#d1e1ff']);
+  ring(ringEls.BDG,S.BDG,['#ffd59a','#fff1b7']);
+  $('#round').textContent=S.round; $('#total').textContent=S.total;
+  $('#org-badge').textContent='Org: '+S.org;
+  $('#diff-badge').textContent='Mode: '+(S.diff==='casual'?'Casual':S.diff==='analyst'?'Analyst':'CISO');
+  // Tone layer by posture
+  const tone=$('#tone');
+  const min=Math.min(S.SEC,S.TRU,S.BDG);
+  const dom=[['SEC',S.SEC],['TRU',S.TRU],['BDG',S.BDG]].sort((a,b)=>b[1]-a[1])[0][0];
+  if(min<35){ tone.style.background='radial-gradient(900px 700px at 70% 10%, rgba(239,68,68,.25), transparent 60%)'; }
+  else if(min<55){ tone.style.background='radial-gradient(900px 700px at 70% 10%, rgba(255,184,86,.18), transparent 60%)'; }
+  else{
+    const col = dom==='SEC'?'rgba(91,214,255,.18)':(dom==='TRU'?'rgba(125,255,183,.18)':'rgba(255,211,107,.18)');
+    tone.style.background=`radial-gradient(900px 700px at 70% 10%, ${col}, transparent 60%)`;
   }
 }
 
-/* ==============================
-   HUD & Views & Toast
-============================== */
-function setHUD(){
-  numEls.SEC.textContent=S.SEC; numEls.TRU.textContent=S.TRU; numEls.BDG.textContent=S.BDG;
-  ring(ringEls.SEC,S.SEC,['#93e7ff','#bdf4da']);
-  ring(ringEls.TRU,S.TRU,['#a9b7ff','#d1e1ff']);
-  ring(ringEls.BDG,S.BDG,['#ffd59a','#fff1b7']);
-  $('#round').textContent=S.round;
-  $('#org-badge').textContent='Org: '+S.org;
-  $('#diff-badge').textContent='Mode: '+(S.diff==='casual'?'Casual':S.diff==='analyst'?'Analyst':'CISO');
-}
-function show(view){
-  $('#view-menu').style.display = view==='menu'?'block':'none';
-  $('#view-play').style.display = view==='play'?'block':'none';
-  $('#view-results').style.display = view==='results'?'block':'none';
-}
 function addLog(html){ const p=document.createElement('p'); p.innerHTML=html; $('#log').prepend(p); }
-function toast(msg){ const t=$('#toast'); const b=document.createElement('div'); b.className='bubble'; b.textContent=msg; t.appendChild(b); setTimeout(()=>b.remove(),2000); }
+function toast(msg){ const t=$('#toast'); const b=document.createElement('div'); b.className='bubble'; b.textContent=msg; t.appendChild(b); setTimeout(()=>b.remove(),2200); }
+function analystSay(text){ $('#analyst').textContent='🧠 Analyst: '+text; }
 
-/* ==============================
-   Confetti
-============================== */
+/* Confetti */
 const confettiCanvas=$('#confetti'), ctxC=confettiCanvas.getContext('2d');
 function confettiBurst(){
   confettiCanvas.width=innerWidth; confettiCanvas.height=innerHeight; confettiCanvas.style.display='block';
-  const pcs=Array.from({length:150},()=>({x:Math.random()*innerWidth,y:-10,r:Math.random()*6+2,c:`hsl(${Math.random()*360},90%,60%)`,vy:2+Math.random()*3,vx:(Math.random()-.5)*2}));
+  const pcs=Array.from({length:160},()=>({x:Math.random()*innerWidth,y:-10,r:Math.random()*6+2,c:`hsl(${Math.random()*360},90%,60%)`,vy:2+Math.random()*3,vx:(Math.random()-.5)*2}));
   let t=0; (function anim(){
     ctxC.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
     pcs.forEach(p=>{p.x+=p.vx;p.y+=p.vy;ctxC.fillStyle=p.c;ctxC.beginPath();ctxC.arc(p.x,p.y,p.r,0,Math.PI*2);ctxC.fill();});
-    if((t+=1)<220) requestAnimationFrame(anim); else confettiCanvas.style.display='none';
+    if((t+=1)<230) requestAnimationFrame(anim); else confettiCanvas.style.display='none';
   })();
 }
 
-/* ==============================
-   Deck & Rendering
-============================== */
+/* Parallax particles */
+(function particleInit(){
+  const cvs=$('#particles'), x=cvs.getContext('2d'); function resize(){cvs.width=innerWidth;cvs.height=innerHeight;} resize(); addEventListener('resize',resize);
+  const parts=Array.from({length:90},()=>({x:Math.random()*cvs.width,y:Math.random()*cvs.height, vx:(Math.random()-.5)*.4, vy:(Math.random()-.5)*.4, r:Math.random()*2+0.6}));
+  (function anim(){
+    x.clearRect(0,0,cvs.width,cvs.height);
+    parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy; if(p.x<0||p.x>cvs.width) p.vx*=-1; if(p.y<0||p.y>cvs.height) p.vy*=-1;
+      x.fillStyle='rgba(91,214,255,.25)'; x.beginPath(); x.arc(p.x,p.y,p.r,0,Math.PI*2); x.fill();});
+    requestAnimationFrame(anim);
+  })();
+})();
+
+/* =======================================================
+   Deck / Event Flow
+======================================================= */
 function buildDeck(){
   S.deck = CARDS.map((_,i)=>i);
   // shuffle
-  for(let i=S.deck.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0; [S.deck[i],S.deck[j]]=[S.deck[j],S.deck[i]]; }
+  for(let i=S.deck.length-1;i>0;i--){const j=(Math.random()*(i+1))|0; [S.deck[i],S.deck[j]]=[S.deck[j],S.deck[i]];}
   S.used=[]; S.last=-1;
 }
+function biasDeck(){
+  // Subtle preference: if a stat is low, bias cards that help it
+  const low = ['SEC','TRU','BDG'].sort((a,b)=>S[a]-S[b])[0];
+  if(low==='SEC'){ // push patching/ransomware/phish earlier
+    bumpFront(['unpatched_browser','ransomware_plugin','phish_ai_mygov']);
+  } else if(low==='TRU'){
+    bumpFront(['privacy_mishandle','s3_public_bucket','linkedin_se']);
+  } else {
+    bumpFront(['deepfake_cfo']); // budget hits also come from mistakes
+  }
+}
+function bumpFront(ids){
+  const set=new Set(ids);
+  const reordered = S.deck.sort((a,b)=>{
+    const A=set.has(CARDS[a].id)?-1:0, B=set.has(CARDS[b].id)?-1:0; return A-B;
+  });
+  S.deck=reordered;
+}
+
 function pickCardIndex(){
   if(!S.deck.length) buildDeck();
+  // Handle chains: if ignored phish and not yet triggered, force ransomware once
+  if(S.flags.ignoredPhish && !S.flags.ransomwareTriggered){
+    const idx = CARDS.findIndex(c=>c.id==='ransomware_plugin');
+    if(idx>=0){ S.flags.ransomwareTriggered=true; S.last=idx; return idx; }
+  }
   // avoid immediate repeat
-  if(S.deck[0]===S.last && S.deck.length>1){ [S.deck[0], S.deck[1]]=[S.deck[1],S.deck[0]]; }
+  if(S.deck[0]===S.last && S.deck.length>1){ [S.deck[0],S.deck[1]]=[S.deck[1],S.deck[0]]; }
   const idx=S.deck.shift(); S.last=idx; S.used.push(idx);
   return idx;
 }
+
 function renderCard(ci){
   const card=CARDS[ci];
-  $('#card-title').textContent = 'Risk: '+card.title;
-  $('#card-body').textContent = card.text;
-  $('#card-region').textContent = 'Context: '+(card.region==='AU'?'Australia':'Vietnam');
+  $('#card-title').textContent='Risk: '+card.title;
+  $('#card-body').textContent=card.text;
+  $('#card-region').textContent='Context: '+(card.region==='AU'?'Australia':'Vietnam');
   $('#choices').innerHTML='';
-  $('#severity').textContent = '— (roll to reveal severity)';
-  $('#tip').textContent=''; $('#fact').textContent = rnd(FACTS);
+  $('#severity').textContent='— (roll to reveal severity)';
+  $('#tip').textContent=''; $('#fact').textContent=rnd(FACTS);
   S.rolled=false; S.severity=0;
 
   card.options.forEach((opt,ix)=>{
@@ -504,63 +562,59 @@ function renderCard(ci){
   });
 }
 
-/* ==============================
-   Dice & Difficulty
-============================== */
-function diffMod(){
-  if(S.diff==='casual') return 0;
-  if(S.diff==='analyst') return 1;
-  return 2; // CISO
-}
+/* Dice & Difficulty */
+function diffMod(){ return S.diff==='casual'?0:(S.diff==='analyst'?1:2); }
 function rollDice(){
-  const d=$('#dice'); d.classList.add('rolling'); pip(520,.06,'sine',.035);
+  const d=$('#dice'); d.classList.add('spin'); blip(520,.06,'sine',.05);
   setTimeout(()=>{
-    d.classList.remove('rolling');
-    const roll=1+((Math.random()*6)|0);
+    d.classList.remove('spin');
+    const roll=1+((Math.random()*6)|0); $('#dice').textContent=roll;
     S.severity = CARDS[S.last].base + roll + diffMod();
-    $('#dice').textContent = roll;
     $('#severity').innerHTML = `Severity: <b>${S.severity}</b> (base ${CARDS[S.last].base} + roll ${roll} + diff ${diffMod()})`;
     S.rolled=true;
-  }, 600);
+  },700);
 }
 
-/* ==============================
-   Apply Choice & Progress
-============================== */
+/* Apply choice & advance */
 function applyChoice(card,opt){
   if(!S.rolled){ toast('Roll the risk die first (R or click).'); return; }
-  // Base deltas
   let SEC=S.SEC + (opt.d.SEC||0);
   let TRU=S.TRU + (opt.d.TRU||0);
   let BDG=S.BDG + (opt.d.BDG||0);
 
-  // Severity scaling:
-  // - Good choices absorb part of severity as extra SEC (+) and small BDG (–)
-  // - Bad/ignore choices are punished by severity
+  // Severity scaling (good mitigations absorb some severity; risky punished)
   if(opt.d.SEC>=0){
-    SEC += Math.max(0, 6 - Math.min(6, S.severity));  // better mitigation when severe
+    SEC += Math.max(0, 6 - Math.min(6, S.severity));
     BDG -= Math.ceil(S.severity/3);
   }else{
-    SEC -= S.severity*2;
+    SEC -= (S.severity*2);
     TRU -= Math.ceil(S.severity/2);
   }
 
-  // Clamp
-  S.SEC = clamp(SEC,0,100); S.TRU = clamp(TRU,0,100); S.BDG = clamp(BDG,0,100);
-  S.deltas.push({SEC:(opt.d.SEC||0), TRU:(opt.d.TRU||0), BDG:(opt.d.BDG||0)});
+  // Chains: record phish ignore
+  if(card.id==='phish_ai_mygov' && opt.risky) S.flags.ignoredPhish=true;
 
+  S.SEC=clamp(SEC,0,100); S.TRU=clamp(TRU,0,100); S.BDG=clamp(BDG,0,100);
+  S.deltas.push({SEC:(opt.d.SEC||0), TRU:(opt.d.TRU||0), BDG:(opt.d.BDG||0)});
   setHUD();
   $('#tip').textContent='Why: '+(opt.tip||'');
   addLog(`${card.title} → <span class="${opt.d.SEC>=0?'pos':'neg'}">${opt.label}</span> | SEC ${S.SEC} • TRU ${S.TRU} • BDG ${S.BDG}`);
-  toast(rnd(["Risk reduced. Good call.","Culture improves with clarity.","Resilience up; keep going.","Solid defense choice."]));
+  toast(rnd(["Risk reduced. Strong call.","Culture improves with clarity.","Resilience rising.","Solid defense choice."]));
 
-  // Snapshot every 4 rounds (except end)
-  if(S.round % 4 === 0 && S.round < ROUNDS){ openSnapshot(); return; }
+  // Analyst reactions
+  if(opt.risky){ analystSay("That choice increases risk exposure. Consider layered defenses."); blip(220,.12,'sawtooth',.07); }
+  else if(opt.d.TRU>0){ analystSay("Trust grows with transparency and training."); }
+  else if(opt.d.SEC>0){ analystSay("Technical posture improving. Keep patching and verifying."); }
+
+  // Snapshots every 4 rounds (except end)
+  if(S.round % 4 === 0 && S.round < S.total){ openSnapshot(); return; }
+
+  // Mid perks once (after halfway)
+  if(!S.chosenPerk && S.round === Math.ceil(S.total/2)){ openPerks(); return; }
 
   advance();
 }
 
-/* Snapshot modal (avg of last 4 deltas) */
 function openSnapshot(){
   const m=$('#modal-snap');
   const slice=S.deltas.slice(-4);
@@ -568,31 +622,77 @@ function openSnapshot(){
   const avg={SEC:slice.length?Math.round(sums.SEC/slice.length):0, TRU:slice.length?Math.round(sums.TRU/slice.length):0, BDG:slice.length?Math.round(sums.BDG/slice.length):0};
   drawBars(avg);
   $('#snap-msg').textContent = avg.SEC>=avg.TRU ? "Security posture improving — keep culture engaged." : "Trust rising — maintain technical depth.";
+  m.classList.add('show'); $('#snap-continue').onclick=()=>{ m.classList.remove('show'); advance(); };
+}
+function drawBars(avg){
+  const c=$('#bar4'),x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height);
+  const labels=['SEC','TRU','BDG'],vals=[avg.SEC,avg.TRU,avg.BDG];
+  x.font='12px system-ui';
+  for(let i=0;i<3;i++){
+    const v=vals[i], x0=80+i*140;
+    x.fillStyle='#102035'; x.fillRect(x0,200,90,-140);
+    x.strokeStyle='#22344f'; x.strokeRect(x0,60,90,140);
+    x.fillStyle=v>=0?'#16a34a':'#ef4444';
+    const h=Math.min(140,Math.abs(v));
+    x.fillRect(x0,200,90,-Math.sign(v)*h);
+    x.fillStyle='#cfe1ff'; x.textAlign='center'; x.fillText(labels[i], x0+45, 218);
+    x.fillText((v>=0?'+':'')+v, x0+45, 54);
+  }
+}
+
+function openPerks(){
+  const m=$('#modal-perk'); const wrap=$('#perk-choices'); wrap.innerHTML='';
+  const perks=[
+    {name:'Crisis Response',desc:'+5 SEC now, +1 SEC next 3 rounds',apply:()=>{S.SEC=clamp(S.SEC+5,0,100); S.perkSEC=3;}},
+    {name:'Awareness Program',desc:'+4 TRU now, +1 TRU next 3 rounds',apply:()=>{S.TRU=clamp(S.TRU+4,0,100); S.perkTRU=3;}},
+    {name:'Zero-Trust Upgrade',desc:'+3 SEC & +2 TRU, −2 BDG',apply:()=>{S.SEC=clamp(S.SEC+3,0,100); S.TRU=clamp(S.TRU+2,0,100); S.BDG=clamp(S.BDG-2,0,100);}}
+  ];
+  perks.forEach(p=>{
+    const b=document.createElement('button'); b.className='btn'; b.innerHTML=`<b>${p.name}</b> — <small>${p.desc}</small>`;
+    b.onclick=()=>{ p.apply(); S.chosenPerk=true; setHUD(); m.classList.remove('show'); advance(); };
+    wrap.appendChild(b);
+  });
   m.classList.add('show');
-  $('#snap-continue').onclick=()=>{ m.classList.remove('show'); advance(); };
 }
 
 function advance(){
-  if(S.round>=ROUNDS){ endGame(); return; }
-  S.round += 1; setHUD();
+  if(S.round>=S.total){ endGame(); return; }
+  S.round += 1;
+  // Perk residuals
+  if(S.perkSEC){ S.SEC=clamp(S.SEC+1,0,100); S.perkSEC--; }
+  if(S.perkTRU){ S.TRU=clamp(S.TRU+1,0,100); S.perkTRU--; }
+  setHUD();
+  biasDeck();
   renderCard(pickCardIndex());
   S.rolled=false; S.severity=0;
 }
 
-/* ==============================
-   End Game & Insights
-============================== */
+/* =======================================================
+   Results & Radar
+======================================================= */
+function drawRadar(sec,tru,bdg){
+  const c=$('#radar'),x=c.getContext('2d'),W=c.width,H=c.height,cx=W/2,cy=H/2,r=Math.min(W,H)/2-36;
+  x.clearRect(0,0,W,H); x.strokeStyle='#243145';
+  for(let i=1;i<=3;i++){x.beginPath();x.arc(cx,cy,(r*i)/3,0,Math.PI*2);x.stroke()}
+  const labs=['SEC','TRU','BDG']; x.fillStyle='#cfe1ff'; x.font='12px system-ui';
+  for(let i=0;i<3;i++){const a=(-Math.PI/2)+(i*(2*Math.PI/3)), ex=cx+Math.cos(a)*r, ey=cy+Math.sin(a)*r; x.beginPath();x.moveTo(cx,cy);x.lineTo(ex,ey);x.stroke();x.textAlign='center';x.fillText(labs[i],ex,ey+(i===0?-12:12))}
+  const vals=[sec,tru,bdg].map(v=>clamp(v,0,100));
+  x.beginPath();
+  for(let i=0;i<3;i++){const a=(-Math.PI/2)+(i*(2*Math.PI/3)), pr=r*(vals[i]/100), px=cx+Math.cos(a)*pr, py=cy+Math.sin(a)*pr; i?x.lineTo(px,py):x.moveTo(px,py)}
+  x.closePath(); x.fillStyle='rgba(183,28,28,.22)'; x.fill(); x.lineWidth=2; x.strokeStyle='rgba(255,150,150,.85)'; x.stroke();
+}
+
 function endGame(){
   show('results');
   const {SEC,TRU,BDG}=S;
   let title='Solid Outcome ✅', body=`SEC ${SEC}, TRU ${TRU}, BDG ${BDG}.`;
-  if(SEC>=80 && TRU>=70 && BDG>=40){ title='Cyber-Resilient Champion 🏆'; confettiBurst(); }
-  else if(BDG<20){ title='Budget Burnout 💸'; }
+  if(SEC>=80 && TRU>=70 && BDG>=40){ title='Cyber-Resilient Visionary 🏆'; confettiBurst(); analystSay("Outstanding posture across people and technology."); }
+  else if(BDG<20){ title='Budget Collapse 💸'; }
   else if(SEC<50 && TRU>=60){ title='Innovation Overexposed 📉'; }
-  else if(SEC>=60 && TRU<50){ title='Breach Contained, Reputation Bruised 📰'; }
+  else if(SEC>=60 && TRU<50){ title='Tactical Containment — Reputation Bruised 📰'; }
 
   const weakest=[['SEC',SEC],['TRU',TRU],['BDG',BDG]].sort((a,b)=>a[1]-b[1])[0][0];
-  const hint = weakest==='SEC' ? 'Prioritise patching, 2FA and backups.'
+  const hint = weakest==='SEC' ? 'Prioritise patching, 2FA and testable backups.'
              : weakest==='TRU' ? 'Communicate, document, and disclose responsibly.'
              : 'Invest where impact is highest; avoid false economies.';
   $('#result-title').textContent=title;
@@ -601,26 +701,27 @@ function endGame(){
   localStorage.removeItem(SAVE_KEY);
 }
 
-/* ==============================
-   Save / Load
-============================== */
+/* =======================================================
+   Save / Load / Views
+======================================================= */
 function save(){ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); toast('Progress saved.'); }
 function load(){ try{ const raw=localStorage.getItem(SAVE_KEY); if(!raw) return false; Object.assign(S, JSON.parse(raw)); return true; }catch(e){ return false; } }
-
-/* ==============================
-   Start / Resume / Menu
-============================== */
-function startNew(){
-  S.org = $('#org').value || 'RMIT Team';
-  S.diff = $('#difficulty').value;
-  S.round=1; S.SEC=55; S.TRU=55; S.BDG=50; S.deltas=[]; S.finished=false;
-  buildDeck();
-  show('play'); setHUD();
-  renderCard(pickCardIndex());
-  save();
+function show(view){
+  $('#view-menu').classList.toggle('hidden', view!=='menu');
+  $('#view-play').classList.toggle('hidden', view!=='play');
+  $('#view-results').classList.toggle('hidden', view!=='results');
 }
-$('#start').onclick=startNew;
-$('#resume').onclick=()=>{ if(load()){ show('play'); setHUD(); renderCard(S.last>=0?S.last:pickCardIndex()); } else startNew(); };
+
+/* =======================================================
+   Controls
+======================================================= */
+$('#start').onclick=()=>{
+  S.org=$('#org').value||'RMIT Team'; S.diff=$('#difficulty').value; S.total=+$('#length').value;
+  S.round=1; S.SEC=55; S.TRU=55; S.BDG=50; S.deltas=[]; S.finished=false; S.chosenPerk=false; S.flags={ignoredPhish:false,ransomwareTriggered:false};
+  buildDeck(); biasDeck(); show('play'); setHUD(); renderCard(pickCardIndex()); save();
+  analystSay("Baseline established. We’ll adapt to your decisions.");
+};
+$('#resume').onclick=()=>{ if(load()){ show('play'); setHUD(); renderCard(S.last>=0?S.last:pickCardIndex()); } else $('#start').click(); };
 $('#save').onclick=save;
 $('#end').onclick=()=> endGame();
 $('#restart').onclick=()=> show('menu');
@@ -629,34 +730,34 @@ $('#download').onclick=()=>{
   const txt=`DataHeist — Summary
 Org: ${S.org}
 Mode: ${S.diff}
+Rounds: ${S.total}
 Final SEC ${S.SEC} • TRU ${S.TRU} • BDG ${S.BDG}
-Rounds: ${S.round}
 `;
   const blob=new Blob([txt],{type:'text/plain'}); const url=URL.createObjectURL(blob);
   const a=document.createElement('a'); a.href=url; a.download='dataheist_summary.txt'; a.click(); URL.revokeObjectURL(url);
 };
-
-/* Dice controls */
 $('#roll').onclick=rollDice;
 $('#dice').addEventListener('click', rollDice);
 $('#dice').addEventListener('keydown', e=>{ if(e.key==='Enter' || e.key===' ') rollDice(); });
 
-/* Keyboard */
 document.addEventListener('keydown', e=>{
-  if($('#view-play').style.display!=='block') return;
+  if($('#view-play').classList.contains('hidden')) return;
   if(e.key.toLowerCase()==='r') $('#roll').click();
   if(e.key.toLowerCase()==='s') $('#save').click();
+  if(e.key==='Escape'){ $('#modal-snap').classList.remove('show'); $('#modal-perk').classList.remove('show'); }
   const map={'1':0,'2':1,'3':2,'4':3};
   if(map[e.key]!=null){ const btn=$$('#choices .btn')[map[e.key]]; if(btn) btn.click(); }
 });
+$('#toggleLens').onclick=()=> $('#lens').classList.toggle('show');
+$('#mute').onclick=()=>{ audio.mute=!audio.mute; $('#mute').textContent= audio.mute ? '🔈 Muted' : '🔊 Sound'; };
 
-/* ==============================
+/* =======================================================
    Init
-============================== */
+======================================================= */
 function init(){
   setHUD(); show('menu');
-  // Prepare opening dummy card for menu load to avoid nulls
-  S.last = pickCardIndex();
+  // prepare first deck card to avoid nulls after resume
+  S.last = pickCardIndex(); // temp pick (overwritten on start)
 }
 init();
 </script>

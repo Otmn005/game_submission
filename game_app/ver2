@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UniLife Simulator — RMIT City (Finalist Edition, Continue Patch)</title>
+<style>
+:root{--bg1:#eaf7f4;--bg2:#eaf2fb;--stroke:#d8e5ec;--ink:#0b2a2f;--good:#16a34a;--bad:#ef4444}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,Arial;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--ink)}
+.wrap{max-width:980px;margin:0 auto;padding:16px}
+.card{background:#fff;border:1px solid var(--stroke);border-radius:14px;box-shadow:0 8px 26px rgba(9,30,66,.12)}
+.panel{padding:16px} .row{display:flex;gap:12px;flex-wrap:wrap}
+.btn{border:1px solid var(--stroke);background:#f7fbff;padding:10px 14px;border-radius:10px;cursor:pointer}
+.btn.primary{background:linear-gradient(135deg,#8ee3ff,#b9fbd6);border:none}
+.hud{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.bar{width:140px;height:10px;border:1px solid var(--stroke);border-radius:999px;overflow:hidden;background:#eef6fb}
+.bar>span{display:block;height:100%;background:linear-gradient(90deg,#8ee3ff,#b9fbd6);transition:width .25s}
+.progress{font-size:13px;color:#456}
+.legend{background:#f7fbff;border:1px solid var(--stroke);border-radius:10px;padding:8px 10px;font-size:13px}
+.log{height:220px;overflow:auto;background:#f7fbff;border:1px solid var(--stroke);border-radius:10px;padding:10px}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#ffffffee;border:1px solid var(--stroke);padding:10px 14px;border-radius:12px;opacity:0;transition:.35s;z-index:60}
+.toast.show{opacity:1}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:50}
+.modal.show{display:flex}.box{background:#fff;border:1px solid var(--stroke);border-radius:14px;padding:18px;max-width:640px;width:92%}
+#confetti{position:fixed;inset:0;pointer-events:none;display:none;z-index:80}
+.pos{color:var(--good)}.neg{color:var(--bad)}
+</style></head><body>
+<canvas id="confetti"></canvas>
+<div class="wrap">
+<header class="row card panel" style="align-items:center;justify-content:space-between">
+  <h1 style="margin:0">UniLife Simulator — RMIT City</h1>
+  <div class="legend">Front-end only • 15 Weeks • Balance WB/KN/$/SO</div>
+</header>
+
+<main id="view-menu" class="card panel">
+  <div class="row" style="align-items:flex-start">
+    <section class="panel" style="flex:1 1 520px">
+      <h2 style="margin:0 0 6px">Start your semester</h2>
+      <label>Name<br><input id="char-name" style="width:100%"></label><br>
+      <label>Major<br><select id="char-major" style="width:100%"><option>General</option><option>Engineering</option><option>Health</option><option>Business</option></select></label><br>
+      <label>Pronouns<br><select id="char-pronouns" style="width:100%"><option>they/them</option><option>she/her</option><option>he/him</option></select></label>
+      <div class="legend" style="margin-top:8px"><label><input type="checkbox" id="toggle-mindful"> Mindful Mode</label></div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn primary" id="btn-start">Start Semester</button>
+        <button class="btn" id="btn-continue">Continue Last Save</button>
+      </div>
+    </section>
+    <aside class="panel card" style="flex:1 1 320px">
+      <h3 style="margin:0 0 6px">How it works</h3>
+      <ul class="progress">
+        <li>Each turn = <b>1 week</b> (total 15)</li>
+        <li><b>3–4 choices</b> per week with stat changes</li>
+        <li>Keyboard: 1–4 choose • S save • Enter first</li>
+      </ul>
+    </aside>
+  </div>
+</main>
+
+<section id="view-play" class="card panel" style="display:none">
+  <div class="hud">
+    <div>Week <b id="week-num">1</b>/15</div>
+    <div>WB <div class="bar"><span id="wb-bar"></span></div> <span id="wb-num">70</span></div>
+    <div>KN <div class="bar"><span id="kn-bar"></span></div> <span id="kn-num">40</span></div>
+    <div>$ <div class="bar"><span id="mo-bar"></span></div> <span id="mo-num">50</span></div>
+    <div>SO <div class="bar"><span id="so-bar"></span></div> <span id="so-num">40</span></div>
+    <button class="btn" id="btn-save">💾 Save</button>
+    <button class="btn" id="btn-end">End Early</button>
+  </div>
+  <div class="legend" style="margin-top:8px">WB = Wellbeing • KN = Knowledge • $ = Money • SO = Social</div>
+  <div class="card panel" style="margin-top:10px">
+    <h3 id="ev-title" style="margin:0 0 6px">Welcome</h3>
+    <p id="ev-text" class="progress">Make a choice to set your rhythm.</p>
+    <div id="ev-choices" class="row" style="flex-direction:column"></div>
+    <p id="ev-tip" class="progress"></p>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <div class="legend" style="flex:1 1 auto">🎯 Objective: Keep <b>WB ≥ 60</b> by Week 15 while learning steadily.</div>
+    <div class="legend" style="flex:1 1 auto"><b>Trivia:</b> <span id="trivia">—</span></div>
+  </div>
+  <div class="card panel" style="margin-top:8px">
+    <h4 style="margin:0 0 6px">Log</h4>
+    <div id="log" class="log"></div>
+  </div>
+</section>
+
+<section id="view-results" class="card panel" style="display:none">
+  <h2 id="result-title" style="margin:0 0 6px">Semester Summary</h2>
+  <p id="result-body" class="progress"></p>
+  <canvas id="radar" width="320" height="320"></canvas>
+  <div class="legend" style="margin-top:8px"><b>Final:</b> <span id="final-wb"></span> WB • <span id="final-kn"></span> KN • <span id="final-mo"></span> $ • <span id="final-so"></span> SO</div>
+  <div class="row" style="margin-top:8px">
+    <button class="btn" id="btn-download">📄 Download Journey</button>
+    <button class="btn primary" id="btn-restart">Play Again</button>
+    <button class="btn" id="btn-menu">Back to Menu</button>
+  </div>
+  <div class="legend" style="margin-top:8px">Help: Lifeline 13 11 14 • Beyond Blue 1300 22 4636 • RMIT Counselling</div>
+</section>
+
+<div id="modal-5w" class="modal" role="dialog" aria-modal="true">
+  <div class="box">
+    <h3>5-Week Reflection</h3>
+    <canvas id="bar5" width="380" height="240"></canvas>
+    <p id="w5-msg" class="progress center"></p>
+    <div class="center"><button class="btn primary" id="w5-continue">Continue</button></div>
+  </div>
+</div>
+
+<div id="modal-reflect" class="modal" role="dialog" aria-modal="true">
+  <div class="box">
+    <h3 id="reflect-title">Check-in</h3>
+    <p id="reflect-body" class="progress"></p>
+    <div class="center"><button class="btn primary" id="reflect-continue">Continue</button></div>
+  </div>
+</div>
+
+<div id="modal-feel" class="modal" role="dialog" aria-modal="true">
+  <div class="box">
+    <h3>How do you feel?</h3>
+    <div class="row" style="justify-content:center">
+      <button class="btn" data-feel="Grateful">Grateful</button>
+      <button class="btn" data-feel="Tired">Tired</button>
+      <button class="btn" data-feel="Balanced">Balanced</button>
+      <button class="btn" data-feel="Motivated">Motivated</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-journal" class="modal" role="dialog" aria-modal="true">
+  <div class="box">
+    <h3>Final Reflection</h3>
+    <p class="progress">Pick a sentence that fits your term’s lesson:</p>
+    <div class="row" style="justify-content:center">
+      <button class="btn" data-j="Small daily recovery beats last-minute rescue.">Small daily recovery beats last-minute rescue.</button>
+      <button class="btn" data-j="Balance isn’t perfection — it’s pacing and support.">Balance isn’t perfection — it’s pacing and support.</button>
+      <button class="btn" data-j="Connection fuels learning more than isolation.">Connection fuels learning more than isolation.</button>
+      <button class="btn" data-j="Boundaries at work protect my study and sleep.">Boundaries at work protect my study and sleep.</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast" aria-live="polite"></div>
+
+<script>
+const $=s=>document.querySelector(s), rnd=a=>a[(Math.random()*a.length)|0], clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+const MAX_WEEKS=15, SAVE_KEY='unilife_save', HISTORY_KEY='unilife_history';
+let mindfulMode=false, shownRef7=false, shownRef14=false;
+const state={name:'Alex',major:'General',pronouns:'they/them',week:1,wb:70,kn:40,mo:50,so:40,finished:false,journal:'',feelings:'',log:[],eventHistory:[],lastEventIdx:-1,deltaHistory:[]};
+const TRIVIA=["7–9 hours of sleep improves memory.","Brief daylight supports mood.","Social connection protects wellbeing.","Hydration improves attention.","Movement breaks sustain focus."];
+const EVENTS=[
+ {t:"Week start routine",tag:'selfcare',x:"How do you set your rhythm this week?",o:[{l:"Plan Pomodoro + breaks",d:{wb:+4,kn:+4,mo:0,so:+1},tip:"Intervals support recovery."},{l:"Grind long sessions",d:{wb:-6,kn:+6,mo:0,so:-1},tip:"Overwork harms sleep."},{l:"Coffee with a mate",d:{wb:+3,kn:+1,mo:-2,so:+4},tip:"Connection boosts motivation."}]},
+ {t:"Heatwave alert",tag:'selfcare',x:"It’s 37°C with high UV.",o:[{l:"Study indoors + hydrate",d:{wb:+4,kn:+2,mo:0,so:0},tip:"Heat impairs cognition."},{l:"Outdoor cram",d:{wb:-6,kn:+2,mo:0,so:0},tip:"Fatigue risk."},{l:"Short gym session",d:{wb:+3,kn:+1,mo:-1,so:+1},tip:"Light exercise stabilises mood."}]},
+ {t:"Group assignment",tag:'study',x:"Split tasks and milestones.",o:[{l:"Define roles & deadlines",d:{wb:+3,kn:+5,mo:0,so:+2},tip:"Clarity lowers stress."},{l:"Let it evolve",d:{wb:-4,kn:+1,mo:0,so:-1},tip:"Chaos → crunch later."},{l:"Volunteer heavy part",d:{wb:-3,kn:+6,mo:0,so:+1},tip:"Mind the load."}]},
+ {t:"Part-time shift",tag:'budget',x:"Extra evening shift offered.",o:[{l:"Negotiate different slot",d:{wb:+2,kn:+2,mo:+2,so:0},tip:"Boundaries protect sleep."},{l:"Accept & cut sleep",d:{wb:-7,kn:+2,mo:+5,so:0},tip:"Sleep loss tanks mood."},{l:"Decline this week",d:{wb:+1,kn:+1,mo:0,so:-1},tip:"Long-term wellbeing."}]},
+ {t:"Counselling drop-in",tag:'selfcare',x:"Free short consults available.",o:[{l:"Attend 20-min session",d:{wb:+8,kn:0,mo:0,so:+1},tip:"Early support helps."},{l:"Read self-help page",d:{wb:+3,kn:+1,mo:0,so:0},tip:"Psychoeducation helps."},{l:"Skip — no time",d:{wb:-3,kn:+1,mo:0,so:0},tip:"Avoidance backfires."}]},
+ {t:"Myki fares",tag:'budget',x:"Transport costs are tight.",o:[{l:"Batch on-campus days",d:{wb:+2,kn:+2,mo:+3,so:0},tip:"Fewer trips lower cost."},{l:"Travel daily",d:{wb:0,kn:+1,mo:-3,so:+1},tip:"Costs add up."},{l:"Study from home",d:{wb:+1,kn:+1,mo:+2,so:-2},tip:"Less social."}]},
+ {t:"Exam prep",tag:'study',x:"Two finals are approaching.",o:[{l:"Timetable + breaks",d:{wb:+3,kn:+6,mo:0,so:0},tip:"Structure beats panic."},{l:"All-nighter blitz",d:{wb:-10,kn:+6,mo:0,so:-1},tip:"Crash risk."},{l:"Peer study circle",d:{wb:+3,kn:+5,mo:0,so:+3},tip:"Belonging lifts motivation."}]},
+ {t:"Sleep hygiene",tag:'selfcare',x:"It’s late; caffeine tempts.",o:[{l:"Wind-down + water",d:{wb:+4,kn:+1,mo:0,so:0},tip:"Sleep quality compounds."},{l:"Late coffee & scroll",d:{wb:-5,kn:0,mo:0,so:-1},tip:"Disrupts sleep."},{l:"Tea + journaling",d:{wb:+3,kn:+1,mo:0,so:0},tip:"Reflection regulates stress."}]},
+ {t:"Inclusion event",tag:'social',x:"Cultural society invites you.",o:[{l:"Attend & connect",d:{wb:+4,kn:+1,mo:-2,so:+5},tip:"Belonging protects health."},{l:"Drop by briefly",d:{wb:+2,kn:+1,mo:-1,so:+2},tip:"Micro-social boosts morale."},{l:"Skip to study",d:{wb:-1,kn:+3,mo:0,so:-2},tip:"Isolation risks burnout."}]},
+ {t:"Rent pressure",tag:'budget',x:"Rent increases mid-semester.",o:[{l:"Budget & seek advice",d:{wb:+1,kn:+1,mo:+4,so:0},tip:"Services can help."},{l:"Cut social for savings",d:{wb:-2,kn:+1,mo:+5,so:-4},tip:"Balance cost & connection."},{l:"Ignore for now",d:{wb:-5,kn:0,mo:-3,so:0},tip:"Uncertainty = stress."}]}
+];
+
+const wbBar=()=>$('#wb-bar'),knBar=()=>$('#kn-bar'),moBar=()=>$('#mo-bar'),soBar=()=>$('#so-bar'),logEl=$('#log');
+const fmt=v=>(v>=0?'+':'')+v, span=v=>`<span class="${v>=0?'pos':'neg'}">${fmt(v)}</span>`;
+
+function updateHUD(){ $('#week-num').textContent=state.week; $('#wb-num').textContent=state.wb; $('#kn-num').textContent=state.kn; $('#mo-num').textContent=state.mo; $('#so-num').textContent=state.so;
+  wbBar().style.width=state.wb+'%'; knBar().style.width=state.kn+'%'; moBar().style.width=state.mo+'%'; soBar().style.width=state.so+'%'; }
+function show(v){ $('#view-menu').style.display=v==='menu'?'block':'none'; $('#view-play').style.display=v==='play'?'block':'none'; $('#view-results').style.display=v==='results'?'block':'none'; }
+function log(html){const p=document.createElement('p');p.innerHTML=html;logEl.prepend(p)}
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2200)}
+
+function pickEventIndex(){ const used=new Set(state.eventHistory); let pool=EVENTS.map((_,i)=>i).filter(i=>!used.has(i));
+  if(!pool.length){state.eventHistory=[];pool=EVENTS.map((_,i)=>i)} pool=pool.filter(i=>i!==state.lastEventIdx); if(!pool.length) pool=EVENTS.map((_,i)=>i).filter(i=>i!==state.lastEventIdx);
+  const weights=pool.map(i=>{const t=EVENTS[i].tag;let w=1;if(state.wb<30&&t==='selfcare')w+=2.5;if(state.kn<40&&t==='study')w+=2;if(state.mo<25&&t==='budget')w+=2;if(state.so<30&&t==='social')w+=2;return w});
+  const sum=weights.reduce((a,b)=>a+b,0); let r=Math.random()*sum; for(let k=0;k<pool.length;k++){ if((r-=weights[k])<=0) return pool[k]; } return pool[0]; }
+
+let currentEventIdx=-1;
+function renderEventByIndex(i){ currentEventIdx=i; const ev=EVENTS[i]; $('#ev-title').textContent=ev.t; $('#ev-text').textContent=ev.x;
+  const box=$('#ev-choices'); box.innerHTML=''; ev.o.forEach((opt,ix)=>{ const b=document.createElement('button'); b.className='btn'; b.innerHTML=`${String.fromCharCode(65+ix)}) ${opt.l} <span style="font-size:12px;float:right">WB ${span(opt.d.wb||0)} • KN ${span(opt.d.kn||0)} • $ ${span(opt.d.mo||0)} • SO ${span(opt.d.so||0)}</span>`;
+    b.onclick=()=>{ [...box.querySelectorAll('button')].forEach(x=>x.disabled=true); applyChoice(opt); setTimeout(()=>[...box.querySelectorAll('button')].forEach(x=>x.disabled=false),320)}; box.appendChild(b)});
+  $('#ev-tip').textContent=''; $('#trivia').textContent=rnd(TRIVIA);
+}
+
+function applyChoice(opt){ const d={wb:opt.d.wb||0,kn:opt.d.kn||0,mo:opt.d.mo||0,so:opt.d.so||0};
+  state.wb=clamp(state.wb+d.wb,0,100); state.kn=clamp(state.kn+d.kn,0,100); state.mo=clamp(state.mo+d.mo,0,100); state.so=clamp(state.so+d.so,0,100); updateHUD();
+  log(`${opt.l} → WB ${span(d.wb)} • KN ${span(d.kn)} • $ ${span(d.mo)} • SO ${span(d.so)}`); $('#ev-tip').textContent='Tip: '+(opt.tip||''); state.deltaHistory.push(d);
+  toast(rnd(["You feel calmer.","Social battery recharged.","Steady progress.","Small win today."]));
+  if(state.week % 5 === 0 && state.week < 15){ open5WReflection(); return; }
+  if(state.week===7 && !shownRef7){ openReflection(); shownRef7=true; return; }
+  if(state.week===14 && !shownRef14){ openReflection(); shownRef14=true; return; }
+  advanceWeekOrEnd(); saveLocal();
+}
+
+function advanceWeekOrEnd(){ if(currentEventIdx!==-1 && !state.eventHistory.includes(currentEventIdx)){ state.eventHistory.push(currentEventIdx); state.lastEventIdx=currentEventIdx; }
+  if(state.week>=MAX_WEEKS){ openJournal(); return; } state.week+=1; updateHUD(); renderEventByIndex(pickEventIndex()); }
+
+function open5WReflection(){ const m=$('#modal-5w'); const slice=state.deltaHistory.slice(-5); const sums=slice.reduce((a,d)=>({wb:a.wb+d.wb,kn:a.kn+d.kn,mo:a.mo+d.mo,so:a.so+d.so}),{wb:0,kn:0,mo:0,so:0});
+  const avg={wb:slice.length?Math.round(sums.wb/slice.length):0,kn:slice.length?Math.round(sums.kn/slice.length):0,mo:slice.length?Math.round(sums.mo/slice.length):0,so:slice.length?Math.round(sums.so/slice.length):0};
+  drawBars(avg); $('#w5-msg').textContent=avg.kn>avg.wb?"Knowledge rose, but watch your energy.":"Nice balance emerging — keep small resets."; m.classList.add('show');
+  $('#w5-continue').onclick=()=>{ m.classList.remove('show'); if(state.week<MAX_WEEKS){ state.week+=1; updateHUD(); renderEventByIndex(pickEventIndex()); saveLocal(); } else openJournal(); };
+}
+function drawBars(avg){ const c=$('#bar5'),x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); const labels=['WB','KN','$','SO'],vals=[avg.wb,avg.kn,avg.mo,avg.so];
+  for(let i=0;i<4;i++){ const v=vals[i],x0=40+i*80; x.fillStyle='#e8f2fb'; x.fillRect(x0,180,50,-120); x.fillStyle=v>=0?'#16a34a':'#ef4444'; const h=Math.min(120,Math.abs(v)); x.fillRect(x0,180,50,-Math.sign(v)*h); x.fillStyle='#456'; x.fillText(labels[i],x0+24,200); x.fillText((v>=0?'+':'')+v,x0+24,56) } }
+
+function openReflection(){ const m=$('#modal-reflect'); const s=strongest(), w=weakest(); $('#reflect-title').textContent= state.week<=7? "Mid-Semester Check-In":"Second Wind Check-In";
+  $('#reflect-body').textContent=`Your strength is ${s}. Lowest is ${w}. Gentle adjustments can help.`; m.classList.add('show'); $('#reflect-continue').onclick=()=>m.classList.remove('show'); }
+function openFeelings(){ const m=$('#modal-feel'); m.classList.add('show'); m.querySelectorAll('button[data-feel]').forEach(b=>b.onclick=()=>{ state.feelings=b.dataset.feel; m.classList.remove('show'); advanceWeekOrEnd(); }); }
+function openJournal(){ const m=$('#modal-journal'); m.classList.add('show'); m.querySelectorAll('button[data-j]').forEach(b=>b.onclick=()=>{ state.journal=b.dataset.j; m.classList.remove('show'); endGame(); }); }
+
+function strongest(){ const arr=[['Wellbeing',state.wb],['Knowledge',state.kn],['Money',state.mo],['Social',state.so]]; arr.sort((a,b)=>b[1]-a[1]); return arr[0][0] }
+function weakest(){ const arr=[['Wellbeing',state.wb],['Knowledge',state.kn],['Money',state.mo],['Social',state.so]]; arr.sort((a,b)=>a[1]-b[1]); return arr[0][0] }
+
+function drawRadar(wb,kn,mo,so){ const c=$('#radar'),x=c.getContext('2d'),W=c.width,H=c.height,cx=W/2,cy=H/2,r=Math.min(W,H)/2-24; x.clearRect(0,0,W,H); x.strokeStyle='#d8e5ec'; for(let i=1;i<=3;i++){x.beginPath();x.arc(cx,cy,(r*i)/3,0,Math.PI*2);x.stroke()}
+  const labs=['WB','KN','$','SO']; x.fillStyle='#456'; x.font='12px system-ui';
+  for(let i=0;i<4;i++){const a=(-Math.PI/2)+(i*Math.PI/2),ex=cx+Math.cos(a)*r,ey=cy+Math.sin(a)*r;x.beginPath();x.moveTo(cx,cy);x.lineTo(ex,ey);x.stroke();x.textAlign='center';x.fillText(labs[i],ex,ey+(i===0?-12:12))}
+  const vals=[wb,kn,mo,so].map(v=>clamp(v,0,100)); x.beginPath(); for(let i=0;i<4;i++){const a=(-Math.PI/2)+(i*Math.PI/2),pr=r*(vals[i]/100),px=cx+Math.cos(a)*pr,py=cy+Math.sin(a)*pr; i?x.lineTo(px,py):x.moveTo(px,py)} x.closePath(); x.fillStyle='rgba(43,182,246,.35)'; x.fill(); x.lineWidth=2; x.strokeStyle='#2bb6f6'; x.stroke(); }
+
+function endGame(){ show('results'); const {wb,kn,mo,so}=state; let title='Solid Pass ✅', body=`WB ${wb}, KN ${kn}, $ ${mo}, SO ${so}.`; if(wb<40) title="Burnout Warning 😵"; else if(mo<25) title="Financial Strain 💸"; else if(kn>=70&&wb<60) title="Grades at a Cost 📚"; else if(wb>=70&&kn>=60&&mo>=35&&so>=35){ title="Balanced Success 🎓"; }
+  $('#result-title').textContent=title; $('#result-body').textContent=body; $('#final-wb').textContent=wb; $('#final-kn').textContent=kn; $('#final-mo').textContent=mo; $('#final-so').textContent=so; drawRadar(wb,kn,mo,so); localStorage.removeItem(SAVE_KEY); }
+
+function saveLocal(){ localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }
+function loadLocal(){ try{ const raw=localStorage.getItem(SAVE_KEY); if(!raw) return false; Object.assign(state, JSON.parse(raw)); return true }catch(e){ return false } }
+
+function startNew(){ state.name=$('#char-name').value||'Alex'; state.major=$('#char-major').value; state.pronouns=$('#char-pronouns').value; mindfulMode=$('#toggle-mindful').checked;
+  state.week=1;state.wb=70;state.kn=40;state.mo=50;state.so=40; state.eventHistory=[];state.lastEventIdx=-1;state.deltaHistory=[]; shownRef7=false; shownRef14=false;
+  if(state.major==='Engineering'){state.kn+=8;state.wb-=5} if(state.major==='Health'){state.wb+=8;state.mo-=6} if(state.major==='Business'){state.mo+=8;state.so+=4}
+  show('play'); updateHUD(); renderEventByIndex(pickEventIndex()); saveLocal();
+}
+$('#btn-start').onclick=startNew;
+$('#btn-continue').onclick=()=>{ if(loadLocal()){ show('play'); updateHUD(); renderEventByIndex(pickEventIndex()); } else { startNew(); } };
+$('#btn-save').onclick=()=>{ saveLocal(); log('<span class="pos">Progress saved.</span>') };
+$('#btn-end').onclick=()=>openJournal();
+$('#btn-restart').onclick=()=>show('menu'); $('#btn-menu').onclick=()=>show('menu');
+$('#btn-download').onclick=()=>{ const txt=`UniLife — Summary\nName: ${state.name}\nFinal WB ${state.wb} KN ${state.kn} $ ${state.mo} SO ${state.so}\nReflection: ${state.journal||'-'}`; const blob=new Blob([txt],{type:'text/plain'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url;a.download='unilife_summary.txt';a.click();URL.revokeObjectURL(url) };
+
+document.addEventListener('keydown',e=>{ if($('#view-play').style.display!=='block')return; const idx={'1':0,'2':1,'3':2,'4':3}[e.key]; if(idx!=null){ const btn=Array.from(document.querySelectorAll('#ev-choices button'))[idx]; if(btn) btn.click(); } if(e.key.toLowerCase()==='s') $('#btn-save').click() });
+
+updateHUD(); show('menu');
+</script>
+</body></html>

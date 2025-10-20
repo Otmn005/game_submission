@@ -1,161 +1,664 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>UniLife Simulator — RMIT City Finalist Edition</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DataHeist: Cyber Choices — MVP</title>
 <style>
-:root{--bg1:#F5F8FF;--bg2:#DCE2F0;--ink:#0b1d2a;--muted:#5a6b7a;--card:#ffffff;--stroke:#e3e8ef;--accent:#B71C1C;--good:#16a34a;--bad:#ef4444;--mint:#c9f0de;--sky:#cfe9ff}
-*{box-sizing:border-box}html,body{height:100%}body{margin:0;font-family:Inter,"Nunito Sans",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:linear-gradient(180deg,var(--bg1),var(--bg2));overflow-x:hidden}
-.container{max-width:1100px;margin:0 auto;padding:20px}
-h1,h2,h3{margin:0 0 8px}p{margin:0 0 10px}small{color:var(--muted)}
-.card{background:var(--card);border:1px solid var(--stroke);border-radius:16px;box-shadow:0 10px 24px rgba(21,37,59,.10)}.panel{padding:16px}.row{display:flex;flex-wrap:wrap;gap:12px}.center{text-align:center}.right{text-align:right}
-.btn{border:1px solid var(--stroke);background:linear-gradient(135deg,#f8fbff,#ffffff);padding:10px 14px;border-radius:12px;cursor:pointer;transition:transform .08s ease, box-shadow .2s ease}
-.btn:hover{transform:translateY(-1px);box-shadow:0 6px 12px rgba(21,37,59,.12)}.btn:active{transform:translateY(0)}.btn.primary{background:linear-gradient(135deg,#ffe6e6,#ffffff);border:1px solid #f2d4d4}.btn.ghost{background:transparent}
-.hud{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.stat{display:flex;align-items:center;gap:8px}.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;background:#f6f8fb;border:1px solid var(--stroke);font-size:13px}.icon{font-size:15px}
-.bar{width:160px;height:10px;background:#eef2f7;border-radius:999px;overflow:hidden;border:1px solid var(--stroke)}.bar>span{display:block;height:100%;background:linear-gradient(90deg,#ffd4d4,#ffecec);width:50%;transition:width .3s ease}
-.grid{display:grid;grid-template-columns: 1.1fr .9fr;gap:14px}@media (max-width: 900px){ .grid{grid-template-columns:1fr} }
-.side{display:flex;flex-direction:column;gap:12px}.legend{font-size:13px;color:var(--muted)}.legend b{color:var(--ink)}
-#bg{position:fixed;inset:0;z-index:-1;opacity:.22;pointer-events:none;background:radial-gradient(1200px 800px at 30% 10%, #fff 0%, transparent 60%),linear-gradient(125deg, var(--mint), var(--sky));filter:hue-rotate(0deg);transition:filter .6s ease}
-.scene{position:relative;min-height:20px}.scene .tag{position:absolute;right:10px;top:10px;font-size:12px;background:#ffffffb3;border:1px solid var(--stroke);padding:6px 8px;border-radius:10px}
-#choices .btn{width:100%;text-align:left}.delta{float:right;font-size:12px}.pos{color:var(--good)}.neg{color:var(--bad)}
-#log{height:220px;overflow:auto;background:#f8fbff;border:1px solid var(--stroke);border-radius:12px;padding:10px}
-.toast{position:fixed; left:50%; bottom:18px; transform:translateX(-50%); background:#ffffffee; border:1px solid var(--stroke); padding:10px 14px; border-radius:12px; opacity:0; transition:opacity .3s ease, transform .3s ease; z-index:60}
-.toast.show{opacity:1; transform:translateX(-50%) translateY(-4px)}
-.modal{ position:fixed; inset:0; background:rgba(0,0,0,.35); display:none; align-items:center; justify-content:center; z-index:50}
-.modal.show{display:flex}.modal .box{ background:#fff; border:1px solid var(--stroke); border-radius:16px; padding:18px; max-width:720px; width:92% }
-kbd{background:#f5f7fa;border:1px solid var(--stroke);border-bottom-width:2px;border-radius:6px;padding:2px 6px}
-footer{margin-top:18px;color:var(--muted);font-size:13px}footer a{color:var(--muted)}
-.fade-in{animation:fade .35s ease both}@keyframes fade{from{opacity:0; transform:translateY(4px)} to{opacity:1; transform:none}}
-#confetti{position:fixed; inset:0; pointer-events:none; display:none; z-index:80}
-.tooltip{position:relative; cursor:help}.tooltip .tip{position:absolute; left:0; bottom:120%; background:#0b1d2a; color:#fff; padding:6px 8px; border-radius:8px; font-size:12px; white-space:nowrap; opacity:0; transform:translateY(6px); transition:.2s; pointer-events:none}
-.tooltip:focus .tip,.tooltip:hover .tip{opacity:1; transform:translateY(0)}
-.quote{font-style:italic; color:#314456}.mood{font-size:20px}
+:root{
+  --bg1:#0f172a; --bg2:#17233d;
+  --glass:#0d1526b3; --stroke:#22314b;
+  --ink:#e8f1ff; --muted:#a8b8d3;
+  --good:#16a34a; --bad:#ef4444; --warn:#f59e0b; --accent:#B71C1C;
+  --glow:#85d6ff;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; color:var(--ink); font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  background:radial-gradient(1200px 800px at 20% -10%, #1a2a47 0%, transparent 60%),linear-gradient(180deg,var(--bg1),var(--bg2));
+  overflow-x:hidden;
+}
+/* Ambient layers */
+.layer{position:fixed; inset:0; pointer-events:none; z-index:-2; opacity:.25}
+#glow{background:radial-gradient(900px 600px at 70% 10%, #6bd0ff55 0%, transparent 60%)}
+#grid{
+  background-image:
+   linear-gradient(transparent 95%, #143 96%),
+   linear-gradient(90deg, transparent 95%, #143 96%);
+  background-size: 40px 40px;
+  opacity:.1;
+}
+/* Layout */
+.container{max-width:1100px; margin:0 auto; padding:18px}
+.card{background:var(--glass); border:1px solid var(--stroke); border-radius:16px; box-shadow:0 14px 36px rgba(0,0,0,.35); backdrop-filter:blur(10px)}
+.panel{padding:16px}
+h1,h2,h3,h4{margin:0 0 8px}
+p{margin:0 0 10px}
+small{color:var(--muted)}
+/* Header */
+header.card{display:flex; align-items:center; justify-content:space-between; gap:10px}
+.badge{display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; background:#0f1a2c; border:1px solid var(--stroke); color:#d6e7ff; font-size:13px}
+/* Grid */
+.grid{display:grid; grid-template-columns:1.2fr .8fr; gap:14px}
+@media (max-width:960px){ .grid{grid-template-columns:1fr} }
+/* Buttons */
+.btn{
+  border:1px solid var(--stroke); border-radius:12px; background:linear-gradient(135deg,#0f1a2c,#0c1626);
+  color:#e7f0ff; padding:10px 14px; cursor:pointer; transition:transform .08s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.btn:hover{transform:translateY(-1px); box-shadow:0 10px 20px rgba(0,0,0,.35); border-color:#2f4e7e}
+.btn.primary{background:linear-gradient(135deg,#1b2c49,#152540); border-color:#38598f}
+.btn.ghost{background:transparent}
+.btn:disabled{opacity:.6; cursor:not-allowed}
+/* Rings */
+.rings{display:flex; gap:12px; flex-wrap:wrap}
+.ring{position:relative; width:96px; height:96px}
+.ring canvas{position:absolute; inset:0}
+.ring .label{position:absolute; inset:0; display:grid; place-items:center; font-weight:600}
+.ring .label small{display:block; color:#a9bad2; font-weight:400}
+/* Dice */
+#dice{
+  width:64px; height:64px; display:grid; place-items:center;
+  border-radius:14px; border:1px solid var(--stroke); background:#0f1a2c; user-select:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+  font-size:26px;
+}
+#dice.rolling{animation:roll .6s ease}
+@keyframes roll{ 0%{transform:rotate(0)} 50%{transform:rotate(90deg) scale(1.1)} 100%{transform:rotate(180deg)} }
+/* Choices */
+#choices .btn{width:100%; text-align:left}
+.delta{float:right; font-size:12px}
+.pos{color:var(--good)} .neg{color:var(--bad)} .warn{color:var(--warn)}
+/* Sidebar */
+#log{height:220px; overflow:auto; background:#0f1a2b; border:1px solid var(--stroke); border-radius:12px; padding:10px}
+kbd{background:#0e1828;border:1px solid var(--stroke);border-bottom-width:2px;border-radius:6px;padding:2px 6px;color:#c2d4ef}
+/* Toasts */
+.toast{position:fixed; left:50%; bottom:18px; transform:translateX(-50%); z-index:70; pointer-events:none}
+.toast .bubble{background:#0e1828; border:1px solid var(--stroke); padding:10px 14px; border-radius:12px; color:#dff2ff; box-shadow:0 10px 26px rgba(0,0,0,.35), 0 0 18px #85d6ff22; animation:rise 2s ease both}
+@keyframes rise{ from{opacity:0; transform:translate(-50%,10px)} to{opacity:1; transform:translate(-50%,-6px)} }
+/* Modal */
+.modal{position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:80}
+.modal.show{display:flex}
+.modal .box{background:linear-gradient(180deg,#13213a,#0f1a2b); border:1px solid var(--stroke); border-radius:16px; padding:18px; max-width:760px; width:92%; box-shadow:0 20px 44px rgba(0,0,0,.5)}
+/* Results */
+#radar{max-width:100%}
+/* Confetti */
+#confetti{position:fixed; inset:0; pointer-events:none; display:none; z-index:90}
+/* Accessibility helpers */
+.visually-hidden{position:absolute !important; height:1px; width:1px; overflow:hidden; clip:rect(1px,1px,1px,1px); white-space:nowrap}
 </style>
 </head>
 <body>
-<div id="bg" aria-hidden="true"></div>
+<div id="glow" class="layer"></div>
+<div id="grid" class="layer"></div>
 <canvas id="confetti"></canvas>
+
 <div class="container">
-  <header class="card panel row" style="align-items:center; justify-content:space-between">
-    <div><h1>UniLife Simulator — RMIT City <span style="font-size:14px; color:#b34">Finalist Edition</span></h1><small>Front‑end only • 15 Weeks • Balance ❤️/📚/💸/🤝 • No backend</small></div>
-    <div class="badge"><span class="icon">🎯</span> Aim: Keep <b>WB ≥ 60</b> by Week 15</div>
+  <header class="card panel">
+    <div>
+      <h1>DataHeist: Cyber Choices</h1>
+      <small>AU/VN cyber literacy • 12 rounds • cards + dice • front-end only</small>
+    </div>
+    <span class="badge">🎯 Goal: Finish with strong <b>SEC</b>/<b>TRU</b> and non-zero <b>BDG</b></span>
   </header>
 
-  <main id="view-menu" class="card panel fade-in">
-    <div class="row">
-      <section class="panel" style="flex:1 1 560px">
-        <h2>Start your semester</h2>
-        <div class="row">
-          <label style="flex:1 1 200px">Name<br><input id="name" style="width:100%"></label>
-          <label style="flex:1 1 200px">Major<br><select id="major" style="width:100%"><option>General</option><option>Engineering</option><option>Health</option><option>Business</option></select></label>
-          <label style="flex:1 1 200px">Pronouns<br><select id="pronouns" style="width:100%"><option>they/them</option><option>she/her</option><option>he/him</option></select></label>
+  <!-- MENU -->
+  <main id="view-menu" class="card panel">
+    <h2>New Operation</h2>
+    <div class="grid" style="margin-top:8px">
+      <section class="panel">
+        <div style="display:flex; gap:10px; flex-wrap:wrap">
+          <label style="flex:1 1 220px">Organisation Name<br><input id="org" style="width:100%" placeholder="RMIT Lab / SME / Startup"></label>
+          <label style="flex:1 1 200px">Difficulty<br>
+            <select id="difficulty" style="width:100%">
+              <option value="casual">Casual</option>
+              <option value="analyst">Analyst</option>
+              <option value="ciso">CISO</option>
+            </select>
+          </label>
         </div>
-        <div class="row" style="margin-top:10px"><label class="badge"><input type="checkbox" id="mindful"> Mindful Mode</label><span class="badge">Shortcuts: <kbd>1–4</kbd> choose • <kbd>S</kbd> save</span></div>
-        <div class="row" style="margin-top:12px"><button class="btn primary" id="start">Start Semester</button><button class="btn" id="resume">Continue Last Save</button></div>
+        <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap">
+          <button class="btn primary" id="start">Start</button>
+          <button class="btn" id="resume">Continue Last Save</button>
+        </div>
+        <p style="color:var(--muted); margin-top:8px">Keyboard: <kbd>R</kbd> roll • <kbd>1–4</kbd> pick • <kbd>S</kbd> save</p>
       </section>
-      <aside class="card panel" style="flex:1 1 320px">
+      <aside class="panel card">
         <h3>How it works</h3>
-        <p class="legend">Each turn = <b>1 week</b> (total 15). Choose from <b>3–4 options</b> per event; your stats change and affect the ending.</p>
-        <p class="legend">Everything runs <b>offline</b> in your browser — no data leaves your device.</p>
-        <p class="legend">Tip: pace your energy and protect your sleep!</p>
+        <p>Each round draws a <b>risk card</b> (phishing, unpatched software, ransomware…). Roll a <b>die</b>, then pick a <b>defense</b>. Your choice changes <b>SEC</b> (security), <b>TRU</b> (trust), and <b>BDG</b> (budget).</p>
+        <p>Every 4 rounds you’ll see a quick <b>posture snapshot</b>. At the end, review your radar and insights, then try to beat your score.</p>
       </aside>
     </div>
   </main>
 
+  <!-- PLAY -->
   <section id="view-play" class="card panel" style="display:none">
-    <div class="row hud">
-      <div class="badge">Week <b id="week">1</b>/15</div>
-      <div class="stat tooltip" tabindex="0" aria-label="Wellbeing: manage stress, recovery, and rest"><span class="icon">❤️</span><div class="bar" aria-hidden="true"><span id="wb-bar"></span></div><span id="wb-num" aria-live="polite">70</span><span class="tip">WB: Wellbeing — manage stress & rest</span></div>
-      <div class="stat tooltip" tabindex="0" aria-label="Knowledge: study progress and mastery"><span class="icon">📚</span><div class="bar"><span id="kn-bar"></span></div><span id="kn-num">40</span><span class="tip">KN: Knowledge — study progress</span></div>
-      <div class="stat tooltip" tabindex="0" aria-label="Money: budget and work"><span class="icon">💸</span><div class="bar"><span id="mo-bar"></span></div><span id="mo-num">50</span><span class="tip">$: Money — budget & work</span></div>
-      <div class="stat tooltip" tabindex="0" aria-label="Social: connection and belonging"><span class="icon">🤝</span><div class="bar"><span id="so-bar"></span></div><span id="so-num">40</span><span class="tip">SO: Social — connection</span></div>
-      <span class="badge" id="mood">Mood: 😊</span>
-      <button class="btn" id="save">💾 Save</button><button class="btn ghost" id="end">End Early</button>
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap">
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+        <span class="badge">Round <b id="round">1</b>/12</span>
+        <span class="badge" id="org-badge">Org: —</span>
+        <span class="badge" id="diff-badge">Mode: Casual</span>
+      </div>
+      <div class="rings">
+        <div class="ring"><canvas id="ring-sec" width="96" height="96"></canvas><div class="label"><div><span id="sec-num">55</span><small>SEC</small></div></div></div>
+        <div class="ring"><canvas id="ring-tru" width="96" height="96"></canvas><div class="label"><div><span id="tru-num">55</span><small>TRU</small></div></div></div>
+        <div class="ring"><canvas id="ring-bdg" width="96" height="96"></canvas><div class="label"><div><span id="bdg-num">50</span><small>BDG</small></div></div></div>
+      </div>
+      <div style="display:flex; gap:8px">
+        <button class="btn" id="save">💾 Save</button>
+        <button class="btn ghost" id="end">End Early</button>
+      </div>
     </div>
-    <div class="grid" style="margin-top:10px">
-      <article class="card panel">
-        <div class="scene"><div class="tag" id="scene-tag">Library</div></div>
-        <h3 id="ev-title">Welcome</h3><p id="ev-text" class="legend">Make a choice to set your rhythm.</p>
-        <div id="choices" class="row"></div>
-        <p id="tip" class="legend"></p><p class="quote" id="quote"></p>
+
+    <div class="grid" style="margin-top:12px">
+      <article class="panel card">
+        <h3 id="card-title">Risk Card</h3>
+        <p id="card-body" style="color:#cfe0ff"></p>
+        <p id="card-region" style="color:#9fb3d6"></p>
+
+        <div style="display:flex; align-items:center; gap:12px; margin:10px 0">
+          <div id="dice" role="button" tabindex="0" aria-label="Risk dice">🎲</div>
+          <button class="btn primary" id="roll">Roll Risk</button>
+          <span id="severity" style="color:#cfe0ff"></span>
+        </div>
+
+        <div id="choices" style="display:flex; flex-direction:column; gap:8px"></div>
+        <p id="tip" style="color:#a9c4e6; margin-top:6px"></p>
+        <p id="fact" style="color:#cfe4ff; font-style:italic; margin-top:4px"></p>
       </article>
-      <aside class="panel">
-        <div class="card panel"><h4>Objective</h4><p class="legend">Keep <b>Wellbeing ≥ 60</b> by Week 15 while growing knowledge steadily.</p></div>
-        <div class="card panel"><h4>Legend</h4><p class="legend">WB = Wellbeing • KN = Knowledge • $ = Money • SO = Social</p><p class="legend">Weekly Trivia: <span id="trivia">—</span></p></div>
-        <div class="card panel"><h4>Recent Decisions</h4><div id="log" style="height:220px;overflow:auto;background:#f8fbff;border:1px solid var(--stroke);border-radius:12px;padding:10px"></div></div>
+
+      <aside class="panel card">
+        <h4>Objective</h4>
+        <p>Finish with strong <b>SEC</b> and <b>TRU</b> without running out of <b>BDG</b>.</p>
+        <h4 style="margin-top:8px">Legend</h4>
+        <p>SEC = Security • TRU = Trust • BDG = Budget</p>
+        <h4 style="margin-top:8px">Recent</h4>
+        <div id="log"></div>
       </aside>
     </div>
   </section>
 
+  <!-- RESULTS -->
   <section id="view-results" class="card panel" style="display:none">
-    <h2 id="result-title">Semester Summary</h2>
-    <p id="result-body" class="legend"></p>
-    <canvas id="radar" width="360" height="360" style="max-width:100%"></canvas>
-    <div class="row" style="margin-top:10px"><button class="btn" id="download">📄 Download Journey</button><button class="btn primary" id="restart">Play Again</button><button class="btn" id="menu">Back to Menu</button></div>
-    <div class="legend" style="margin-top:10px">Help: Lifeline 13 11 14 • Beyond Blue 1300 22 4636 • RMIT Counselling & Wellbeing</div>
+    <h2 id="result-title">Operation Summary</h2>
+    <p id="result-body" style="color:#cfe0ff"></p>
+    <canvas id="radar" width="380" height="380"></canvas>
+    <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap">
+      <button class="btn" id="download">📄 Download Journey</button>
+      <button class="btn primary" id="restart">Play Again</button>
+      <button class="btn" id="menu">Back to Menu</button>
+    </div>
+    <p style="margin-top:10px;color:#9fb1c8">Help: Australia — cyber.gov.au, esafety.gov.au • Vietnam — VNCERT/CC</p>
   </section>
 
-  <footer class="center">© 2025 The Trinity — RMIT City Campus</footer>
+  <footer class="panel" style="text-align:center; color:#9fb1c8">© 2025 The Trinity — RMIT City Campus</footer>
 </div>
 
-<div id="modal-5w" class="modal" role="dialog" aria-modal="true" aria-labelledby="w5-title">
-  <div class="box"><h3 id="w5-title">5‑Week Reflection</h3><canvas id="bar5" width="420" height="240" style="max-width:100%"></canvas><p id="w5-msg" class="legend center"></p><div class="center" style="margin-top:8px"><button class="btn primary" id="w5-continue">Continue</button></div></div>
-</div>
-<div id="modal-reflect" class="modal" role="dialog" aria-modal="true" aria-labelledby="r-title">
-  <div class="box"><h3 id="r-title">Check‑in</h3><p id="r-body" class="legend"></p><div class="center" style="margin-top:8px"><button class="btn primary" id="r-continue">Continue</button></div></div>
-</div>
-<div id="modal-journal" class="modal" role="dialog" aria-modal="true" aria-labelledby="j-title">
-  <div class="box"><h3 id="j-title">Final Reflection</h3><p class="legend">Pick a sentence that fits your term’s lesson:</p>
-    <div class="row center"><button class="btn" data-j="Small daily recovery beats last-minute rescue.">Small daily recovery beats last-minute rescue.</button><button class="btn" data-j="Balance isn’t perfection — it’s pacing and support.">Balance isn’t perfection — it’s pacing and support.</button><button class="btn" data-j="Connection fuels learning more than isolation.">Connection fuels learning more than isolation.</button><button class="btn" data-j="Boundaries at work protect my study and sleep.">Boundaries at work protect my study and sleep.</button></div>
+<!-- Modals -->
+<div id="modal-snap" class="modal" role="dialog" aria-modal="true">
+  <div class="box">
+    <h3>Posture Snapshot</h3>
+    <canvas id="bar4" width="460" height="240" style="max-width:100%"></canvas>
+    <p id="snap-msg" style="text-align:center; color:#cfe0ff"></p>
+    <div style="text-align:center; margin-top:8px"><button class="btn primary" id="snap-continue">Continue</button></div>
   </div>
 </div>
 
 <div id="toast" class="toast" aria-live="polite"></div>
 
 <script>
-const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s)),rnd=a=>a[(Math.random()*a.length)|0],clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
-const MAX_WEEKS=15,SAVE_KEY='unilife_finalist_save';let shown7=false,shown14=false;
-const bgEl=$('#bg');function moodHue(wb){const hue=wb>=70?8:wb<40?190:110;bgEl.style.filter=`hue-rotate(${hue}deg)`;}
-const confettiCanvas=$('#confetti');const ctxConf=confettiCanvas.getContext('2d');function confettiBurst(){confettiCanvas.style.display='block';confettiCanvas.width=innerWidth;confettiCanvas.height=innerHeight;const pieces=Array.from({length:160},_=>({x:Math.random()*innerWidth,y:-10,r:Math.random()*6+2,c:`hsl(${Math.random()*360},90%,60%)`,vy:2+Math.random()*3,vx:(Math.random()-.5)*2}));let t=0;const anim=()=>{ctxConf.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);pieces.forEach(p=>{p.x+=p.vx;p.y+=p.vy;ctxConf.fillStyle=p.c;ctxConf.beginPath();ctxConf.arc(p.x,p.y,p.r,0,Math.PI*2);ctxConf.fill()});if((t+=1)<200)requestAnimationFrame(anim);else confettiCanvas.style.display='none'};anim()}
-const AC=window.AudioContext||window.webkitAudioContext;const audio={ctx:null,started:false,gain:null};function ensureAudio(){if(audio.started)return;try{audio.ctx=new AC();audio.gain=audio.ctx.createGain();audio.gain.gain.value=.06;audio.gain.connect(audio.ctx.destination);const o1=audio.ctx.createOscillator(),g1=audio.ctx.createGain();const o2=audio.ctx.createOscillator(),g2=audio.ctx.createGain();g1.gain.value=.02;g2.gain.value=.02;o1.type='sine';o2.type='triangle';o1.frequency.value=180;o2.frequency.value=224;o1.connect(g1).connect(audio.gain);o2.connect(g2).connect(audio.gain);o1.start();o2.start();audio.started=true}catch(e){}}['click','keydown','touchstart'].forEach(ev=>document.addEventListener(ev,()=>{if(AC&&audio.ctx&&audio.ctx.state==='suspended'){audio.ctx.resume()}ensureAudio()},{once:true,passive:true}));
-function pip(freq=660,dur=.08,type='sine',vol=.04){if(!audio.ctx)return;const o=audio.ctx.createOscillator(),g=audio.ctx.createGain();o.type=type;o.frequency.value=freq;g.gain.value=vol;o.connect(g).connect(audio.ctx.destination);o.start();g.gain.exponentialRampToValueAtTime(1e-4,audio.ctx.currentTime+dur);o.stop(audio.ctx.currentTime+dur+.02)}
-const QUOTES=["Small steps compound over time.","Rest is part of study, not a reward.","Connection fuels motivation.","Boundaries protect your energy.","Hydration and sunlight help more than you think."];
-const TRIVIA=["7–9 hours of sleep improves memory consolidation.","Brief daylight supports mood and circadian rhythm.","Even one weekly social contact protects wellbeing.","Hydration improves attention and recall.","Short movement breaks sustain focus."];
-const EVENTS=[
- {t:"Week start routine",tag:'selfcare',x:"How do you set your rhythm this week?",o:[{l:"Plan Pomodoro + breaks",d:{wb:+4,kn:+4,mo:0,so:+1},tip:"Intervals support recovery."},{l:"Grind long sessions",d:{wb:-6,kn:+6,mo:0,so:-1},tip:"Overwork harms sleep."},{l:"Coffee with a mate",d:{wb:+3,kn:+1,mo:-2,so:+4},tip:"Connection boosts motivation."}]},
- {t:"Heatwave alert",tag:'selfcare',x:"It’s 37°C with high UV.",o:[{l:"Study indoors + hydrate",d:{wb:+4,kn:+2,mo:0,so:0},tip:"Heat impairs cognition."},{l:"Outdoor cram",d:{wb:-6,kn:+2,mo:0,so:0},tip:"Fatigue risk."},{l:"Short gym session",d:{wb:+3,kn:+1,mo:-1,so:+1},tip:"Light exercise stabilises mood."}]},
- {t:"Group assignment",tag:'study',x:"Split tasks and milestones.",o:[{l:"Define roles & deadlines",d:{wb:+3,kn:+5,mo:0,so:+2},tip:"Clarity lowers stress."},{l:"Let it evolve",d:{wb:-4,kn:+1,mo:0,so:-1},tip:"Chaos → crunch later."},{l:"Volunteer heavy part",d:{wb:-3,kn:+6,mo:0,so:+1},tip:"Mind the load."}]},
- {t:"Part-time shift",tag:'budget',x:"Extra evening shift offered.",o:[{l:"Negotiate different slot",d:{wb:+2,kn:+2,mo:+2,so:0},tip:"Boundaries protect sleep."},{l:"Accept & cut sleep",d:{wb:-7,kn:+2,mo:+5,so:0},tip:"Sleep loss tanks mood."},{l:"Decline this week",d:{wb:+1,kn:+1,mo:0,so:-1},tip:"Long-term wellbeing."}]},
- {t:"Counselling drop-in",tag:'selfcare',x:"Free short consults available.",o:[{l:"Attend 20-min session",d:{wb:+8,kn:0,mo:0,so:+1},tip:"Early support helps."},{l:"Read self-help page",d:{wb:+3,kn:+1,mo:0,so:0},tip:"Psychoeducation helps."},{l:"Skip — no time",d:{wb:-3,kn:+1,mo:0,so:0},tip:"Avoidance backfires."}]},
- {t:"Myki fares",tag:'budget',x:"Transport costs are tight.",o:[{l:"Batch on-campus days",d:{wb:+2,kn:+2,mo:+3,so:0},tip:"Fewer trips lower cost."},{l:"Travel daily",d:{wb:0,kn:+1,mo:-3,so:+1},tip:"Costs add up."},{l:"Study from home",d:{wb:+1,kn:+1,mo:+2,so:-2},tip:"Less social."}]},
- {t:"Exam prep",tag:'study',x:"Two finals are approaching.",o:[{l:"Timetable + breaks",d:{wb:+3,kn:+6,mo:0,so:0},tip:"Structure beats panic."},{l:"All-nighter blitz",d:{wb:-10,kn:+6,mo:0,so:-1},tip:"Crash risk."},{l:"Peer study circle",d:{wb:+3,kn:+5,mo:0,so:+3},tip:"Belonging lifts motivation."}]},
- {t:"Sleep hygiene",tag:'selfcare',x:"It’s late; caffeine tempts.",o:[{l:"Wind-down + water",d:{wb:+4,kn:+1,mo:0,so:0},tip:"Sleep quality compounds."},{l:"Late coffee & scroll",d:{wb:-5,kn:0,mo:0,so:-1},tip:"Disrupts sleep."},{l:"Tea + journaling",d:{wb:+3,kn:+1,mo:0,so:0},tip:"Reflection regulates stress."}]},
- {t:"Inclusion event",tag:'social',x:"Cultural society invites you.",o:[{l:"Attend & connect",d:{wb:+4,kn:+1,mo:-2,so:+5},tip:"Belonging protects health."},{l:"Drop by briefly",d:{wb:+2,kn:+1,mo:-1,so:+2},tip:"Micro-social boosts morale."},{l:"Skip to study",d:{wb:-1,kn:+3,mo:0,so:-2},tip:"Isolation risks burnout."}]},
- {t:"Rent pressure",tag:'budget',x:"Rent increases mid-semester.",o:[{l:"Budget & seek advice",d:{wb:+1,kn:+1,mo:+4,so:0},tip:"Services can help."},{l:"Cut social for savings",d:{wb:-2,kn:+1,mo:+5,so:-4},tip:"Balance cost & connection."},{l:"Ignore for now",d:{wb:-5,kn:0,mo:-3,so:0},tip:"Uncertainty = stress."}]},
- {t:"Building 80 buzz",tag:'social',x:"You pass by RMIT Building 80 — students debate AI ethics.",o:[{l:"Join the chat",d:{wb:+2,kn:+3,mo:0,so:+3},tip:"Intellectual connection energises."},{l:"Listen quietly",d:{wb:+1,kn:+2,mo:0,so:+1},tip:"Low-pressure engagement counts."},{l:"Head to study nook",d:{wb:+1,kn:+2,mo:0,so:0},tip:"Focus time matters too."}]}
+/* ==============================
+   Utilities & Audio
+============================== */
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const rnd=a=>a[(Math.random()*a.length)|0];
+const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+const ROUNDS=12, SAVE_KEY='dataheist_save_v1';
+
+const AC=window.AudioContext||window.webkitAudioContext;
+const audio={ctx:null, started:false, pip:null};
+function ensureAudio(){
+  if(audio.started) return;
+  try{
+    audio.ctx=new AC();
+    audio.started=true;
+  }catch(e){}
+}
+['click','keydown','touchstart'].forEach(ev=>document.addEventListener(ev,()=>{ if(AC && audio.ctx && audio.ctx.state==='suspended'){audio.ctx.resume()} ensureAudio(); },{once:true,passive:true}));
+function pip(freq=660,dur=.08,type='sine',vol=.05){
+  if(!audio.ctx) return;
+  const o=audio.ctx.createOscillator(), g=audio.ctx.createGain();
+  o.type=type; o.frequency.value=freq; g.gain.value=vol; o.connect(g).connect(audio.ctx.destination);
+  o.start(); g.gain.exponentialRampToValueAtTime(1e-4, audio.ctx.currentTime+dur); o.stop(audio.ctx.currentTime+dur+.02);
+}
+
+/* ==============================
+   Data: Facts & Cards (12)
+============================== */
+const FACTS=[
+  "2FA blocks most credential-stuffing attacks.",
+  "Restoring from clean backups is the fastest way out of ransomware.",
+  "Password managers reduce reuse and weak passwords.",
+  "Patching browsers and plugins closes common exploit chains.",
+  "Staff awareness cuts phishing click-through significantly.",
+  "Zero-trust limits blast radius after compromise.",
+  "Public S3 buckets expose data; use least-privilege.",
+  "Deepfake voice scams target finance approvals.",
+  "Use HTTPS + VPN on public Wi-Fi; avoid sensitive logins.",
+  "Malicious USBs are still used for initial access.",
+  "Audit logs must be monitored and retained securely.",
+  "Disclosure builds trust after incidents."
 ];
-const S={name:'Alex',major:'General',pronouns:'they/them',week:1,wb:70,kn:40,mo:50,so:40,history:[],lastIdx:-1,deltas:[],journal:'',finished:false};
-const numEls={wb:$('#wb-num'),kn:$('#kn-num'),mo:$('#mo-num'),so:$('#so-num')};const barEls={wb:$('#wb-bar'),kn:$('#kn-bar'),mo:$('#mo-bar'),so:$('#so-bar')};
-function setBars(){barEls.wb.style.width=S.wb+'%';barEls.kn.style.width=S.kn+'%';barEls.mo.style.width=S.mo+'%';barEls.so.style.width=S.so+'%';numEls.wb.textContent=S.wb;numEls.kn.textContent=S.kn;numEls.mo.textContent=S.mo;numEls.so.textContent=S.so;$('#week').textContent=S.week;$('#mood').textContent='Mood: '+(S.wb>=70?'😊':S.wb<40?'😢':'😐');moodHue(S.wb)}
-function show(view){$('#view-menu').style.display=view==='menu'?'block':'none';$('#view-play').style.display=view==='play'?'block':'none';$('#view-results').style.display=view==='results'?'block':'none'}
-function addLog(html){const p=document.createElement('p');p.innerHTML=html;$('#log').prepend(p)}
-function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
-function pickEventIndex(){const used=new Set(S.history);let pool=EVENTS.map((_,i)=>i).filter(i=>!used.has(i));if(!pool.length){S.history=[];pool=EVENTS.map((_,i)=>i)}pool=pool.filter(i=>i!==S.lastIdx);if(!pool.length){pool=EVENTS.map((_,i)=>i).filter(i=>i!==S.lastIdx)}const weights=pool.map(i=>{const tag=EVENTS[i].tag;let w=1;if(S.wb<30&&tag==='selfcare')w+=2.5;if(S.kn<40&&tag==='study')w+=2;if(S.mo<25&&tag==='budget')w+=2;if(S.so<30&&tag==='social')w+=2;return w});const sum=weights.reduce((a,b)=>a+b,0);let r=Math.random()*sum;for(let k=0;k<pool.length;k++){r-=weights[k];if(r<=0)return pool[k]}return pool[0]}
-function renderEvent(i){S.lastIdx=i;const ev=EVENTS[i];$('#scene-tag').textContent=rnd(['Library','Tram','Rooftop','Café','Dorm']);$('#ev-title').textContent=ev.t;$('#ev-text').textContent=ev.x;$('#quote').textContent=rnd(QUOTES);$('#trivia').textContent=rnd(TRIVIA);const wrap=$('#choices');wrap.innerHTML='';ev.o.forEach((opt,ix)=>{const d=opt.d,delta=`WB <span class="${d.wb>=0?'pos':'neg'}">${d.wb>=0?'+':''}${d.wb}</span> • KN <span class="${d.kn>=0?'pos':'neg'}">${d.kn>=0?'+':''}${d.kn}</span> • $ <span class="${d.mo>=0?'pos':'neg'}">${d.mo>=0?'+':''}${d.mo}</span> • SO <span class="${d.so>=0?'pos':'neg'}">${d.so>=0?'+':''}${d.so}</span>`;const b=document.createElement('button');b.className='btn fade-in';b.innerHTML=`<b>${String.fromCharCode(65+ix)}) ${opt.l}</b> <span class="delta">${delta}</span>`;b.addEventListener('click',()=>{$$('#choices .btn').forEach(x=>x.disabled=true);applyChoice(opt);setTimeout(()=>{$$('#choices .btn').forEach(x=>x.disabled=false)},280)});wrap.appendChild(b)});$('#tip').textContent=''}
-function applyChoice(opt){pip(520,.06,'sine',.035);const d=opt.d;S.wb=clamp(S.wb+(d.wb||0),0,100);S.kn=clamp(S.kn+(d.kn||0),0,100);S.mo=clamp(S.mo+(d.mo||0),0,100);S.so=clamp(S.so+(d.so||0),0,100);setBars();addLog(`${opt.l} → WB <span class="${d.wb>=0?'pos':'neg'}">${d.wb>=0?'+':''}${d.wb}</span> • KN <span class="${d.kn>=0?'pos':'neg'}">${d.kn>=0?'+':''}${d.kn}</span> • $ <span class="${d.mo>=0?'pos':'neg'}">${d.mo>=0?'+':''}${d.mo}</span> • SO <span class="${d.so>=0?'pos':'neg'}">${d.so>=0?'+':''}${d.so}</span>`);$('#tip').textContent='Tip: '+(opt.tip||'');S.deltas.push({wb:opt.d.wb||0,kn:opt.d.kn||0,mo:opt.d.mo||0,so:opt.d.so||0});toast(rnd(["You feel calmer after setting boundaries.","Your social battery feels recharged.","Steady progress feels good.","Nice pacing — keep it steady."]));if(S.week%5===0&&S.week<MAX_WEEKS){open5W();return}if(S.week===7&&!shown7){openReflect("Mid‑Semester Check‑In");shown7=true;return}if(S.week===14&&!shown14){openReflect("Second Wind Check‑In");shown14=true;return}advance();save()}
-function advance(){if(S.lastIdx!==-1&&!S.history.includes(S.lastIdx)){S.history.push(S.lastIdx)}if(S.week>=MAX_WEEKS){openJournal();return}S.week+=1;setBars();renderEvent(pickEventIndex())}
-function open5W(){const m=$('#modal-5w');const slice=S.deltas.slice(-5);const sums=slice.reduce((a,d)=>({wb:a.wb+d.wb,kn:a.kn+d.kn,mo:a.mo+d.mo,so:a.so+d.so}),{wb:0,kn:0,mo:0,so:0});const avg={wb:slice.length?Math.round(sums.wb/slice.length):0,kn:slice.length?Math.round(sums.kn/slice.length):0,mo:slice.length?Math.round(sums.mo/slice.length):0,so:slice.length?Math.round(sums.so/slice.length):0};drawBars(avg);$('#w5-msg').textContent=avg.kn>avg.wb?"Knowledge is rising — remember to rest.":"Nice balance — keep tiny resets.";m.classList.add('show');$('#w5-continue').onclick=()=>{m.classList.remove('show');if(S.week<MAX_WEEKS){S.week+=1;setBars();renderEvent(pickEventIndex());save()}else openJournal()}} 
-function drawBars(avg){const c=$('#bar5'),x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);const labels=['WB','KN','$','SO'],vals=[avg.wb,avg.kn,avg.mo,avg.so];x.font='12px system-ui';x.fillStyle='#2a3c4d';for(let i=0;i<4;i++){const v=vals[i],x0=40+i*90;x.fillStyle='#eef3f9';x.fillRect(x0,180,60,-120);x.fillStyle=v>=0?'#16a34a':'#ef4444';const h=Math.min(120,Math.abs(v));x.fillRect(x0,180,60,-Math.sign(v)*h);x.fillStyle='#314456';x.textAlign='center';x.fillText(labels[i],x0+30,198);x.fillText((v>=0?'+':'')+v,x0+30,54)}}
-function openReflect(title){const m=$('#modal-reflect');$('#r-title').textContent=title;const strongest=[['Wellbeing',S.wb],['Knowledge',S.kn],['Money',S.mo],['Social',S.so]].sort((a,b)=>b[1]-a[1])[0][0];const weakest=[['Wellbeing',S.wb],['Knowledge',S.kn],['Money',S.mo],['Social',S.so]].sort((a,b)=>a[1]-b[1])[0][0];$('#r-body').textContent=`Your strength is ${strongest}. Lowest is ${weakest}. Gentle adjustments can help.`;m.classList.add('show');$('#r-continue').onclick=()=>{m.classList.remove('show');advance();save()}}
-function openJournal(){const m=$('#modal-journal');m.classList.add('show');$$('#modal-journal [data-j]').forEach(b=>b.onclick=()=>{S.journal=b.dataset.j;m.classList.remove('show');endGame()})}
-function drawRadar(wb,kn,mo,so){const c=$('#radar'),x=c.getContext('2d'),W=c.width,H=c.height,cx=W/2,cy=H/2,r=Math.min(W,H)/2-28;x.clearRect(0,0,W,H);x.strokeStyle='#e3e8ef';for(let i=1;i<=3;i++){x.beginPath();x.arc(cx,cy,(r*i)/3,0,Math.PI*2);x.stroke()}const labs=['WB','KN','$','SO'];x.fillStyle='#314456';x.font='12px system-ui';for(let i=0;i<4;i++){const a=(-Math.PI/2)+(i*Math.PI/2),ex=cx+Math.cos(a)*r,ey=cy+Math.sin(a)*r;x.beginPath();x.moveTo(cx,cy);x.lineTo(ex,ey);x.stroke();x.textAlign='center';x.fillText(labs[i],ex,ey+(i===0?-12:12))}const vals=[wb,kn,mo,so].map(v=>clamp(v,0,100));x.beginPath();for(let i=0;i<4;i++){const a=(-Math.PI/2)+(i*Math.PI/2),pr=r*(vals[i]/100),px=cx+Math.cos(a)*pr,py=cy+Math.sin(a)*pr;i?x.lineTo(px,py):x.moveTo(px,py)}x.closePath();x.fillStyle='rgba(183,28,28,.25)';x.fill();x.lineWidth=2;x.strokeStyle='rgba(183,28,28,.65)';x.stroke()}
-function endGame(){show('results');const {wb,kn,mo,so}=S;let title='Solid Pass ✅',body=`WB ${wb}, KN ${kn}, $ ${mo}, SO ${so}.`;if(wb<40)title="Burnout Warning 😵";else if(mo<25)title="Financial Strain 💸";else if(kn>=70&&wb<60)title="Grades at a Cost 📚";else if(wb>=70&&kn>=60&&mo>=35&&so>=35)title="Balanced Success 🎓";$('#result-title').textContent=title;$('#result-body').textContent=body+(S.journal?" Reflection: "+S.journal:"");drawRadar(wb,kn,mo,so);confettiBurst();localStorage.removeItem(SAVE_KEY)}
-function save(){localStorage.setItem(SAVE_KEY,JSON.stringify(S))}
-function load(){try{const raw=localStorage.getItem(SAVE_KEY);if(!raw)return false;Object.assign(S,JSON.parse(raw));return true}catch(e){return false}}
-function startNew(){S.name=$('#name').value||'Alex';S.major=$('#major').value;S.pronouns=$('#pronouns').value;S.week=1;S.wb=70;S.kn=40;S.mo=50;S.so=40;S.history=[];S.deltas=[];S.lastIdx=-1;S.journal='';S.finished=false;shown7=false;shown14=false;if(S.major==='Engineering'){S.kn+=8;S.wb-=5}if(S.major==='Health'){S.wb+=8;S.mo-=6}if(S.major==='Business'){S.mo+=8;S.so+=4}show('play');setBars();renderEvent(pickEventIndex());save()}
-$('#start').onclick=startNew;$('#resume').onclick=()=>{if(load()){show('play');setBars();renderEvent(pickEventIndex())}else startNew()};$('#save').onclick=()=>{save();addLog('<span class="pos">Progress saved.</span>')};$('#end').onclick=()=>openJournal();$('#restart').onclick=()=>show('menu');$('#menu').onclick=()=>show('menu');$('#download').onclick=()=>{const txt=`UniLife — Summary\nName: ${S.name}\nFinal WB ${S.wb} KN ${S.kn} $ ${S.mo} SO ${S.so}\nReflection: ${S.journal||'-'}`;const blob=new Blob([txt],{type:'text/plain'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='unilife_summary.txt';a.click();URL.revokeObjectURL(url)}
-document.addEventListener('keydown',e=>{if($('#view-play').style.display!=='block')return;const map={'1':0,'2':1,'3':2,'4':3};if(map[e.key]!=null){const btn=$$('#choices .btn')[map[e.key]];if(btn)btn.click()}if(e.key.toLowerCase()==='s')$('#save').click()});
-setBars();show('menu');renderEvent(0);
+
+const CARDS=[
+  { id:"phish_ai_mygov", region:"AU",
+    title:"AI-Generated Phishing (MyGov lookalike)",
+    base:3,
+    text:"A realistic email asks staff to ‘verify benefits’. Domain is slightly misspelled.",
+    options:[
+      {label:"Enforce 2FA across accounts", d:{SEC:+9, TRU:+3, BDG:-3}, tip:"2FA breaks credential-stuffing."},
+      {label:"Run phishing drill + awareness", d:{SEC:+5, TRU:+5, BDG:-2}, tip:"Training reduces clicks."},
+      {label:"Ignore for now", d:{SEC:-10, TRU:-6, BDG:+1}, tip:"Delay equals exposure."}
+    ]
+  },
+  { id:"sms_spoof_zalo", region:"VN",
+    title:"Banking SMS Spoof via Zalo/OTP Bait",
+    base:2,
+    text:"Staff receive a spoofed SMS linking to a fake banking page requesting OTP.",
+    options:[
+      {label:"Password manager + unique pwds", d:{SEC:+6, TRU:+2, BDG:-2}, tip:"Prevents reuse damage."},
+      {label:"2FA + out-of-band confirmations", d:{SEC:+7, TRU:+3, BDG:-3}, tip:"Stops OTP theft impact."},
+      {label:"Ignore", d:{SEC:-8, TRU:-5, BDG:+1}, tip:"Attackers automate resend."}
+    ]
+  },
+  { id:"unpatched_browser", region:"AU",
+    title:"Unpatched Browser 0-day Emerges",
+    base:4,
+    text:"A widely-used browser has an active exploit; your fleet is behind on updates.",
+    options:[
+      {label:"Force auto-update & patch now", d:{SEC:+9, TRU:+1, BDG:-3}, tip:"Closes exploit window."},
+      {label:"Virtualize sensitive apps", d:{SEC:+6, TRU:+2, BDG:-4}, tip:"Adds isolation."},
+      {label:"Delay a week", d:{SEC:-9, TRU:-3, BDG:+1}, tip:"Risk compounds daily."}
+    ]
+  },
+  { id:"public_wifi_mitm", region:"AU",
+    title:"Public Wi-Fi MITM near RMIT City",
+    base:2,
+    text:"Staff connect to café Wi-Fi; credentials observed via evil-twin AP.",
+    options:[
+      {label:"Mandate VPN + HSTS checks", d:{SEC:+7, TRU:+2, BDG:-3}, tip:"Encrypts traffic end-to-end."},
+      {label:"Awareness: avoid sensitive logins", d:{SEC:+4, TRU:+3, BDG:-1}, tip:"Reduces exposure."},
+      {label:"Do nothing", d:{SEC:-7, TRU:-4, BDG:+1}, tip:"Credentials at risk."}
+    ]
+  },
+  { id:"malicious_usb_b80", region:"AU",
+    title:"Malicious USB found near Building 80",
+    base:2,
+    text:"A labeled USB stick appears ‘HR Payroll’. Temptation is real.",
+    options:[
+      {label:"Disable USB autorun + block unknown", d:{SEC:+7, TRU:+2, BDG:-2}, tip:"Stops BadUSB."},
+      {label:"Awareness: turn in to IT", d:{SEC:+4, TRU:+3, BDG:-1}, tip:"Removes lure."},
+      {label:"Plug it in quickly", d:{SEC:-10, TRU:-5, BDG:+0}, tip:"Classic initial access."}
+    ]
+  },
+  { id:"password_reuse_portal", region:"VN",
+    title:"Password Reuse on University Portal",
+    base:3,
+    text:"Credentials were reused across multiple services; one provider had a breach.",
+    options:[
+      {label:"Enforce SSO + pwd manager", d:{SEC:+8, TRU:+3, BDG:-3}, tip:"Unique creds + central auth."},
+      {label:"2FA & rotation campaign", d:{SEC:+7, TRU:+2, BDG:-2}, tip:"Layers reduce risk."},
+      {label:"Ignore", d:{SEC:-10, TRU:-6, BDG:+1}, tip:"Stuffing inevitable."}
+    ]
+  },
+  { id:"shadow_ai_docs", region:"AU",
+    title:"Shadow AI Tool Uploading Docs",
+    base:3,
+    text:"Team uses an external GenAI tool; confidential notes may be leaving the org.",
+    options:[
+      {label:"Approved AI platform + policy", d:{SEC:+7, TRU:+3, BDG:-3}, tip:"Govern usage safely."},
+      {label:"DLP on outbound traffic", d:{SEC:+6, TRU:+2, BDG:-4}, tip:"Detects sensitive data."},
+      {label:"Let teams decide", d:{SEC:-8, TRU:-4, BDG:+1}, tip:"Data exfil risk."}
+    ]
+  },
+  { id:"ransomware_plugin", region:"VN",
+    title:"Ransomware via Outdated Plugin",
+    base:3,
+    text:"A popular CMS plugin has a remote-exec flaw; backups were untested.",
+    options:[
+      {label:"Patch + 3-2-1 backups tested", d:{SEC:+8, TRU:+3, BDG:-4}, tip:"Restorable state matters."},
+      {label:"Segment affected servers", d:{SEC:+6, TRU:+2, BDG:-3}, tip:"Limits blast radius."},
+      {label:"Pay ransom quietly", d:{SEC:-6, TRU:-8, BDG:-6}, tip:"Encourages re-attack."}
+    ]
+  },
+  { id:"s3_public_bucket", region:"AU",
+    title:"Public S3 Bucket Discovered",
+    base:2,
+    text:"A misconfigured bucket exposes documents to the internet.",
+    options:[
+      {label:"Lock access + audit logs", d:{SEC:+7, TRU:+3, BDG:-2}, tip:"Least-privilege + visibility."},
+      {label:"Rotate keys + notify affected", d:{SEC:+6, TRU:+4, BDG:-3}, tip:"Transparency builds trust."},
+      {label:"Quietly fix without notice", d:{SEC:+3, TRU:-4, BDG:-1}, tip:"Trust erosion later."}
+    ]
+  },
+  { id:"deepfake_cfo", region:"AU",
+    title:"Deepfake CFO Voice Requests Urgent Transfer",
+    base:3,
+    text:"Finance receives a voice call that sounds like the CFO asking for a large transfer.",
+    options:[
+      {label:"Out-of-band verification", d:{SEC:+7, TRU:+3, BDG:-1}, tip:"Stops approval fraud."},
+      {label:"Payment delay + multi-sign", d:{SEC:+6, TRU:+2, BDG:-2}, tip:"Requires consensus."},
+      {label:"Approve to be helpful", d:{SEC:-10, TRU:-6, BDG:-5}, tip:"Classic BEC pattern."}
+    ]
+  },
+  { id:"privacy_mishandle", region:"VN",
+    title:"Privacy Request Mishandled",
+    base:2,
+    text:"A data subject access request was ignored; data retention unclear.",
+    options:[
+      {label:"Build DSAR workflow", d:{SEC:+4, TRU:+6, BDG:-3}, tip:"Compliance is trust."},
+      {label:"Data mapping & minimisation", d:{SEC:+6, TRU:+3, BDG:-3}, tip:"Less data = less risk."},
+      {label:"Ignore", d:{SEC:-6, TRU:-7, BDG:+1}, tip:"Regulatory risk grows."}
+    ]
+  },
+  { id:"linkedin_se", region:"AU",
+    title:"LinkedIn Social Engineering",
+    base:2,
+    text:"An attacker builds rapport with staff over weeks; requests internal info.",
+    options:[
+      {label:"Awareness + reporting channel", d:{SEC:+5, TRU:+4, BDG:-1}, tip:"Culture detects fraud."},
+      {label:"Least-privilege & approvals", d:{SEC:+6, TRU:+2, BDG:-2}, tip:"Access scoped tightly."},
+      {label:"No action", d:{SEC:-7, TRU:-5, BDG:+1}, tip:"Humans are targets."}
+    ]
+  }
+];
+
+/* ==============================
+   State
+============================== */
+const S={
+  org:"—", diff:"casual",
+  round:1,
+  SEC:55, TRU:55, BDG:50,
+  deck:[], used:[], last:-1,
+  deltas:[], // for snapshots
+  rolled:false, severity:0,
+  finished:false
+};
+
+/* ==============================
+   UI Refs
+============================== */
+const numEls={SEC:$('#sec-num'), TRU:$('#tru-num'), BDG:$('#bdg-num')};
+const ringEls={SEC:$('#ring-sec'), TRU:$('#ring-tru'), BDG:$('#ring-bdg')};
+
+/* ==============================
+   Drawing: Rings & Radar & Bars
+============================== */
+function ring(canvas,val,colors=['#93e7ff','#bdf4da']){
+  const ctx=canvas.getContext('2d'), W=canvas.width, H=canvas.height, cx=W/2, cy=H/2, r=W/2-8;
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle='#20324f'; ctx.lineWidth=10; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+  const grd=ctx.createLinearGradient(0,0,W,H); grd.addColorStop(0,colors[0]); grd.addColorStop(1,colors[1]);
+  const a0=-Math.PI/2, a=a0+(Math.PI*2)*(val/100);
+  ctx.strokeStyle=grd; ctx.lineCap='round'; ctx.lineWidth=10;
+  ctx.shadowColor=colors[0]; ctx.shadowBlur=10;
+  ctx.beginPath(); ctx.arc(cx,cy,r,a0,a); ctx.stroke(); ctx.shadowBlur=0;
+}
+
+function drawRadar(sec,tru,bdg){
+  const c=$('#radar'),x=c.getContext('2d'),W=c.width,H=c.height,cx=W/2,cy=H/2,r=Math.min(W,H)/2-28;
+  x.clearRect(0,0,W,H); x.strokeStyle='#243145';
+  for(let i=1;i<=3;i++){x.beginPath();x.arc(cx,cy,(r*i)/3,0,Math.PI*2);x.stroke()}
+  const labs=['SEC','TRU','BDG']; x.fillStyle='#cfe1ff'; x.font='12px system-ui';
+  for(let i=0;i<3;i++){const a=(-Math.PI/2)+(i*(2*Math.PI/3)), ex=cx+Math.cos(a)*r, ey=cy+Math.sin(a)*r; x.beginPath();x.moveTo(cx,cy);x.lineTo(ex,ey);x.stroke();x.textAlign='center';x.fillText(labs[i],ex,ey+(i===0?-12:12))}
+  const vals=[sec,tru,bdg].map(v=>clamp(v,0,100));
+  x.beginPath();
+  for(let i=0;i<3;i++){const a=(-Math.PI/2)+(i*(2*Math.PI/3)), pr=r*(vals[i]/100), px=cx+Math.cos(a)*pr, py=cy+Math.sin(a)*pr; i?x.lineTo(px,py):x.moveTo(px,py)}
+  x.closePath(); x.fillStyle='rgba(183,28,28,.24)'; x.fill(); x.lineWidth=2; x.strokeStyle='rgba(255,150,150,.8)'; x.stroke();
+}
+
+function drawBars(avg){
+  const c=$('#bar4'),x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height);
+  const labels=['SEC','TRU','BDG'],vals=[avg.SEC,avg.TRU,avg.BDG];
+  x.font='12px system-ui';
+  for(let i=0;i<3;i++){
+    const v=vals[i], x0=70+i*120;
+    x.fillStyle='#102035'; x.fillRect(x0,180,80,-120);
+    x.strokeStyle='#22344f'; x.strokeRect(x0,60,80,120);
+    x.fillStyle = v>=0?'#16a34a':'#ef4444';
+    const h=Math.min(120,Math.abs(v));
+    x.fillRect(x0,180,80,-Math.sign(v)*h);
+    x.fillStyle='#cfe1ff'; x.textAlign='center'; x.fillText(labels[i], x0+40, 198);
+    x.fillText((v>=0?'+':'')+v, x0+40, 54);
+  }
+}
+
+/* ==============================
+   HUD & Views & Toast
+============================== */
+function setHUD(){
+  numEls.SEC.textContent=S.SEC; numEls.TRU.textContent=S.TRU; numEls.BDG.textContent=S.BDG;
+  ring(ringEls.SEC,S.SEC,['#93e7ff','#bdf4da']);
+  ring(ringEls.TRU,S.TRU,['#a9b7ff','#d1e1ff']);
+  ring(ringEls.BDG,S.BDG,['#ffd59a','#fff1b7']);
+  $('#round').textContent=S.round;
+  $('#org-badge').textContent='Org: '+S.org;
+  $('#diff-badge').textContent='Mode: '+(S.diff==='casual'?'Casual':S.diff==='analyst'?'Analyst':'CISO');
+}
+function show(view){
+  $('#view-menu').style.display = view==='menu'?'block':'none';
+  $('#view-play').style.display = view==='play'?'block':'none';
+  $('#view-results').style.display = view==='results'?'block':'none';
+}
+function addLog(html){ const p=document.createElement('p'); p.innerHTML=html; $('#log').prepend(p); }
+function toast(msg){ const t=$('#toast'); const b=document.createElement('div'); b.className='bubble'; b.textContent=msg; t.appendChild(b); setTimeout(()=>b.remove(),2000); }
+
+/* ==============================
+   Confetti
+============================== */
+const confettiCanvas=$('#confetti'), ctxC=confettiCanvas.getContext('2d');
+function confettiBurst(){
+  confettiCanvas.width=innerWidth; confettiCanvas.height=innerHeight; confettiCanvas.style.display='block';
+  const pcs=Array.from({length:150},()=>({x:Math.random()*innerWidth,y:-10,r:Math.random()*6+2,c:`hsl(${Math.random()*360},90%,60%)`,vy:2+Math.random()*3,vx:(Math.random()-.5)*2}));
+  let t=0; (function anim(){
+    ctxC.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+    pcs.forEach(p=>{p.x+=p.vx;p.y+=p.vy;ctxC.fillStyle=p.c;ctxC.beginPath();ctxC.arc(p.x,p.y,p.r,0,Math.PI*2);ctxC.fill();});
+    if((t+=1)<220) requestAnimationFrame(anim); else confettiCanvas.style.display='none';
+  })();
+}
+
+/* ==============================
+   Deck & Rendering
+============================== */
+function buildDeck(){
+  S.deck = CARDS.map((_,i)=>i);
+  // shuffle
+  for(let i=S.deck.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0; [S.deck[i],S.deck[j]]=[S.deck[j],S.deck[i]]; }
+  S.used=[]; S.last=-1;
+}
+function pickCardIndex(){
+  if(!S.deck.length) buildDeck();
+  // avoid immediate repeat
+  if(S.deck[0]===S.last && S.deck.length>1){ [S.deck[0], S.deck[1]]=[S.deck[1],S.deck[0]]; }
+  const idx=S.deck.shift(); S.last=idx; S.used.push(idx);
+  return idx;
+}
+function renderCard(ci){
+  const card=CARDS[ci];
+  $('#card-title').textContent = 'Risk: '+card.title;
+  $('#card-body').textContent = card.text;
+  $('#card-region').textContent = 'Context: '+(card.region==='AU'?'Australia':'Vietnam');
+  $('#choices').innerHTML='';
+  $('#severity').textContent = '— (roll to reveal severity)';
+  $('#tip').textContent=''; $('#fact').textContent = rnd(FACTS);
+  S.rolled=false; S.severity=0;
+
+  card.options.forEach((opt,ix)=>{
+    const d=opt.d;
+    const delta=`SEC <span class="${d.SEC>=0?'pos':'neg'}">${d.SEC>=0?'+':''}${d.SEC}</span> • TRU <span class="${d.TRU>=0?'pos':'neg'}">${d.TRU>=0?'+':''}${d.TRU}</span> • BDG <span class="${d.BDG>=0?'pos':'neg'}">${d.BDG>=0?'+':''}${d.BDG}</span>`;
+    const b=document.createElement('button'); b.className='btn'; b.innerHTML=`<b>${String.fromCharCode(65+ix)}) ${opt.label}</b> <span class="delta">${delta}</span>`;
+    b.addEventListener('click',()=>applyChoice(card,opt));
+    $('#choices').appendChild(b);
+  });
+}
+
+/* ==============================
+   Dice & Difficulty
+============================== */
+function diffMod(){
+  if(S.diff==='casual') return 0;
+  if(S.diff==='analyst') return 1;
+  return 2; // CISO
+}
+function rollDice(){
+  const d=$('#dice'); d.classList.add('rolling'); pip(520,.06,'sine',.035);
+  setTimeout(()=>{
+    d.classList.remove('rolling');
+    const roll=1+((Math.random()*6)|0);
+    S.severity = CARDS[S.last].base + roll + diffMod();
+    $('#dice').textContent = roll;
+    $('#severity').innerHTML = `Severity: <b>${S.severity}</b> (base ${CARDS[S.last].base} + roll ${roll} + diff ${diffMod()})`;
+    S.rolled=true;
+  }, 600);
+}
+
+/* ==============================
+   Apply Choice & Progress
+============================== */
+function applyChoice(card,opt){
+  if(!S.rolled){ toast('Roll the risk die first (R or click).'); return; }
+  // Base deltas
+  let SEC=S.SEC + (opt.d.SEC||0);
+  let TRU=S.TRU + (opt.d.TRU||0);
+  let BDG=S.BDG + (opt.d.BDG||0);
+
+  // Severity scaling:
+  // - Good choices absorb part of severity as extra SEC (+) and small BDG (–)
+  // - Bad/ignore choices are punished by severity
+  if(opt.d.SEC>=0){
+    SEC += Math.max(0, 6 - Math.min(6, S.severity));  // better mitigation when severe
+    BDG -= Math.ceil(S.severity/3);
+  }else{
+    SEC -= S.severity*2;
+    TRU -= Math.ceil(S.severity/2);
+  }
+
+  // Clamp
+  S.SEC = clamp(SEC,0,100); S.TRU = clamp(TRU,0,100); S.BDG = clamp(BDG,0,100);
+  S.deltas.push({SEC:(opt.d.SEC||0), TRU:(opt.d.TRU||0), BDG:(opt.d.BDG||0)});
+
+  setHUD();
+  $('#tip').textContent='Why: '+(opt.tip||'');
+  addLog(`${card.title} → <span class="${opt.d.SEC>=0?'pos':'neg'}">${opt.label}</span> | SEC ${S.SEC} • TRU ${S.TRU} • BDG ${S.BDG}`);
+  toast(rnd(["Risk reduced. Good call.","Culture improves with clarity.","Resilience up; keep going.","Solid defense choice."]));
+
+  // Snapshot every 4 rounds (except end)
+  if(S.round % 4 === 0 && S.round < ROUNDS){ openSnapshot(); return; }
+
+  advance();
+}
+
+/* Snapshot modal (avg of last 4 deltas) */
+function openSnapshot(){
+  const m=$('#modal-snap');
+  const slice=S.deltas.slice(-4);
+  const sums=slice.reduce((a,d)=>({SEC:a.SEC+d.SEC,TRU:a.TRU+d.TRU,BDG:a.BDG+d.BDG}),{SEC:0,TRU:0,BDG:0});
+  const avg={SEC:slice.length?Math.round(sums.SEC/slice.length):0, TRU:slice.length?Math.round(sums.TRU/slice.length):0, BDG:slice.length?Math.round(sums.BDG/slice.length):0};
+  drawBars(avg);
+  $('#snap-msg').textContent = avg.SEC>=avg.TRU ? "Security posture improving — keep culture engaged." : "Trust rising — maintain technical depth.";
+  m.classList.add('show');
+  $('#snap-continue').onclick=()=>{ m.classList.remove('show'); advance(); };
+}
+
+function advance(){
+  if(S.round>=ROUNDS){ endGame(); return; }
+  S.round += 1; setHUD();
+  renderCard(pickCardIndex());
+  S.rolled=false; S.severity=0;
+}
+
+/* ==============================
+   End Game & Insights
+============================== */
+function endGame(){
+  show('results');
+  const {SEC,TRU,BDG}=S;
+  let title='Solid Outcome ✅', body=`SEC ${SEC}, TRU ${TRU}, BDG ${BDG}.`;
+  if(SEC>=80 && TRU>=70 && BDG>=40){ title='Cyber-Resilient Champion 🏆'; confettiBurst(); }
+  else if(BDG<20){ title='Budget Burnout 💸'; }
+  else if(SEC<50 && TRU>=60){ title='Innovation Overexposed 📉'; }
+  else if(SEC>=60 && TRU<50){ title='Breach Contained, Reputation Bruised 📰'; }
+
+  const weakest=[['SEC',SEC],['TRU',TRU],['BDG',BDG]].sort((a,b)=>a[1]-b[1])[0][0];
+  const hint = weakest==='SEC' ? 'Prioritise patching, 2FA and backups.'
+             : weakest==='TRU' ? 'Communicate, document, and disclose responsibly.'
+             : 'Invest where impact is highest; avoid false economies.';
+  $('#result-title').textContent=title;
+  $('#result-body').textContent=body+' • Focus next time: '+hint;
+  drawRadar(SEC,TRU,BDG);
+  localStorage.removeItem(SAVE_KEY);
+}
+
+/* ==============================
+   Save / Load
+============================== */
+function save(){ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); toast('Progress saved.'); }
+function load(){ try{ const raw=localStorage.getItem(SAVE_KEY); if(!raw) return false; Object.assign(S, JSON.parse(raw)); return true; }catch(e){ return false; } }
+
+/* ==============================
+   Start / Resume / Menu
+============================== */
+function startNew(){
+  S.org = $('#org').value || 'RMIT Team';
+  S.diff = $('#difficulty').value;
+  S.round=1; S.SEC=55; S.TRU=55; S.BDG=50; S.deltas=[]; S.finished=false;
+  buildDeck();
+  show('play'); setHUD();
+  renderCard(pickCardIndex());
+  save();
+}
+$('#start').onclick=startNew;
+$('#resume').onclick=()=>{ if(load()){ show('play'); setHUD(); renderCard(S.last>=0?S.last:pickCardIndex()); } else startNew(); };
+$('#save').onclick=save;
+$('#end').onclick=()=> endGame();
+$('#restart').onclick=()=> show('menu');
+$('#menu').onclick=()=> show('menu');
+$('#download').onclick=()=>{
+  const txt=`DataHeist — Summary
+Org: ${S.org}
+Mode: ${S.diff}
+Final SEC ${S.SEC} • TRU ${S.TRU} • BDG ${S.BDG}
+Rounds: ${S.round}
+`;
+  const blob=new Blob([txt],{type:'text/plain'}); const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='dataheist_summary.txt'; a.click(); URL.revokeObjectURL(url);
+};
+
+/* Dice controls */
+$('#roll').onclick=rollDice;
+$('#dice').addEventListener('click', rollDice);
+$('#dice').addEventListener('keydown', e=>{ if(e.key==='Enter' || e.key===' ') rollDice(); });
+
+/* Keyboard */
+document.addEventListener('keydown', e=>{
+  if($('#view-play').style.display!=='block') return;
+  if(e.key.toLowerCase()==='r') $('#roll').click();
+  if(e.key.toLowerCase()==='s') $('#save').click();
+  const map={'1':0,'2':1,'3':2,'4':3};
+  if(map[e.key]!=null){ const btn=$$('#choices .btn')[map[e.key]]; if(btn) btn.click(); }
+});
+
+/* ==============================
+   Init
+============================== */
+function init(){
+  setHUD(); show('menu');
+  // Prepare opening dummy card for menu load to avoid nulls
+  S.last = pickCardIndex();
+}
+init();
 </script>
-</body></html>
+</body>
+</html>

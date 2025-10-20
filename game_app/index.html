@@ -5,14 +5,13 @@
     RMIT GenAI & Cybersecurity Hackathon 2025 — Challenge 3
     Campus: RMIT City • Team: The Trinity
     Game: UniLife Simulator — BitLife-style narrative sim (AU context)
-    Focus: Mental-Health Resilience with practical student trade-offs
-    Tech: Pure HTML/CSS/JS (front-end only), works offline, no external libraries
+    Focus: Mental-Health Resilience and Decision-Making for Students
+    Tech: Pure HTML/CSS/JS (front-end only)
   -->
   <meta charset="utf-8" />
   <title>UniLife Simulator — RMIT City</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    /* ===== Calm palette & layout ===== */
     :root{
       --bg1:#eaf7f4; --bg2:#eaf2fb; --panel:#ffffff; --ink:#0a2a2e; --muted:#486e73;
       --accent:#2bb6f6; --accent2:#69e6b8; --stroke:#d8e5ec; --shadow:0 8px 26px rgba(9,30,66,.15);
@@ -45,580 +44,204 @@
     .bar>span{display:block;height:100%;background:var(--barGrad);transition:width .25s ease}
     .week-pill{padding:6px 10px;border-radius:10px;border:1px solid var(--stroke);background:#fff}
 
-    /* Views */
-    .two-col{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}
-    @media (max-width:900px){ .two-col{grid-template-columns:1fr} }
+    /* Legend + Objective */
+    .legend, .objective {
+      background:#f7fbff;border:1px solid var(--stroke);border-radius:12px;padding:10px 12px;font-size:13px;
+    }
+    .legend span{display:inline-block;margin-right:10px}
+    .objective b{color:var(--accent2)}
+
+    /* Log */
     .log{height:240px;overflow:auto;background:#f7fbff;border:1px solid var(--stroke);border-radius:12px;padding:10px;font-size:14px;color:#335b60}
     .log p{margin:6px 0}
 
     /* Choices */
     .choices{display:grid;grid-template-columns:1fr;gap:10px}
     .choice-btn{display:flex;justify-content:space-between;align-items:center}
-    .delta{font-size:12px;color:#1d4d53}
+    .delta{font-size:12px;font-weight:600}
+    .pos{color:var(--good)}
+    .neg{color:var(--bad)}
 
-    /* Confetti canvas + Radar chart canvas */
     #confettiCanvas{position:fixed;inset:0;pointer-events:none;display:none;z-index:999}
-    #radar{width:320px;height:320px;max-width:100%}
-
-    /* Modal-ish helper */
-    .helper{background:#ffffff;border:1px solid var(--stroke);border-radius:12px;padding:12px}
-
-    /* Accessibility focus */
-    .btn:focus{outline:2px solid var(--accent);outline-offset:2px;border-color:var(--accent)}
+    .two-col{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}
+    @media (max-width:900px){ .two-col{grid-template-columns:1fr} }
   </style>
 </head>
 <body>
   <canvas id="confettiCanvas"></canvas>
-
   <div class="wrap">
     <header>
       <h1>UniLife Simulator — RMIT City</h1>
-      <div><span class="pill">Narrative Sim</span> <span class="pill">Mental Health Focus</span> <span class="pill">Front-end only</span></div>
+      <div><span class="pill">Mental Health Focus</span><span class="pill">Front-end Only</span></div>
     </header>
 
-    <!-- ====== VIEW: MENU / CHARACTER CREATION ====== -->
-    <div id="view-menu" class="card panel" role="region" aria-label="Menu">
+    <!-- MENU -->
+    <div id="view-menu" class="card panel">
       <div class="two-col">
         <div>
           <h2>Start your semester</h2>
-          <p class="muted">Live out a 15-week semester as an RMIT City student. Each week, choose how you balance <b>Wellbeing</b>, <b>Knowledge</b>, <b>Money</b>, and <b>Social</b>. Finish strong with sustainable habits.</p>
-          <div class="helper" style="margin:10px 0 16px">
-            <b>Tip:</b> High grades with burned-out wellbeing still counts as a poor outcome. Aim for balance.
-          </div>
-          <div class="row">
-            <div class="card panel" style="flex:1 1 320px">
-              <h3 style="margin-top:0">Character</h3>
-              <label>Display Name<br>
-                <input id="char-name" placeholder="e.g., Alex" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);margin:6px 0 10px">
-              </label>
-              <label>Major<br>
-                <select id="char-major" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);margin:6px 0 10px">
-                  <option value="General">General Studies (balanced)</option>
-                  <option value="Engineering">Engineering (knowledge boost, wellbeing -)</option>
-                  <option value="Health">Health Sciences (wellbeing boost, money -)</option>
-                  <option value="Business">Business (money boost, social +)</option>
-                </select>
-              </label>
-              <label>Pronouns<br>
-                <select id="char-pronouns" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);margin:6px 0 10px">
-                  <option value="they/them">they/them</option>
-                  <option value="she/her">she/her</option>
-                  <option value="he/him">he/him</option>
-                </select>
-              </label>
-              <div class="row">
-                <button class="btn primary" id="btn-start">Start Semester</button>
-                <button class="btn ghost" id="btn-continue">Continue Last Save</button>
-              </div>
-            </div>
-            <div class="card panel" style="flex:1 1 320px">
-              <h3 style="margin-top:0">How it works</h3>
-              <ul class="muted">
-                <li>Each turn = <b>1 week</b> (total 15).</li>
-                <li>Pick one of <b>3–4 choices</b> per event.</li>
-                <li>Choices affect <b>WB</b> (Wellbeing), <b>KN</b> (Knowledge), <b>$</b> (Money), <b>SO</b> (Social).</li>
-                <li>Endings depend on your final balance — not just grades.</li>
-              </ul>
-              <button class="btn" id="btn-how">View Tips</button>
-            </div>
-          </div>
+          <p class="muted">Balance <b>Wellbeing</b>, <b>Knowledge</b>, <b>Money</b>, and <b>Social</b> over 15 weeks. Your goal: stay healthy while passing your courses.</p>
+          <label>Display Name<br><input id="char-name" placeholder="e.g., Alex" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke)"></label>
+          <label>Major<br><select id="char-major" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke)">
+            <option value="General">General Studies</option>
+            <option value="Engineering">Engineering (knowledge+, wellbeing-)</option>
+            <option value="Health">Health Sciences (wellbeing+, money-)</option>
+            <option value="Business">Business (money+, social+)</option>
+          </select></label>
+          <button class="btn primary" id="btn-start">Start Semester</button>
+          <button class="btn" id="btn-continue">Continue</button>
         </div>
         <div class="card panel">
-          <h3 style="margin-top:0">Why it matters</h3>
-          <p class="muted">Australian students juggle study, work, costs, and wellbeing. This sim highlights small choices that protect mental health while staying on track academically.</p>
+          <h3>How it works</h3>
           <ul class="muted">
-            <li><b>Counselling & Accessibility</b> — free/low-cost on campus</li>
-            <li><b>GP Mental Health Plans</b> — Medicare rebates for therapy</li>
-            <li><b>Heatwaves</b> — hydration, early study, shade</li>
+            <li>Each turn = 1 week</li>
+            <li>Pick from 3–4 choices per event</li>
+            <li>Stats affect endings</li>
+            <li>Stay balanced for success 🎓</li>
           </ul>
         </div>
       </div>
     </div>
 
-    <!-- ====== VIEW: GAMEPLAY ====== -->
-    <div id="view-play" class="card panel" style="display:none" role="region" aria-label="Gameplay">
-      <div class="row">
-        <div class="card panel" style="flex:1 1 560px">
-          <div class="hud" style="margin-bottom:12px">
+    <!-- PLAY -->
+    <div id="view-play" class="card panel" style="display:none">
+      <div class="row" style="align-items:flex-start;flex-wrap:wrap;">
+        <div style="flex:1 1 560px">
+          <div class="hud">
             <div class="week-pill">Week <span id="week-num">1</span>/15</div>
-            <div class="stat" title="Wellbeing">
-              WB <div class="bar"><span id="wb-bar" style="width:70%"></span></div><span id="wb-num">70</span>
-            </div>
-            <div class="stat" title="Knowledge">
-              KN <div class="bar"><span id="kn-bar" style="width:40%"></span></div><span id="kn-num">40</span>
-            </div>
-            <div class="stat" title="Money">
-              $  <div class="bar"><span id="mo-bar" style="width:50%"></span></div><span id="mo-num">50</span>
-            </div>
-            <div class="stat" title="Social">
-              SO <div class="bar"><span id="so-bar" style="width:40%"></span></div><span id="so-num">40</span>
-            </div>
-            <button class="btn" id="btn-save">Save</button>
-            <button class="btn ghost" id="btn-end">End Early</button>
+            <div class="stat">WB<div class="bar"><span id="wb-bar" style="width:70%"></span></div><span id="wb-num">70</span></div>
+            <div class="stat">KN<div class="bar"><span id="kn-bar" style="width:40%"></span></div><span id="kn-num">40</span></div>
+            <div class="stat">$ <div class="bar"><span id="mo-bar" style="width:50%"></span></div><span id="mo-num">50</span></div>
+            <div class="stat">SO<div class="bar"><span id="so-bar" style="width:40%"></span></div><span id="so-num">40</span></div>
+            <button class="btn" id="btn-save">💾 Save</button>
           </div>
 
-          <div id="event-card" class="card panel" style="background:#f7fbff">
-            <h3 id="ev-title" style="margin:0 0 6px">Welcome to Week 1</h3>
-            <p id="ev-text" class="muted" style="margin-top:0">Make a choice to set your rhythm.</p>
+          <div class="legend" style="margin-top:10px;">
+            <b>Legend:</b>
+            <span>WB = Wellbeing</span>
+            <span>KN = Knowledge</span>
+            <span>$ = Money</span>
+            <span>SO = Social</span>
+          </div>
+
+          <div id="event-card" class="card panel" style="background:#f7fbff;margin-top:12px">
+            <h3 id="ev-title">Welcome to Week 1</h3>
+            <p id="ev-text" class="muted">Make a choice to set your rhythm.</p>
             <div class="choices" id="ev-choices"></div>
-            <p id="ev-tip" class="muted" style="margin:10px 0 0"></p>
+            <p id="ev-tip" class="muted"></p>
+          </div>
+
+          <div class="objective" style="margin-top:12px;">
+            🎯 <b>Objective:</b> Maintain balance. Avoid burnout, keep your wellbeing ≥ 60 while building knowledge for finals.
           </div>
         </div>
 
-        <div class="card panel" style="flex:1 1 320px;min-width:280px">
-          <h3 style="margin-top:0">Log</h3>
+        <div class="card panel" style="flex:1 1 320px;min-width:260px;">
+          <h3>Log</h3>
           <div id="log" class="log" aria-live="polite"></div>
         </div>
       </div>
     </div>
 
-    <!-- ====== VIEW: RESULTS ====== -->
-    <div id="view-results" class="card panel" style="display:none" role="region" aria-label="Results">
-      <h2 style="margin-top:0" id="result-title">Semester Summary</h2>
+    <!-- RESULTS -->
+    <div id="view-results" class="card panel" style="display:none">
+      <h2 id="result-title">Semester Summary</h2>
       <p id="result-body" class="muted"></p>
-
-      <!-- Radar chart (pure canvas) -->
-      <div class="row" style="align-items:center">
-        <canvas id="radar" width="360" height="360" aria-label="Stats radar chart"></canvas>
-        <div class="card panel" style="background:#f7fbff;flex:1 1 320px">
-          <h3 style="margin:0 0 6px">Helpful resources (Australia)</h3>
-          <ul style="margin:0 0 6px 18px">
-            <li><a href="https://www.lifeline.org.au/" target="_blank" rel="noopener">Lifeline — 13 11 14</a></li>
-            <li><a href="https://www.beyondblue.org.au/" target="_blank" rel="noopener">Beyond Blue — 1300 22 4636</a></li>
-            <li><a href="https://www.rmit.edu.au/students/support-and-facilities/student-support/counselling" target="_blank" rel="noopener">RMIT Counselling & Wellbeing</a></li>
-          </ul>
-          <p class="muted" style="margin:6px 0 0">If it’s an emergency, call <b>000</b>.</p>
-        </div>
+      <div class="legend" style="margin-top:10px;">
+        <b>Final Stats:</b> <span id="final-wb"></span> WB, <span id="final-kn"></span> KN, <span id="final-mo"></span> $, <span id="final-so"></span> SO
       </div>
-
-      <div class="hud" style="margin-top:10px">
-        <button class="btn primary" id="btn-restart">Play Again</button>
-        <button class="btn ghost" id="btn-menu">Back to Menu</button>
-      </div>
+      <div class="objective" style="margin-top:10px;">Remember: grades matter, but health matters more 💚</div>
+      <button class="btn primary" id="btn-restart">Play Again</button>
+      <button class="btn ghost" id="btn-menu">Main Menu</button>
     </div>
 
-    <footer>© 2025 UniLife Simulator • RMIT City — The Trinity • Front-end only</footer>
+    <footer>© 2025 UniLife Simulator • RMIT City — The Trinity</footer>
   </div>
 
   <script>
-    /* =================== Audio (WebAudio beeps) =================== */
     const Sound = (()=> {
       const ctx = window.AudioContext ? new AudioContext() : null;
-      function beep({freq=440, dur=0.10, type='sine', vol=0.03}){
+      function beep({freq=440,dur=0.1,type='sine',vol=0.03}){
         if(!ctx) return;
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
-        o.type = type; o.frequency.value = freq; g.gain.value = vol;
-        o.connect(g).connect(ctx.destination);
-        o.start();
-        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + dur);
-        o.stop(ctx.currentTime + dur + 0.02);
+        const o=ctx.createOscillator(), g=ctx.createGain();
+        o.type=type; o.frequency.value=freq; g.gain.value=vol;
+        o.connect(g).connect(ctx.destination); o.start();
+        g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+dur);
+        o.stop(ctx.currentTime+dur+0.02);
       }
-      function click(){ beep({freq:620, dur:0.07, type:'square', vol:0.035}); }
-      function good(){ beep({freq:740, dur:0.12, type:'triangle', vol:0.035}); }
-      function bad(){ beep({freq:300, dur:0.15, type:'sawtooth', vol:0.03}); }
-      return { click, good, bad };
+      return { good:()=>beep({freq:700,type:'triangle'}), bad:()=>beep({freq:300,type:'sawtooth'}), click:()=>beep({freq:600}) };
     })();
 
-    /* =================== Confetti (tiny canvas burst) =================== */
-    const Confetti = (()=>{
-      const cvs = document.getElementById('confettiCanvas');
-      const ctx = cvs.getContext('2d');
-      let parts = [], running = false, rafId=null;
-      function resize(){ cvs.width = innerWidth; cvs.height = innerHeight; }
-      addEventListener('resize', resize); resize();
-      function burst(n=160){
-        parts = [];
-        const colors = ['#8ee3ff','#b9fbd6','#ffd3a3','#d7c7ff','#f9fcb6'];
-        for(let i=0;i<n;i++){
-          parts.push({
-            x: innerWidth/2, y: innerHeight/3,
-            vx:(Math.random()-0.5)*6, vy:(Math.random()-0.8)*6 - 2,
-            g:0.12+Math.random()*0.1, s:4+Math.random()*4,
-            c:colors[(Math.random()*colors.length)|0], a:1,
-            rot:Math.random()*Math.PI*2, vr:(Math.random()-0.5)*0.2
-          });
-        }
-        cvs.style.display='block'; running=true; loop();
-        setTimeout(()=>{running=false; cvs.style.display='none';}, 2600);
-      }
-      function loop(){
-        if(!running){ cancelAnimationFrame(rafId); return; }
-        rafId=requestAnimationFrame(loop);
-        ctx.clearRect(0,0,cvs.width,cvs.height);
-        parts.forEach(p=>{
-          p.vy += p.g; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.a *= 0.996;
-          ctx.save(); ctx.globalAlpha=p.a; ctx.translate(p.x,p.y); ctx.rotate(p.rot);
-          ctx.fillStyle=p.c; ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s);
-          ctx.restore();
-        });
-      }
-      return { burst };
+    const Confetti = (()=>{const c=document.getElementById('confettiCanvas'),x=c.getContext('2d');
+      let p=[];function resize(){c.width=innerWidth;c.height=innerHeight}addEventListener('resize',resize);resize();
+      function burst(n=150){p=[];for(let i=0;i<n;i++)p.push({x:innerWidth/2,y:innerHeight/3,vx:(Math.random()-.5)*6,vy:(Math.random()-.8)*6-2,s:4+Math.random()*4,a:1,c:`hsl(${Math.random()*360},80%,70%)`});
+        c.style.display='block';loop();setTimeout(()=>c.style.display='none',2500)}
+      function loop(){x.clearRect(0,0,c.width,c.height);p.forEach(o=>{o.vy+=.15;o.x+=o.vx;o.y+=o.vy;o.a*=.98;x.globalAlpha=o.a;x.fillStyle=o.c;x.fillRect(o.x,o.y,o.s,o.s)});if(p[0])requestAnimationFrame(loop)}
+      return {burst};
     })();
 
-    /* =================== Game State & Helpers =================== */
-    const MAX_WEEKS = 15;
-    const SAVE_KEY = 'unilife_save';
+    const MAX_WEEKS=15,SAVE_KEY='unilife_save';
+    const state={name:'',major:'General',week:1,wb:70,kn:40,mo:50,so:40};
 
-    const state = {
-      name:'Alex', major:'General', pronouns:'they/them',
-      week:1, wb:70, kn:40, mo:50, so:40, finished:false
-    };
+    const $=sel=>document.querySelector(sel);
+    const bars={wb:$('#wb-bar'),kn:$('#kn-bar'),mo:$('#mo-bar'),so:$('#so-bar')};
 
-    // HUD shortcuts
-    const $ = sel => document.querySelector(sel);
-    const wbBar = ()=> $('#wb-bar'), knBar=()=>$('#kn-bar'), moBar=()=>$('#mo-bar'), soBar=()=>$('#so-bar');
+    function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
+    function updateHUD(){['wb','kn','mo','so'].forEach(k=>{bars[k].style.width=clamp(state[k],0,100)+'%';$('#'+k+'-num').textContent=state[k]})}
+    function show(v){['menu','play','results'].forEach(id=>$('#view-'+id).style.display=(id===v?'block':'none'))}
+    function log(msg){const p=document.createElement('p');p.innerHTML=msg;$('#log').prepend(p)}
 
-    function clamp(v,min,max){ return Math.max(min, Math.min(max,v)); }
-    function updateHUD(){
-      $('#week-num').textContent = state.week;
-      $('#wb-num').textContent = clamp(state.wb,0,100);
-      $('#kn-num').textContent = clamp(state.kn,0,100);
-      $('#mo-num').textContent = clamp(state.mo,0,100);
-      $('#so-num').textContent = clamp(state.so,0,100);
-      wbBar().style.width = clamp(state.wb,0,100) + '%';
-      knBar().style.width = clamp(state.kn,0,100) + '%';
-      moBar().style.width = clamp(state.mo,0,100) + '%';
-      soBar().style.width = clamp(state.so,0,100) + '%';
-    }
-    function show(id){
-      $('#view-menu').style.display   = id==='menu'?'block':'none';
-      $('#view-play').style.display   = id==='play'?'block':'none';
-      $('#view-results').style.display= id==='results'?'block':'none';
-    }
-    const logEl = $('#log');
-    function log(msg){ const p=document.createElement('p'); p.textContent = msg; logEl.prepend(p); }
-
-    /* =================== Events (3–4 options each, AU context) =================== */
-    // delta format: { wb:±, kn:±, mo:±, so:± }, tip: brief educational hint
-    const EVENTS = [
-      { title:"Week start routine",
-        text:"How do you set your rhythm this week?",
-        options:[
-          {label:"Plan Pomodoro + breaks",     delta:{wb:+4, kn:+4, mo:0, so:+1}, tip:"Intervals support focus & recovery."},
-          {label:"Grind long sessions",        delta:{wb:-6, kn:+6, mo:0, so:-1}, tip:"Overwork harms sleep & mood."},
-          {label:"Light start + social coffee",delta:{wb:+3, kn:+1, mo:-2, so:+4}, tip:"Connection boosts motivation."}
-        ]
-      },
-      { title:"Heatwave alert",
-        text:"It’s 36–38°C with high UV in Melbourne.",
-        options:[
-          {label:"Study early inside + hydrate", delta:{wb:+4, kn:+2, mo:0, so:0}, tip:"Heat & dehydration impair cognition."},
-          {label:"Outdoor cram afternoon",       delta:{wb:-6, kn:+2, mo:0, so:0}, tip:"High heat worsens fatigue."},
-          {label:"Short gym session",            delta:{wb:+3, kn:+1, mo:-1, so:+1}, tip:"Light exercise stabilises mood."}
-        ]
-      },
-      { title:"Group assignment",
-        text:"Your team suggests splitting tasks and milestones.",
-        options:[
-          {label:"Define roles & deadlines", delta:{wb:+3, kn:+5, mo:0, so:+2}, tip:"Clarity lowers stress."},
-          {label:"Let it evolve organically", delta:{wb:-4, kn:+1, mo:0, so:-1}, tip:"Chaos → crunch later."},
-          {label:"Volunteer for heavy part", delta:{wb:-3, kn:+6, mo:0, so:+1}, tip:"Growth but mind the load."}
-        ]
-      },
-      { title:"Part-time shift offer",
-        text:"A manager asks you to cover an extra evening shift.",
-        options:[
-          {label:"Negotiate different slot", delta:{wb:+2, kn:+2, mo:+2, so:0}, tip:"Boundaries protect sleep & study."},
-          {label:"Accept & cut sleep",      delta:{wb:-7, kn:+2, mo:+5, so:0}, tip:"Sleep loss tanks mood."},
-          {label:"Decline this week",       delta:{wb:+1, kn:+1, mo:0, so:-1}, tip:"Short-term no, long-term wellbeing."}
-        ]
-      },
-      { title:"Counselling drop-in",
-        text:"Free short consults available this week.",
-        options:[
-          {label:"Attend 20-min session", delta:{wb:+8, kn:0, mo:0, so:+1}, tip:"Early support prevents escalation."},
-          {label:"Read self-help page",   delta:{wb:+3, kn:+1, mo:0, so:0}, tip:"Psychoeducation helps too."},
-          {label:"Skip—no time",          delta:{wb:-3, kn:+1, mo:0, so:0}, tip:"Avoidance often backfires."}
-        ]
-      },
-      { title:"Myki fares & budget",
-        text:"Transport costs are tight this month.",
-        options:[
-          {label:"Batch on-campus days", delta:{wb:+2, kn:+2, mo:+3, so:0}, tip:"Fewer trips = lower stress & cost."},
-          {label:"Travel daily as usual", delta:{wb:0, kn:+1, mo:-3, so:+1}, tip:"Routine ok, but costs add up."},
-          {label:"Study from home",      delta:{wb:+1, kn:+1, mo:+2, so:-2}, tip:"Remote can help, less social."}
-        ]
-      },
-      { title:"Exam prep",
-        text:"Two finals are approaching.",
-        options:[
-          {label:"Revise timetable + breaks", delta:{wb:+3, kn:+6, mo:0, so:0}, tip:"Structure beats panic."},
-          {label:"All-nighter blitz",         delta:{wb:-10,kn:+6, mo:0, so:-1}, tip:"Crash risk next week."},
-          {label:"Peer study circle",         delta:{wb:+3, kn:+5, mo:0, so:+3}, tip:"Belonging lifts motivation."}
-        ]
-      },
-      { title:"Sleep hygiene",
-        text:"It’s late. Caffeine is tempting.",
-        options:[
-          {label:"Wind-down + water",   delta:{wb:+4, kn:+1, mo:0, so:0}, tip:"Sleep quality compounds."},
-          {label:"Late coffee & scroll",delta:{wb:-5, kn:0,  mo:0, so:-1}, tip:"Stimulants disrupt sleep."},
-          {label:"Tea + journaling",    delta:{wb:+3, kn:+1, mo:0, so:0}, tip:"Reflection regulates stress."}
-        ]
-      },
-      { title:"Inclusion event",
-        text:"Cultural society invites you to an evening gathering.",
-        options:[
-          {label:"Attend & connect", delta:{wb:+4, kn:+1, mo:-2, so:+5}, tip:"Belonging protects mental health."},
-          {label:"Drop by briefly",  delta:{wb:+2, kn:+1, mo:-1, so:+2}, tip:"Micro-social boosts morale."},
-          {label:"Skip to study",    delta:{wb:-1, kn:+3, mo:0,  so:-2}, tip:"Over-isolation risks burnout."}
-        ]
-      },
-      { title:"Rent pressure",
-        text:"Your rent increases.",
-        options:[
-          {label:"Budget & seek advice",     delta:{wb:+1, kn:+1, mo:+4, so:0}, tip:"Student services can help."},
-          {label:"Cut social for savings",   delta:{wb:-2, kn:+1, mo:+5, so:-4}, tip:"Balance cost and connection."},
-          {label:"Ignore for now",          delta:{wb:-5, kn:0,  mo:-3, so:0}, tip:"Uncertainty magnifies stress."}
-        ]
-      },
-      { title:"Digital overload",
-        text:"Screen time hit 5+ hours/day.",
-        options:[
-          {label:"App timers + focus mode", delta:{wb:+3, kn:+2, mo:0, so:0}, tip:"Boundaries restore attention."},
-          {label:"No change",               delta:{wb:-3, kn:0,  mo:0, so:0}, tip:"Doomscroll drains mood."},
-          {label:"Swap to reading group",   delta:{wb:+2, kn:+3, mo:0, so:+2}, tip:"Analog focus + community."}
-        ]
-      },
-      { title:"Library workshop",
-        text:"Referencing & research workshop on campus.",
-        options:[
-          {label:"Attend session",     delta:{wb:+1, kn:+5, mo:0, so:+1}, tip:"Skills reduce future stress."},
-          {label:"Browse slides later",delta:{wb:+1, kn:+2, mo:0, so:0}, tip:"Better than skipping."},
-          {label:"Skip",               delta:{wb:0,  kn:0,  mo:0, so:0},  tip:"Missed opportunity."}
-        ]
-      },
-      { title:"Healthy snack",
-        text:"You’ve got 20 minutes between lectures.",
-        options:[
-          {label:"Fruit + water",   delta:{wb:+2, kn:+1, mo:-1, so:0}, tip:"Steady energy beats sugar spikes."},
-          {label:"Energy drink",    delta:{wb:-1, kn:+1, mo:-2, so:0}, tip:"Crash likely later."},
-          {label:"Walk with a mate",delta:{wb:+2, kn:+1, mo:0,  so:+3}, tip:"Movement + connection help mood."}
-        ]
-      },
-      { title:"Commute delay",
-        text:"Signal fault on the line, you’re stuck.",
-        options:[
-          {label:"Plan tasks & revise notes", delta:{wb:+1, kn:+2, mo:0, so:0}, tip:"Reframing dead time helps."},
-          {label:"Mindfulness break",         delta:{wb:+2, kn:+1, mo:0, so:0}, tip:"Brief resets aid focus."},
-          {label:"Panic & scroll",            delta:{wb:-3, kn:0,  mo:0, so:0}, tip:"Anxiety drains energy."}
-        ]
-      },
-      { title:"Peer check-in",
-        text:"A friend asks how you’re coping.",
-        options:[
-          {label:"Open up & plan week", delta:{wb:+5, kn:+1, mo:0, so:+3}, tip:"Social support is protective."},
-          {label:"Short chat",          delta:{wb:+2, kn:+1, mo:0, so:+2}, tip:"Even brief contact helps."},
-          {label:"Ghost them",          delta:{wb:-3, kn:0,  mo:0, so:-3}, tip:"Isolation raises risk."}
-        ]
-      }
+    const EVENTS=[{title:"Study group or solo?",
+      text:"How do you prep for the upcoming quiz?",
+      options:[
+        {label:"Group study",delta:{wb:+2,kn:+4,mo:0,so:+3},tip:"Peers help understanding."},
+        {label:"Solo grind",delta:{wb:-3,kn:+6,mo:0,so:-1},tip:"Focus high, stress high."},
+        {label:"Skip study",delta:{wb:+1,kn:-4,mo:0,so:+2},tip:"Short rest, poor grades."}
+      ]},
+      {title:"Late shift offer",text:"Boss offers an extra 5-hour shift tonight.",
+      options:[
+        {label:"Accept for cash",delta:{wb:-5,kn:0,mo:+8,so:-1},tip:"Fatigue tradeoff."},
+        {label:"Decline politely",delta:{wb:+3,kn:+1,mo:0,so:0},tip:"Boundaries matter."},
+        {label:"Ask to reschedule",delta:{wb:+2,kn:+2,mo:+3,so:0},tip:"Negotiation skills win."}
+      ]}
     ];
 
-    function randomEvent(){ return EVENTS[(Math.random()*EVENTS.length)|0]; }
-
-    /* =================== Event Rendering & Choice Handling =================== */
-    function fmt(v){ return (v>=0?'+':'') + v; }
-
-    function renderEvent(ev){
-      $('#ev-title').textContent = ev.title;
-      $('#ev-text').textContent  = ev.text;
-      const box = $('#ev-choices'); box.innerHTML='';
-      ev.options.forEach((opt, idx)=>{
-        const btn = document.createElement('button');
-        btn.className = 'btn choice-btn';
-        btn.setAttribute('aria-label', `Choice ${idx+1}: ${opt.label}`);
-        btn.innerHTML = `<span>${String.fromCharCode(65+idx)}) ${opt.label}</span>
-                         <span class="delta">WB ${fmt(opt.delta.wb||0)} • KN ${fmt(opt.delta.kn||0)} • $ ${fmt(opt.delta.mo||0)} • SO ${fmt(opt.delta.so||0)}</span>`;
-        btn.onclick = ()=> applyChoice(opt);
-        box.appendChild(btn);
+    function randomEvent(){return EVENTS[Math.floor(Math.random()*EVENTS.length)]}
+    function colorizeDelta(v){const cls=v>=0?'pos':'neg';return `<span class="${cls}">${v>=0?'+':''}${v}</span>`}
+    function renderEvent(e){
+      $('#ev-title').textContent=e.title;$('#ev-text').textContent=e.text;
+      const c=$('#ev-choices');c.innerHTML='';
+      e.options.forEach(opt=>{
+        const b=document.createElement('button');b.className='btn choice-btn';
+        b.innerHTML=`<span>${opt.label}</span><span class="delta">WB ${colorizeDelta(opt.delta.wb)} • KN ${colorizeDelta(opt.delta.kn)} • $ ${colorizeDelta(opt.delta.mo)} • SO ${colorizeDelta(opt.delta.so)}</span>`;
+        b.onclick=()=>applyChoice(opt);c.appendChild(b);
       });
-      $('#ev-tip').textContent = '';
+      $('#ev-tip').textContent='';
     }
-
     function applyChoice(opt){
-      // Update stats and log
-      state.wb = clamp(state.wb + (opt.delta.wb||0), 0, 100);
-      state.kn = clamp(state.kn + (opt.delta.kn||0), 0, 100);
-      state.mo = clamp(state.mo + (opt.delta.mo||0), 0, 100);
-      state.so = clamp(state.so + (opt.delta.so||0), 0, 100);
+      Object.entries(opt.delta).forEach(([k,v])=>state[k]=clamp(state[k]+v,0,100));
       updateHUD();
-      log(`${opt.label} → WB ${fmt(opt.delta.wb||0)}, KN ${fmt(opt.delta.kn||0)}, $ ${fmt(opt.delta.mo||0)}, SO ${fmt(opt.delta.so||0)}`);
-      $('#ev-tip').textContent = 'Tip: ' + (opt.tip||'');
-
-      // Audio feedback
-      const sum = (opt.delta.wb||0) + (opt.delta.kn||0) + (opt.delta.mo||0) + (opt.delta.so||0);
-      if (sum >= 0) Sound.good(); else Sound.bad();
-
-      // Advance week or end
-      if (state.week >= MAX_WEEKS) { endGame(); return; }
-      state.week += 1;
-      updateHUD();
-      renderEvent(randomEvent());
-      saveLocal();
-    }
-
-    /* =================== Results & Radar Chart =================== */
-    function drawRadar(wb, kn, mo, so){
-      const canvas = $('#radar');
-      const ctx = canvas.getContext('2d');
-      const W = canvas.width, H = canvas.height;
-      ctx.clearRect(0,0,W,H);
-
-      // Center and radius
-      const cx = W/2, cy = H/2, r = Math.min(W,H)/2 - 30;
-
-      // Axes labels
-      const labels = ['Wellbeing','Knowledge','Money','Social'];
-      const values = [wb,kn,mo,so].map(v=>clamp(v,0,100));
-
-      // Draw grid (3 rings)
-      ctx.strokeStyle = '#dbe7ee';
-      ctx.lineWidth = 1;
-      for(let i=1;i<=3;i++){
-        ctx.beginPath();
-        ctx.arc(cx,cy, (r*i)/3, 0, Math.PI*2);
-        ctx.stroke();
-      }
-
-      // Axes + labels
-      ctx.fillStyle = '#486e73'; ctx.font = '12px system-ui';
-      for(let i=0;i<4;i++){
-        const angle = (-Math.PI/2) + (i * Math.PI/2);
-        const x = cx + Math.cos(angle)*r;
-        const y = cy + Math.sin(angle)*r;
-        ctx.strokeStyle = '#dbe7ee';
-        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(x,y); ctx.stroke();
-        // Label slightly beyond
-        const lx = cx + Math.cos(angle)*(r+12);
-        const ly = cy + Math.sin(angle)*(r+12);
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(labels[i], lx, ly);
-      }
-
-      // Data polygon
-      ctx.beginPath();
-      for(let i=0;i<4;i++){
-        const angle = (-Math.PI/2) + (i * Math.PI/2);
-        const pr = r * (values[i]/100);
-        const x = cx + Math.cos(angle)*pr;
-        const y = cy + Math.sin(angle)*pr;
-        (i===0)?ctx.moveTo(x,y):ctx.lineTo(x,y);
-      }
-      ctx.closePath();
-      const grad = ctx.createLinearGradient(0,0,W,H);
-      grad.addColorStop(0, '#8ee3ff88');
-      grad.addColorStop(1, '#b9fbd688');
-      ctx.fillStyle = grad;
-      ctx.fill();
-      ctx.strokeStyle = '#2bb6f6';
-      ctx.lineWidth = 2;
-      ctx.stroke();
+      log(`${opt.label} → WB ${colorizeDelta(opt.delta.wb)} • KN ${colorizeDelta(opt.delta.kn)} • $ ${colorizeDelta(opt.delta.mo)} • SO ${colorizeDelta(opt.delta.so)}`);
+      $('#ev-tip').textContent='Tip: '+opt.tip;
+      if(Object.values(opt.delta).reduce((a,b)=>a+b,0)>=0)Sound.good();else Sound.bad();
+      state.week>=MAX_WEEKS?endGame():(state.week++,updateHUD(),renderEvent(randomEvent()),saveLocal());
     }
 
     function endGame(){
-      state.finished = true;
       show('results');
-
-      const wb=state.wb, kn=state.kn, mo=state.mo, so=state.so;
-      let title='', body='';
-      if (wb >= 70 && kn >= 60 && mo >= 35 && so >= 35){
-        title = "Balanced Success 🎓";
-        body  = `${state.name || 'You'} completed the semester with sustainable habits. Wellbeing ${wb}, Knowledge ${kn}, Money ${mo}, Social ${so}. Keep doing what works.`;
-        Confetti.burst();
-      } else if (wb < 40){
-        title = "Burnout Warning 😵";
-        body  = `High effort but low recovery. Wellbeing ${wb}. Try earlier support (counselling, GP plan), better sleep, and pacing to avoid crash next term.`;
-      } else if (mo < 25){
-        title = "Financial Strain 💸";
-        body  = `Finances were a major stressor (Money ${mo}). Budgeting, campus services, and careful shift planning can protect wellbeing.`;
-      } else if (kn >= 70 && wb < 60){
-        title = "Grades at a Cost 📚";
-        body  = `Great marks (Knowledge ${kn}) but wellbeing ${wb}. Sustainable strategies will help you thrive longer-term.`;
-      } else {
-        title = "Solid Pass ✅";
-        body  = `A decent balance overall. Wellbeing ${wb}, Knowledge ${kn}, Money ${mo}, Social ${so}. Small tweaks could make next semester even better.`;
-      }
-      $('#result-title').textContent = title;
-      $('#result-body').textContent  = body;
-
-      // Radar chart draw
-      drawRadar(wb, kn, mo, so);
-
-      // Clear save for fresh replays (optional: comment out to keep save)
-      localStorage.removeItem(SAVE_KEY);
+      ['wb','kn','mo','so'].forEach(k=>$('#final-'+k).textContent=state[k]);
+      let msg='';if(state.wb>=60&&state.kn>=60)msg='Balanced Success 🎓 — great semester!';
+      else if(state.wb<40)msg='Burnout Warning 😵 — health dropped too low.';
+      else msg='Solid Pass ✅ — room to improve.';
+      $('#result-title').textContent=msg;
+      $('#result-body').textContent=`Final Wellbeing ${state.wb}, Knowledge ${state.kn}, Money ${state.mo}, Social ${state.so}.`;
+      Confetti.burst();localStorage.removeItem(SAVE_KEY);
     }
 
-    /* =================== Save / Load =================== */
-    function saveLocal(){ localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }
-    function loadLocal(){
-      const raw = localStorage.getItem(SAVE_KEY);
-      if(!raw) return false;
-      try{ Object.assign(state, JSON.parse(raw)); return true; } catch { return false; }
-    }
+    function saveLocal(){localStorage.setItem(SAVE_KEY,JSON.stringify(state))}
+    function loadLocal(){try{Object.assign(state,JSON.parse(localStorage.getItem(SAVE_KEY)));return true}catch{return false}}
 
-    /* =================== Buttons / Flow =================== */
-    $('#btn-start').onclick = ()=>{
-      // Character creation effects
-      state.name = $('#char-name').value || 'Alex';
-      state.major = $('#char-major').value;
-      state.pronouns = $('#char-pronouns').value;
-
-      // Base stats
-      state.week=1; state.wb=70; state.kn=40; state.mo=50; state.so=40; state.finished=false;
-
-      // Major modifiers
-      if (state.major==='Engineering'){ state.kn += 8; state.wb -= 5; }
-      if (state.major==='Health'){      state.wb += 8; state.mo -= 6; }
-      if (state.major==='Business'){    state.mo += 8; state.so += 4; }
-
-      updateHUD();
-      show('play');
-      renderEvent(randomEvent());
-      log(`New semester started for ${state.name} (${state.pronouns}), Major: ${state.major}.`);
-      Sound.click();
-      saveLocal();
-    };
-
-    $('#btn-continue').onclick = ()=>{
-      if(loadLocal()){
-        updateHUD(); show('play'); renderEvent(randomEvent());
-        log(`Resumed save at Week ${state.week} for ${state.name}.`);
-        Sound.click();
-      } else {
-        alert("No save found. Start a new semester.");
-      }
-    };
-
-    $('#btn-save').onclick = ()=>{ saveLocal(); Sound.click(); log("Progress saved."); };
-
-    $('#btn-how').onclick = ()=>alert(
-`Tips:
-• Balance matters: Low wellbeing leads to poor endings even with high grades.
-• Use campus counselling and GP mental health plans early.
-• Plan study with breaks. Sleep and hydration are power-ups.
-• Money stress is real: batching trips and budgeting helps.
-• Social connection protects mental health.`
-    );
-
-    $('#btn-end').onclick = ()=>{ if(!state.finished) endGame(); };
-    $('#btn-restart').onclick = ()=>{
-      localStorage.removeItem(SAVE_KEY);
-      show('menu');
-    };
-    $('#btn-menu').onclick = ()=>show('menu');
-
-    // Keyboard accessibility: 1/2/3/4 to choose options, S to save
-    document.addEventListener('keydown', (e)=>{
-      const map={'1':0,'2':1,'3':2,'4':3};
-      if(map.hasOwnProperty(e.key)){
-        const btns = Array.from(document.querySelectorAll('#ev-choices .btn'));
-        btns[map[e.key]]?.click();
-      }
-      if(e.key.toLowerCase()==='s' && $('#view-play').style.display==='block'){ $('#btn-save').click(); }
-    });
-
-    /* =================== Init =================== */
-    (function init(){ show('menu'); })();
-  </script>
-</body>
-</html>
+    $('#btn-start').onclick=()=>{state.name=$('#char-name').value||'Alex';state.major=$('#char-major').value;show('play');renderEvent(randomEvent());updateHUD();saveLocal();}
+    $('#btn-continue').onclick=()=>{if(loadLocal()){show('play');renderEvent(randomEvent());updateHUD();}}
+    $('#btn-save').onclick=()=>{saveLocal();log('<span class="pos">Progress saved.</span>')}
+    $('#btn-restart').onclick=()=>show('menu')

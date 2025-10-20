@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberGuardian: Bytes of Change</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.globe.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+        
+        .cyber-glass {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 234, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 234, 255, 0.1);
+        }
+        
+        .choice-btn {
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, rgba(0, 234, 255, 0.1), rgba(0, 234, 255, 0.05));
+        }
+        
+        .choice-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0, 234, 255, 0.3);
+        }
+        
+        .stat-bar {
+            height: 6px;
+            transition: width 0.5s ease;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 234, 255, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 234, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 234, 255, 0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+    <div id="vanta-globe" class="fixed inset-0 z-0"></div>
+    
+    <!-- Main Game Container -->
+    <div class="relative z-10 w-full max-w-4xl mx-auto">
+        <!-- Menu Screen -->
+        <div id="menu-screen" class="cyber-glass rounded-xl p-8 shadow-2xl">
+            <div class="text-center mb-8">
+                <h1 class="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500 mb-4">
+                    CyberGuardian
+                </h1>
+                <p class="text-xl text-cyan-200 mb-2">Bytes of Change</p>
+                <p class="text-gray-300">An interactive game about cybersecurity choices and their social impact</p>
+            </div>
+            
+            <div class="mb-6">
+                <div class="flex items-center mb-4">
+                    <i data-feather="user" class="mr-2 text-cyan-400"></i>
+                    <input type="text" id="player-name" placeholder="Your name" class="bg-slate-800 border-b border-cyan-400 px-3 py-2 w-full focus:outline-none focus:border-cyan-300">
+                </div>
+                
+                <div class="flex items-center mb-4">
+                    <i data-feather="briefcase" class="mr-2 text-cyan-400"></i>
+                    <input type="text" id="player-org" placeholder="Organization (optional)" class="bg-slate-800 border-b border-cyan-400 px-3 py-2 w-full focus:outline-none focus:border-cyan-300">
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-cyan-300 mb-2">Game Length</label>
+                    <div class="flex space-x-2">
+                        <button data-rounds="6" class="game-length-btn bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded">Short (6 rounds)</button>
+                        <button data-rounds="12" class="game-length-btn bg-cyan-600 hover:bg-cyan-500 px-4 py-2 rounded">Standard (12 rounds)</button>
+                        <button data-rounds="18" class="game-length-btn bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded">Long (18 rounds)</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center space-x-4">
+                <button id="start-btn" class="bg-cyan-600 hover:bg-cyan-500 px-6 py-3 rounded-lg font-medium flex items-center">
+                    <i data-feather="play" class="mr-2"></i> Start New Game
+                </button>
+                <button id="continue-btn" class="bg-transparent border border-cyan-600 hover:bg-cyan-900/50 px-6 py-3 rounded-lg font-medium flex items-center">
+                    <i data-feather="rotate-ccw" class="mr-2"></i> Continue
+                </button>
+            </div>
+        </div>
+        
+        <!-- Game Screen (hidden initially) -->
+        <div id="game-screen" class="hidden cyber-glass rounded-xl p-6 shadow-2xl">
+            <!-- Game Header -->
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 id="current-round" class="text-xl font-bold text-cyan-400">Round 1</h2>
+                    <p class="text-sm text-gray-400">Make your cybersecurity decision</p>
+                </div>
+                <div class="flex space-x-4">
+                    <button id="save-btn" class="text-cyan-400 hover:text-cyan-300" title="Save Game">
+                        <i data-feather="save"></i>
+                    </button>
+                    <button id="menu-btn" class="text-cyan-400 hover:text-cyan-300" title="Back to Menu">
+                        <i data-feather="home"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Stats Display -->
+            <div class="grid grid-cols-3 gap-4 mb-8">
+                <div class="bg-slate-800/50 p-3 rounded-lg">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-cyan-400 font-medium">SECURITY</span>
+                        <span id="sec-value" class="font-mono">75</span>
+                    </div>
+                    <div class="h-1.5 bg-slate-700 rounded-full">
+                        <div id="sec-bar" class="stat-bar bg-cyan-500 rounded-full" style="width: 75%"></div>
+                    </div>
+                </div>
+                
+                <div class="bg-slate-800/50 p-3 rounded-lg">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-purple-400 font-medium">TRUST</span>
+                        <span id="tru-value" class="font-mono">60</span>
+                    </div>
+                    <div class="h-1.5 bg-slate-700 rounded-full">
+                        <div id="tru-bar" class="stat-bar bg-purple-500 rounded-full" style="width: 60%"></div>
+                    </div>
+                </div>
+                
+                <div class="bg-slate-800/50 p-3 rounded-lg">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-green-400 font-medium">BUDGET</span>
+                        <span id="bdg-value" class="font-mono">45</span>
+                    </div>
+                    <div class="h-1.5 bg-slate-700 rounded-full">
+                        <div id="bdg-bar" class="stat-bar bg-green-500 rounded-full" style="width: 45%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Event Card -->
+            <div class="cyber-glass rounded-lg p-6 mb-6 border border-cyan-400/20">
+                <h3 id="event-title" class="text-2xl font-bold text-cyan-400 mb-3">Phishing Email Detected</h3>
+                <p id="event-desc" class="text-gray-300">
+                    Your team has received a suspicious email claiming to be from your IT department requesting password verification. It looks legitimate but has some red flags.
+                </p>
+            </div>
+            
+            <!-- Choices -->
+            <div id="choices-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <!-- Choices will be dynamically inserted here -->
+            </div>
+            
+            <!-- Analyst Log -->
+            <div class="cyber-glass rounded-lg p-4 max-h-40 overflow-y-auto">
+                <h4 class="text-sm font-bold text-cyan-400 mb-2 flex items-center">
+                    <i data-feather="activity" class="mr-2"></i> ANALYST LOG
+                </h4>
+                <div id="log-container" class="text-xs space-y-1">
+                    <!-- Log entries will be added here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results Screen (hidden initially) -->
+        <div id="results-screen" class="hidden cyber-glass rounded-xl p-8 shadow-2xl max-w-3xl mx-auto text-center">
+            <h2 class="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500 mb-6">
+                Game Results
+            </h2>
+            
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div class="text-left">
+                    <h3 class="text-2xl font-bold text-cyan-400 mb-4">Your Performance</h3>
+                    <p id="result-summary" class="mb-6 text-gray-300">
+                        Based on your decisions, your organization maintained moderate security but struggled with budget constraints...
+                    </p>
+                    
+                    <div class="mb-6">
+                        <div class="flex justify-between mb-1">
+                            <span class="text-cyan-400">Security</span>
+                            <span id="final-sec" class="font-mono">75</span>
+                        </div>
+                        <div class="h-2 bg-slate-700 rounded-full mb-3">
+                            <div class="h-2 bg-cyan-500 rounded-full" style="width: 75%"></div>
+                        </div>
+                        
+                        <div class="flex justify-between mb-1">
+                            <span class="text-purple-400">Trust</span>
+                            <span id="final-tru" class="font-mono">60</span>
+                        </div>
+                        <div class="h-2 bg-slate-700 rounded-full mb-3">
+                            <div class="h-2 bg-purple-500 rounded-full" style="width: 60%"></div>
+                        </div>
+                        
+                        <div class="flex justify-between mb-1">
+                            <span class="text-green-400">Budget</span>
+                            <span id="final-bdg" class="font-mono">45</span>
+                        </div>
+                        <div class="h-2 bg-slate-700 rounded-full">
+                            <div class="h-2 bg-green-500 rounded-full" style="width: 45%"></div>
+                        </div>
+                    </div>
+                    
+                    <button id="download-report" class="bg-cyan-600 hover:bg-cyan-500 px-4 py-2 rounded flex items-center mx-auto">
+                        <i data-feather="download" class="mr-2"></i> Download Report
+                    </button>
+                </div>
+                
+                <div>
+                    <canvas id="radar-chart" width="300" height="300" class="mx-auto"></canvas>
+                </div>
+            </div>
+            
+            <div class="mt-8 text-left">
+                <h3 class="text-xl font-bold text-cyan-400 mb-3">Cybersecurity Resources</h3>
+                <div class="space-y-2 text-sm text-gray-300">
+                    <p class="flex items-start">
+                        <i data-feather="shield" class="mr-2 mt-1 text-cyan-400"></i>
+                        <span>Australian Cyber Security Centre: <a href="https://www.cyber.gov.au" class="text-cyan-400 hover:underline">cyber.gov.au</a></span>
+                    </p>
+                    <p class="flex items-start">
+                        <i data-feather="lock" class="mr-2 mt-1 text-cyan-400"></i>
+                        <span>Vietnam Computer Emergency Response Team: <a href="https://www.vncert.gov.vn" class="text-cyan-400 hover:underline">vncert.gov.vn</a></span>
+                    </p>
+                    <p class="flex items-start">
+                        <i data-feather="book" class="mr-2 mt-1 text-cyan-400"></i>
+                        <span>Free cybersecurity training: <a href="https://www.cybrary.it" class="text-cyan-400 hover:underline">cybrary.it</a></span>
+                    </p>
+                </div>
+            </div>
+            
+            <button id="back-to-menu" class="mt-8 bg-transparent border border-cyan-600 hover:bg-cyan-900/50 px-6 py-2 rounded-lg font-medium flex items-center mx-auto">
+                <i data-feather="home" class="mr-2"></i> Back to Menu
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Game Data
+        const gameData = {
+            events: [
+                {
+                    id: 1,
+                    title: "Phishing Email Detected",
+                    description: "Your team has received a suspicious email claiming to be from your IT department requesting password verification. It looks legitimate but has some red flags.",
+                    choices: [
+                        { text: "Report to IT and delete", sec: +15, tru: +5, bdg: 0, tip: "Good choice! Always verify suspicious emails with IT before taking action." },
+                        { text: "Forward to team as warning", sec: +10, tru: +10, bdg: 0, tip: "Sharing awareness is good, but should still report to IT first." },
+                        { text: "Ignore and delete", sec: -5, tru: 0, bdg: 0, tip: "Ignoring threats can lead to bigger security issues later." },
+                        { text: "Click link to check", sec: -20, tru: -15, bdg: -10, tip: "Never click links in suspicious emails - this could compromise systems." }
+                    ],
+                    location: "AU"
+                },
+                {
+                    id: 2,
+                    title: "Zalo Spoofing Attempt",
+                    description: "A colleague received a message on Zalo from what appears to be your account asking for sensitive project information urgently.",
+                    choices: [
+                        { text: "Verify through another channel", sec: +10, tru: +10, bdg: 0, tip: "Always verify unusual requests through a different communication method." },
+                        { text: "Ignore the request", sec: 0, tru: -5, bdg: 0, tip: "Ignoring could damage relationships - better to verify first." },
+                        { text: "Send the information", sec: -15, tru: -10, bdg: -5, tip: "Never share sensitive info without proper verification." },
+                        { text: "Report to security team", sec: +15, tru: +5, bdg: 0, tip: "Excellent! Reporting helps protect the whole organization." }
+                    ],
+                    location: "VN"
+                },
+                {
+                    id: 3,
+                    title: "Public Wi-Fi Access",
+                    description: "Your team needs to work remotely from a coffee shop with only public Wi-Fi available for an important client meeting.",
+                    choices: [
+                        { text: "Use cellular hotspot", sec: +10, tru: 0, bdg: -5, tip: "Secure option but may incur data costs." },
+                        { text: "Use public Wi-Fi with VPN", sec: +5, tru: 0, bdg: -3, tip: "VPN adds security but still some risk on public networks." },
+                        { text: "Use public Wi-Fi directly", sec: -15, tru: -5, bdg: 0, tip: "Highly insecure - sensitive data could be intercepted." },
+                        { text: "Postpone meeting", sec: 0, tru: -10, bdg: 0, tip: "Damages client trust - better to find secure solution." }
+                    ],
+                    location: "both"
+                },
+                {
+                    id: 4,
+                    title: "Password Policy Change",
+                    description: "IT proposes requiring 16-character passwords with special characters, changed monthly. This will increase security but impact productivity.",
+                    choices: [
+                        { text: "Implement strictly", sec: +20, tru: -5, bdg: -5, tip: "Very secure but may frustrate employees and require training." },
+                        { text: "Implement with password manager", sec: +15, tru: +5, bdg: -5, tip: "Balanced approach that maintains security while easing burden." },
+                        { text: "Reject the proposal", sec: -10, tru: 0, bdg: 0, tip: "Weak passwords are a major security vulnerability." },
+                        { text: "Alternative 2FA solution", sec: +10, tru: +5, bdg: -10, tip: "Two-factor adds security but requires budget for implementation." }
+                    ],
+                    location: "both"
+                },
+                {
+                    id: 5,
+                    title: "Software Update Required",
+                    description: "Critical security updates are available for your core systems but require 4 hours of downtime during business hours.",
+                    choices: [
+                        { text: "Update immediately", sec: +20, tru: -10, bdg: 0, tip: "Best for security but impacts operations severely." },
+                        { text: "Schedule for weekend", sec: +10, tru: +5, bdg: -5, tip: "Good balance - may require overtime pay for IT staff." },
+                        { text: "Delay by 2 weeks", sec: -10, tru: 0, bdg: 0, tip: "Leaves systems vulnerable to known exploits." },
+                        { text: "Skip this update", sec: -20, tru: 0, bdg: 0, tip: "Extremely risky - could lead to major breach." }
+                    ],
+                    location: "both"
+                },
+                {
+                    id: 6,
+                    title: "MyGov Phishing Scam",
+                    description: "Employees report receiving texts claiming to be from MyGov about tax refunds, with links to 'claim' them.",
+                    choices: [
+                        { text: "Organization-wide alert", sec: +15, tru: +10, bdg: 0, tip: "Proactive communication helps prevent victims." },
+                        { text: "IT investigation only", sec: +5, tru: 0, bdg: 0, tip: "Should also warn employees about the scam." },
+                        { text: "Ignore - common scam", sec: -10, tru: -5, bdg: 0, tip: "Each incident should be treated seriously." },
+                        { text: "Block sender domains", sec: +10, tru: 0, bdg: -3, tip: "Helpful but scammers constantly change domains." }
+                    ],
+                    location: "AU"
+                },
+                {
+                    id: 7,
+                    title: "Data Backup System",
+                    description: "Your current backup solution is outdated. A new cloud-based system would be more secure but costs 3x more.",
+                    choices: [
+                        { text: "Invest in new system", sec: +20, tru: 0, bdg: -15, tip: "Important long-term security investment." },
+                        { text: "Keep current system", sec: -10, tru: 0, bdg: 0, tip: "Outdated backups may fail when needed most." },
+                        { text: "Hybrid solution", sec: +10, tru: 0, bdg: -7, tip: "Reasonable compromise that improves security." },
+                        { text: "Manual backups only", sec: -15, tru: -5, bdg: 0, tip: "Human error often leads to incomplete backups." }
+                    ],
+                    location: "both"
+                },
+                {
+                    id: 8,
+                    title: "Ransomware Drill",
+                    description: "IT proposes a simulated ransomware attack to test response protocols, which will temporarily disrupt work.",
+                    choices: [
+                        { text: "Full simulation", sec: +15, tru: -5, bdg: -5, tip: "Most effective test but most disruptive." },
+                        { text: "Tabletop exercise only", sec: +5, tru: +5, bdg: 0, tip: "Good for awareness but less realistic." },
+                        { text: "Decline the drill", sec: -10, tru: 0, bdg: 0, tip: "Organizations should regularly test incident response." },
+                        { text: "Department-by-department", sec: +10, tru: 0, bdg: -3, tip: "Good balance between realism and disruption." }
+                    ],
+                    location: "both"
+                },
+                {
+                    id: 9,
+                    title: "Employee Security Training",
+                    description: "Options for annual cybersecurity training: basic free course or premium interactive program with phishing simulations.",
+                    choices: [
+                        { text: "Premium training", sec: +15, tru: +5, bdg: -10, tip: "Best defense is educated employees - worth the investment." },
+                        { text: "Basic training", sec: +5, tru: 0, bdg: 0, tip: "Better than nothing but less effective." },
+                        { text: "No formal training", sec: -15, tru: -5, bdg: 0, tip: "Employees are your first line of defense - they need training." },
+                        { text: "Department heads only", sec: 0, tru: -5, bdg: -2, tip: "Security is everyone's responsibility." }
+                    ],
+                    location: "both"
+                },
+                {
+                    id: 10,
+                    title: "Third-Party Vendor Access",
+                    description: "A vendor requests permanent remote access to your systems for support, rather than temporary as-needed access.",
+                    choices: [
+                        { text: "Temporary only", sec: +10, tru: 0, bdg: 0, tip: "Principle of least access reduces risk." },
+                        { text: "Permanent with monitoring", sec: 0, tru: +5, bdg: -5, tip: "Still creates unnecessary persistent access." },
+                        { text: "No remote access", sec: +5, tru: -10, bdg: 0, tip: "May impact business operations negatively." },
+                        { text: "Permanent unrestricted", sec: -20, tru: 0, bdg: 0, tip: "Creates major security vulnerability." }
+                    ],
+                    location: "both"
+                }
+            ],
+            perks: [
+                { id: 1, name: "Security Audit", description: "Reduces failure chance by 10% for security-related choices" },
+                { id: 2, name: "Trust Building", description: "Reduces trust loss by 20% for all choices" },
+                { id: 3, name: "Budget Reserve", description: "Reduces budget costs by 15% for all choices" }
+            ]
+        };
+
+        // Game State
+        let gameState = {
+            playerName: "",
+            organization: "",
+            totalRounds: 12,
+            currentRound: 1,
+            stats: {
+                sec: 50,
+                tru: 50,
+                bdg: 50
+            },
+            perks: [],
+            eventHistory: [],
+            choiceHistory: [],
+            completedEvents: []
+        };
+
+        // DOM Elements
+        const menuScreen = document.getElementById('menu-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        const startBtn = document.getElementById('start-btn');
+        const continueBtn = document.getElementById('continue-btn');
+        const saveBtn = document.getElementById('save-btn');
+        const menuBtn = document.getElementById('menu-btn');
+        const backToMenuBtn = document.getElementById('back-to-menu');
+        const downloadReportBtn = document.getElementById('download-report');
+        const playerNameInput = document.getElementById('player-name');
+        const playerOrgInput = document.getElementById('player-org');
+        const gameLengthBtns = document.querySelectorAll('.game-length-btn');
+        const choicesContainer = document.getElementById('choices-container');
+        const logContainer = document.getElementById('log-container');
+        const currentRoundDisplay = document.getElementById('current-round');
+        const eventTitle = document.getElementById('event-title');
+        const eventDesc = document.getElementById('event-desc');
+        const secValue = document.getElementById('sec-value');
+        const truValue = document.getElementById('tru-value');
+        const bdgValue = document.getElementById('bdg-value');
+        const secBar = document.getElementById('sec-bar');
+        const truBar = document.getElementById('tru-bar');
+        const bdgBar = document.getElementById('bdg-bar');
+        const finalSec = document.getElementById('final-sec');
+        const finalTru = document.getElementById('final-tru');
+        const finalBdg = document.getElementById('final-bdg');
+        const resultSummary = document.getElementById('result-summary');
+        const radarChartCanvas = document.getElementById('radar-chart');
+
+        // Initialize Game
+        function initGame() {
+            // Load saved game if exists
+            const savedGame = localStorage.getItem('dataheist_save');
+            if (savedGame) {
+                continueBtn.classList.remove('hidden');
+            } else {
+                continueBtn.classList.add('hidden');
+            }
+            
+            // Set up event listeners
+            startBtn.addEventListener('click', startNewGame);
+            continueBtn.addEventListener('click', loadGame);
+            saveBtn.addEventListener('click', saveGame);
+            menuBtn.addEventListener('click', () => {
+                if (confirm('Return to menu? Your progress will be saved.')) {
+                    saveGame();
+                    showMenu();
+                }
+            });
+            backToMenuBtn.addEventListener('click', showMenu);
+            downloadReportBtn.addEventListener('click', downloadReport);
+            
+            // Game length buttons
+            gameLengthBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    gameLengthBtns.forEach(b => b.classList.remove('bg-cyan-600', 'bg-cyan-500'));
+                    btn.classList.add('bg-cyan-600', 'hover:bg-cyan-500');
+                    gameState.totalRounds = parseInt(btn.dataset.rounds);
+                });
+            });
+            
+            // Default select standard length
+            document.querySelector('[data-rounds="12"]').classList.add('bg-cyan-600', 'hover:bg-cyan-500');
+            
+            // Initialize Vanta.js background
+            VANTA.GLOBE({
+                el: "#vanta-globe",
+                mouseControls: true,
+                touchControls: true,
+                gyroControls: false,
+                minHeight: 200.00,
+                minWidth: 200.00,
+                scale: 1.00,
+                scaleMobile: 1.00,
+                color: 0x00eaff,
+                backgroundColor: 0x0f172a,
+                size: 0.8
+            });
+            
+            // Initialize feather icons
+            feather.replace();
+        }
+
+        // Show menu screen
+        function showMenu() {
+            menuScreen.classList.remove('hidden');
+            gameScreen.classList.add('hidden');
+            resultsScreen.classList.add('hidden');
+        }
+
+        // Start new game
+        function startNewGame() {
+            const name = playerNameInput.value.trim();
+            if (!name) {
+                alert('Please enter your name');
+                return;
+            }
+            
+            gameState = {
+                playerName: name,
+                organization: playerOrgInput.value.trim(),
+                totalRounds: gameState.totalRounds,
+                currentRound: 1,
+                stats: {
+                    sec: 50,
+                    tru: 50,
+                    bdg: 50
+                },
+                perks: [],
+                eventHistory: [],
+                choiceHistory: [],
+                completedEvents: []
+            };
+            
+            startGame();
+        }
+
+        // Load saved game
+        function loadGame() {
+            const savedGame = localStorage.getItem('dataheist_save');
+            if (savedGame) {
+                gameState = JSON.parse(savedGame);
+                startGame();
+            } else {
+                alert('No saved game found');
+            }
+        }
+
+        // Save game
+        function saveGame() {
+            localStorage.setItem('dataheist_save', JSON.stringify(gameState));
+            addLogEntry("Game saved successfully");
+        }
+
+        // Start the game
+        function startGame() {
+            menuScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            resultsScreen.classList.add('hidden');
+            
+            updateStatsDisplay();
+            renderEvent();
+        }
+
+        // Update stats display
+        function updateStatsDisplay() {
+            secValue.textContent = gameState.stats.sec;
+            truValue.textContent = gameState.stats.tru;
+            bdgValue.textContent = gameState.stats.bdg;
+            
+            secBar.style.width = `${gameState.stats.sec}%`;
+            truBar.style.width = `${gameState.stats.tru}%`;
+            bdgBar.style.width = `${gameState.stats.bdg}%`;
+            
+            currentRoundDisplay.textContent = `Round ${gameState.currentRound} of ${gameState.totalRounds}`;
+        }
+
+        // Render current event
+        function renderEvent() {
+            // Filter events based on stats for adaptive difficulty
+            let eligibleEvents = gameData.events.filter(event => {
+                // Skip already completed events
+                if (gameState.completedEvents.includes(event.id)) return false;
+                
+                // Location filter (AU/VN/both)
+                if (event.location !== 'both') {
+                    // For this demo, we'll randomly pick AU or VN
+                    const demoLocation = Math.random() > 0.5 ? 'AU' : 'VN';
+                    if (event.location !== demoLocation) return false;
+                }
+                
+                // Adaptive difficulty based on stats
+                if (gameState.stats.sec < 30 && !event.title.includes('Security')) return true;
+                if (gameState.stats.tru < 30 && !event.title.includes('Trust')) return true;
+                if (gameState.stats.bdg < 25 && !event.title.includes('Budget')) return true;
+                
+                return true;
+            });
+            
+            // If no eligible events (shouldn't happen with enough events), use all
+            if (eligibleEvents.length === 0) {
+                eligibleEvents = gameData.events.filter(event => !gameState.completedEvents.includes(event.id));
+                if (eligibleEvents.length === 0) {
+                    // All events completed - just pick any
+                    eligibleEvents = gameData.events;
+                }
+            }
+            
+            // Randomly select an event
+            const event = eligibleEvents[Math.floor(Math.random() * eligibleEvents.length)];
+            gameState.currentEvent = event;
+            
+            // Update UI
+            eventTitle.textContent = event.title;
+            eventDesc.textContent = event.description;
+            
+            // Render choices
+            choicesContainer.innerHTML = '';
+            event.choices.forEach((choice, index) => {
+                const choiceBtn = document.createElement('button');
+                choiceBtn.className = 'choice-btn cyber-glass rounded-lg p-4 text-left border border-cyan-400/20 hover:border-cyan-400/40';
+                
+                // Choice text
+                const choiceText = document.createElement('div');
+                choiceText.className = 'font-medium mb-2';
+                choiceText.textContent = choice.text;
+                choiceBtn.appendChild(choiceText);
+                
+                // Stats deltas
+                const statsDeltas = document.createElement('div');
+                statsDeltas.className = 'flex space-x-3 text-xs';
+                
+                if (choice.sec !== 0) {
+                    const secSpan = document.createElement('span');
+                    secSpan.className = choice.sec > 0 ? 'text-cyan-400' : 'text-cyan-400/70';
+                    secSpan.textContent = `SEC ${choice.sec > 0 ? '+' : ''}${choice.sec}`;
+                    statsDeltas.appendChild(secSpan);
+                }
+                
+                if (choice.tru !== 0) {
+                    const truSpan = document.createElement('span');
+                    truSpan.className = choice.tru > 0 ? 'text-purple-400' : 'text-purple-400/70';
+                    truSpan.textContent = `TRU ${choice.tru > 0 ? '+' : ''}${choice.tru}`;
+                    statsDeltas.appendChild(truSpan);
+                }
+                
+                if (choice.bdg !== 0) {
+                    const bdgSpan = document.createElement('span');
+                    bdgSpan.className = choice.bdg > 0 ? 'text-green-400' : 'text-green-400/70';
+                    bdgSpan.textContent = `BDG ${choice.bdg > 0 ? '+' : ''}${choice.bdg}`;
+                    statsDeltas.appendChild(bdgSpan);
+                }
+                
+                if (choice.sec === 0 && choice.tru === 0 && choice.bdg === 0) {
+                    const noChange = document.createElement('span');
+                    noChange.className = 'text-gray-400';
+                    noChange.textContent = 'No change';
+                    statsDeltas.appendChild(noChange);
+                }
+                
+                choiceBtn.appendChild(statsDeltas);
+                
+                // Add click handler
+                choiceBtn.addEventListener('click', () => makeChoice(index));
+                
+                // Add keyboard shortcut
+                choiceBtn.setAttribute('data-shortcut', index + 1);
+                
+                choicesContainer.appendChild(choiceBtn);
+            });
+            
+            // Add keyboard shortcuts
+            document.addEventListener('keydown', handleKeyPress);
+        }
+
+        // Handle keyboard shortcuts
+        function handleKeyPress(e) {
+            if (e.key >= '1' && e.key <= '4') {
+                const index = parseInt(e.key) - 1;
+                const choiceButtons = document.querySelectorAll('.choice-btn');
+                if (index < choiceButtons.length) {
+                    choiceButtons[index].click();
+                }
+            } else if (e.key === 's') {
+                saveGame();
+            } else if (e.key === 'Escape') {
+                if (confirm('Return to menu? Your progress will be saved.')) {
+                    saveGame();
+                    showMenu();
+                }
+            }
+        }
+
+        // Player makes a choice
+        function makeChoice(choiceIndex) {
+            const choice = gameState.currentEvent.choices[choiceIndex];
+            
+            // Apply stat changes
+            gameState.stats.sec += choice.sec;
+            gameState.stats.tru += choice.tru;
+            gameState.stats.bdg += choice.bdg;
+            
+            // Cap stats at 0-100
+            gameState.stats.sec = Math.max(0, Math.min(100, gameState.stats.sec));
+            gameState.stats.tru = Math.max(0, Math.min(100, gameState.stats.tru));
+            gameState.stats.bdg = Math.max(0, Math.min(100, gameState.stats.bdg));
+            
+            // Add to history
+            gameState.eventHistory.push(gameState.currentEvent);
+            gameState.choiceHistory.push(choice);
+            gameState.completedEvents.push(gameState.currentEvent.id);
+            
+            // Add log entry
+            addLogEntry(`<span class="text-cyan-400">${gameState.currentEvent.title}:</span> ${choice.text}`, choice.tip);
+            
+            // Check for perk unlocks
+            checkPerkUnlocks();
+            
+            // Update UI
+            updateStatsDisplay();
+            
+            // Check if game over
+            gameState.currentRound++;
+            if (gameState.currentRound > gameState.totalRounds) {
+                endGame();
+            } else {
+                // Check for reflection every 5 rounds
+                if (gameState.currentRound % 5 === 1) {
+                    showReflection();
+                } else {
+                    renderEvent();
+                }
+            }
+        }
+
+        // Add entry to log
+        function addLogEntry(message, tip = null) {
+            const entry = document.createElement('div');
+            entry.className = 'pb-2 border-b border-slate-700/50 last:border-0';
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'text-gray-300';
+            messageDiv.innerHTML = message;
+            entry.appendChild(messageDiv);
+            
+            if (tip) {
+                const tipDiv = document.createElement('div');
+                tipDiv.className = 'text-xs mt-1 text-cyan-200 italic';
+                tipDiv.textContent = `Tip: ${tip}`;
+                entry.appendChild(tipDiv);
+            }
+            
+            logContainer.prepend(entry);
+            
+            // Limit log to 10 entries
+            if (logContainer.children.length > 10) {
+                logContainer.removeChild(logContainer.lastChild);
+            }
+        }
+
+        // Check for perk unlocks
+        function checkPerkUnlocks() {
+            // Check if any perks should be unlocked based on stats or choices
+            if (gameState.stats.sec >= 75 && !gameState.perks.some(p => p.id === 1)) {
+                gameState.perks.push(gameData.perks[0]);
+                addLogEntry(`<span class="text-green-400">Perk Unlocked:</span> ${gameData.perks[0].name} - ${gameData.perks[0].description}`);
+            }
+            
+            if (gameState.stats.tru >= 75 && !gameState.perks.some(p => p.id === 2)) {
+                gameState.perks.push(gameData.perks[1]);
+                addLogEntry(`<span class="text-green-400">Perk Unlocked:</span> ${gameData.perks[1].name} - ${gameData.perks[1].description}`);
+            }
+            
+            if (gameState.stats.bdg >= 75 && !gameState.perks.some(p => p.id === 3)) {
+                gameState.perks.push(gameData.perks[2]);
+                addLogEntry(`<span class="text-green-400">Perk Unlocked:</span> ${gameData.perks[2].name} - ${gameData.perks[2].description}`);
+            }
+        }
+
+        // Show reflection every 5 rounds
+        function showReflection() {
+            const reflection = document.createElement('div');
+            reflection.className = 'fixed inset-0 bg-black/70 flex items-center justify-center z-50';
+            reflection.innerHTML = `
+                <div class="cyber-glass rounded-xl p-6 max-w-md w-full">
+                    <h3 class="text-2xl font-bold text-cyan-400 mb-4">Progress Checkpoint</h3>
+                    <p class="mb-4">Here's your progress over the last 5 rounds:</p>
+                    
+                    <div class="grid grid-cols-3 gap-4 mb-6">
+                        <div>
+                            <div class="h-2 bg-slate-700 rounded-full mb-1">
+                                <div class="h-2 bg-cyan-500 rounded-full" style="width: ${gameState.stats.sec}%"></div>
+                            </div>
+                            <p class="text-xs text-center">Security</p>
+                        </div>
+                        <div>
+                            <div class="h-2 bg-slate-700 rounded-full mb-1">
+                                <div class="h-2 bg-purple-500 rounded-full" style="width: ${gameState.stats.tru}%"></div>
+                            </div>
+                            <p class="text-xs text-center">Trust</p>
+                        </div>
+                        <div>
+                            <div class="h-2 bg-slate-700 rounded-full mb-1">
+                                <div class="h-2 bg-green-500 rounded-full" style="width: ${gameState.stats.bdg}%"></div>
+                            </div>
+                            <p class="text-xs text-center">Budget</p>
+                        </div>
+                    </div>
+                    
+                    <button id="continue-reflect" class="w-full bg-cyan-600 hover:bg-cyan-500 px-4 py-2 rounded">
+                        Continue Game
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(reflection);
+            
+            document.getElementById('continue-reflect').addEventListener('click', () => {
+                document.body.removeChild(reflection);
+                renderEvent();
+            });
+        }
+
+        // End the game
+        function endGame() {
+            gameScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+            
+            // Update final stats
+            finalSec.textContent = gameState.stats.sec;
+            finalTru.textContent = gameState.stats.tru;
+            finalBdg.textContent = gameState.stats.bdg;
+            
+            // Generate result summary
+            let summary = `${gameState.playerName}, your cybersecurity leadership has `;
+            
+            if (gameState.stats.sec >= 80 && gameState.stats.tru >= 70 && gameState.stats.bdg >= 60) {
+                summary += `been outstanding! You've maintained strong security while balancing trust and budget constraints. `;
+                summary += `Your organization is well-protected against cyber threats.`;
+                
+                // Trigger confetti
+                triggerConfetti();
+            } else if (gameState.stats.sec >= 60) {
+                summary += `been generally effective. `;
+                if (gameState.stats.tru < 50) {
+                    summary += `However, your strict security measures have impacted team trust. `;
+                }
+                if (gameState.stats.bdg < 40) {
+                    summary += `Budget constraints have limited some security initiatives. `;
+                }
+                summary += `Consider more balanced approaches in the future.`;
+            } else {
+                summary += `faced challenges. `;
+                if (gameState.stats.sec < 40) {
+                    summary += `Your organization's security posture needs significant improvement. `;
+                }
+                if (gameState.stats.tru < 40) {
+                    summary += `Low trust has made security implementation difficult. `;
+                }
+                if (gameState.stats.bdg < 30) {
+                    summary += `Insufficient budget has compromised critical protections. `;
+                }
+                summary += `Review the resources below to strengthen your approach.`;
+            }
+            
+            resultSummary.textContent = summary;
+            
+            // Draw radar chart
+            drawRadarChart();
+        }
+
+        // Draw radar chart
+        function drawRadarChart() {
+            const ctx = radarChartCanvas.getContext('2d');
+            const scores = [
+                gameState.stats.sec / 100,
+                gameState.stats.tru / 100,
+                gameState.stats.bdg / 100
+            ];
+            
+            // Clear previous chart
+            ctx.clearRect(0, 0, radarChartCanvas.width, radarChartCanvas.height);
+            
+            // Draw radar chart
+            const centerX = radarChartCanvas.width / 2;
+            const centerY = radarChartCanvas.height / 2;
+            const radius = Math.min(centerX, centerY) * 0.8;
+            const angleStep = (Math.PI * 2) / 3;
+            
+            // Draw grid circles
+            ctx.strokeStyle = 'rgba(0, 234, 255, 0.2)';
+            ctx.lineWidth = 1;
+            
+            for (let r = radius / 3; r <= radius; r += radius / 3) {
+                ctx.beginPath();
+                for (let i = 0; i <= 3; i++) {
+                    const angle = i * angleStep;
+                    const x = centerX + Math.cos(angle) * r;
+                    const y = centerY + Math.sin(angle) * r;
+                    
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                ctx.closePath();
+                ctx.stroke();
+            }
+            
+            // Draw axis lines
+            for (let i = 0; i < 3; i++) {
+                const angle = i * angleStep;
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(centerX + Math.cos(angle) * radius, centerY + Math.sin(angle) * radius);
+                ctx.stroke();
+            }
+            
+            // Draw data shape
+            ctx.fillStyle = 'rgba(0, 234, 255, 0.3)';
+            ctx.strokeStyle = 'rgba(0, 234, 255, 0.8)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            for (let i = 0; i < 3; i++) {
+                const angle = i * angleStep;
+                const score = scores[i];
+                const r = radius * score;
+                const x = centerX + Math.cos(angle) * r;
+                const y = centerY + Math.sin(angle) * r;
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            
+            // Draw labels
+            ctx.font = '12px "Space Grotesk", sans-serif';
+            ctx.fillStyle = '#e2e8f0';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            const labels = ['SECURITY', 'TRUST', 'BUDGET'];
+            const labelRadius = radius * 1.1;
+            
+            for (let i = 0; i < 3; i++) {
+                const angle = i * angleStep;
+                const x = centerX + Math.cos(angle) * labelRadius;
+                const y = centerY + Math.sin(angle) * labelRadius;
+                
+                ctx.fillText(labels[i], x, y);
+            }
+        }
+
+        // Trigger confetti
+        function triggerConfetti() {
+            const confettiCount = 100;
+            const colors = ['#00eaff', '#ff005c', '#ffffff', '#00ff9d'];
+            
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'fixed w-2 h-2 rounded-full';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.top = '-10px';
+                confetti.style.zIndex = '9999';
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                
+                document.body.appendChild(confetti);
+                
+                const animationDuration = Math.random() * 3 + 2;
+                
+                const keyframes = [
+                    { transform: `translateY(0) rotate(0deg)`, opacity: 1 },
+                    { 
+                        transform: `translateY(${window.innerHeight + 10}px) rotate(${Math.random() * 360}deg)`, 
+                        opacity: 0,
+                        left: `${parseFloat(confetti.style.left) + (Math.random() * 200 - 100)}px`
+                    }
+                ];
+                
+                const options = {
+                    duration: animationDuration * 1000,
+                    easing: 'cubic-bezier(0.1, 0.8, 0.9, 1)'
+                };
+                
+                confetti.animate(keyframes, options).onfinish = () => {
+                    document.body.removeChild(confetti);
+                };
+            }
+        }
+
+        // Download report
+        function downloadReport() {
+            let report = `CYBERGUARDIAN GAME REPORT\n`;
+            report += `=========================\n\n`;
+            report += `Player: ${gameState.playerName}\n`;
+            if (gameState.organization) report += `Organization: ${gameState.organization}\n`;
+            report += `Game Length: ${gameState.totalRounds} rounds\n\n`;
+            
+            report += `FINAL STATS\n`;
+            report += `Security: ${gameState.stats.sec}/100\n`;
+            report += `Trust: ${gameState.stats.tru}/100\n`;
+            report += `Budget: ${gameState.stats.bdg}/100\n\n`;
+            
+            report += `DECISION SUMMARY\n`;
+            for (let i = 0; i < gameState.eventHistory.length; i++) {
+                report += `Round ${i + 1}: ${gameState.eventHistory[i].title}\n`;
+                report += `Choice: ${gameState.choiceHistory[i].text}\n\n`;
+            }
+            
+            report += `CYBERSECURITY TIPS\n`;
+            report += `1. Always verify suspicious emails or messages through another channel\n`;
+            report += `2. Use strong, unique passwords and enable two-factor authentication\n`;
+            report += `3. Keep all software updated with the latest security patches\n`;
+            report += `4. Be cautious with public Wi-Fi - use a VPN if necessary\n`;
+            report += `5. Regular security training for all employees is essential\n\n`;
+            
+            report += `RESOURCES\n`;
+            report += `Australian Cyber Security Centre: https://www.cyber.gov.au\n`;
+            report += `Vietnam Computer Emergency Response Team: https://www.vncert.gov.vn\n`;
+            report += `Free cybersecurity training: https://www.cybrary.it\n`;
+            
+            const blob = new Blob([report], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `cyberguardian_report_${gameState.playerName.replace(/\s+/g, '_')}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize the game
+        initGame();
+    </script>
+</body>
+</html>

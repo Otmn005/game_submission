@@ -711,86 +711,99 @@ function init(){ setHUD(); show('menu'); S.last = pickCardIndex(); } init();
 </script>
 
 
-<!-- Dice Sync Patch -->
-<script id="dice-sync-fix">
+
+
+
+
+
+
+<!-- True Dice System v3 -->
+<script id="dice-true-system">
 (function(){
-  const poses = {1:[0,0], 2:[-90,0], 3:[0,-90], 4:[0,90], 5:[90,0], 6:[0,180]};
-  function animateDiceVisualTrueValue(val){
-    const cube=document.getElementById('neonDiceCube'); if(!cube) return;
-    const [rx,ry]=poses[val]||[0,0];
-    cube.classList.remove('neon-land');
-    cube.classList.add('rolling');
-    cube.style.transition='none'; cube.style.transform='rotateX(0deg) rotateY(0deg)'; void cube.offsetWidth;
-    const extraX=720+(Math.random()<0.5?0:360), extraY=720+(Math.random()<0.5?0:360);
-    cube.style.transition='transform 1000ms cubic-bezier(.2,.7,.2,1)';
-    cube.style.transform=`rotateX(${rx+extraX}deg) rotateY(${ry+extraY}deg)`;
-    setTimeout(()=>{cube.classList.remove('rolling'); cube.classList.add('neon-land');},1020);
+  const faces = {1:[0,0],2:[-90,0],3:[0,-90],4:[0,90],5:[90,0],6:[0,180]};
+  function initDice(){
+    const old=document.getElementById('dice');
+    if(!old) return;
+    if(document.getElementById('dice3d')) return;
+    const dice=document.createElement('div');
+    dice.id='dice3d';
+    dice.className='dice3d';
+    dice.innerHTML=`
+      <div class="face front">1</div>
+      <div class="face back">6</div>
+      <div class="face right">3</div>
+      <div class="face left">4</div>
+      <div class="face top">5</div>
+      <div class="face bottom">2</div>`;
+    old.innerHTML='';
+    old.appendChild(dice);
   }
 
-  // hook global rollDice if present
-  const origRoll=window.rollDice;
-  if(typeof origRoll==='function'){
-    window.rollDice=function(...a){
-      const res=origRoll.apply(this,a);
-      try{
-        // find roll value by reading severity or log output
-        const sevEl=document.getElementById('severity');
-        if(sevEl){
-          const txt=sevEl.textContent||''; const m=txt.match(/roll\s*(\d)/i);
-          if(m){ const val=parseInt(m[1]); animateDiceVisualTrueValue(val); }
-        }
-      }catch(e){}
-      return res;
-    }
-  }
-})();
-</script>
-
-
-<!-- Dice Sync Patch v2.1 -->
-<script id="dice-sync-fix-v2_1">
-(function(){
-  const poses={1:[0,0],2:[-90,0],3:[0,-90],4:[0,90],5:[90,0],6:[0,180]};
-  function rotateTo(value){
-    const cube=document.getElementById('neonDiceCube');
+  function rollVisualDice(value){
+    const cube=document.getElementById('dice3d');
     if(!cube) return;
-    const [rx,ry]=poses[value]||[0,0];
-    cube.classList.remove('neon-land');
-    cube.classList.add('rolling');
-    cube.style.transition='none'; cube.style.transform='rotateX(0deg) rotateY(0deg)'; void cube.offsetWidth;
+    const [rx,ry]=faces[value]||[0,0];
     const extraX=720+(Math.random()<0.5?0:360);
     const extraY=720+(Math.random()<0.5?0:360);
-    cube.style.transition='transform 1000ms cubic-bezier(.2,.7,.2,1)';
+    cube.classList.remove('landing');
+    cube.offsetWidth; // force reflow
+    cube.style.transition='transform 1s cubic-bezier(.2,.7,.2,1)';
     cube.style.transform=`rotateX(${rx+extraX}deg) rotateY(${ry+extraY}deg)`;
-    setTimeout(()=>{
-      cube.classList.remove('rolling');
-      cube.classList.add('neon-land');
-    },1020);
+    setTimeout(()=>{cube.classList.add('landing');},1050);
   }
 
-  // Hook rollDice
-  if(typeof window.rollDice==='function' && !window.rollDicePatched){
-    const orig=window.rollDice;
+  // Hook dice roll
+  const origRoll=window.rollDice;
+  if(typeof origRoll==='function' && !window.rollDicePatchedV3){
     window.rollDice=function(...a){
-      const result=orig.apply(this,a);
+      const result=origRoll.apply(this,a);
       try{
-        // capture actual rolled number from logic by parsing severity text
         const sev=document.getElementById('severity');
         if(sev){
           const txt=sev.textContent||'';
           const m=txt.match(/roll\s*(\d+)/i);
-          if(m){
-            const val=parseInt(m[1]);
-            if(val>=1 && val<=6){ rotateTo(val); }
-          }
+          if(m){ const val=parseInt(m[1]); rollVisualDice(val); }
         }
-      }catch(e){}
+      }catch(e){console.warn(e);}
       return result;
     };
-    window.rollDicePatched=true;
+    window.rollDicePatchedV3=true;
   }
+
+  window.addEventListener('DOMContentLoaded', initDice);
 })();
 </script>
+
+<style>
+/* Dice3D Styling */
+#dice3d{
+  position:relative;
+  width:80px; height:80px;
+  transform-style:preserve-3d;
+  transform:rotateX(0deg) rotateY(0deg);
+  transition:transform 1s cubic-bezier(.2,.7,.2,1);
+  margin:auto;
+}
+#dice3d .face{
+  position:absolute;
+  width:80px; height:80px;
+  border:2px solid #00eaff;
+  background:rgba(0,10,30,0.8);
+  color:#00eaff;
+  font-size:32px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Orbitron',sans-serif;
+  box-shadow:0 0 15px #00eaff inset, 0 0 10px #00eaff;
+}
+#dice3d .front {transform: translateZ(40px);}
+#dice3d .back {transform: rotateY(180deg) translateZ(40px);}
+#dice3d .right {transform: rotateY(90deg) translateZ(40px);}
+#dice3d .left {transform: rotateY(-90deg) translateZ(40px);}
+#dice3d .top {transform: rotateX(90deg) translateZ(40px);}
+#dice3d .bottom {transform: rotateX(-90deg) translateZ(40px);}
+#dice3d.landing .face{box-shadow:0 0 25px #00eaff inset, 0 0 20px #00eaff;}
+#dice3d:hover .face{filter:brightness(1.3);}
+</style>
 
 </body>
 </html>

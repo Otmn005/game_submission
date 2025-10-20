@@ -1,2 +1,5 @@
-We need simple, flat UI assets (if any) in a cool, calm palette appropriate for mental health themes. Generate optional SVG icons for: dice, book, heart, sun/heat. Constraints: minimalistic, visible on dark backgrounds, size 48–64px, monochrome or subtle gradients. Avoid external dependencies; inline SVG is preferred.
-
+Goal: Generate small visual assets and sound design descriptions.
+Prompts used:
+- "Produce CSS/SVG ideas for a neon cyber-blue button with glassmorphism and micro-shadow. Provide markup and CSS only (no external images)."
+- "Generate an inline 10s ambient synth loop as a short WAV/PCM base64 sample (optional). If not feasible, provide WebAudio oscillator code to synth a calm pad."
+- "Produce three SVG icon examples for SEC/TRU/BDG suitable for embedding inline."

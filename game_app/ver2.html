@@ -3,87 +3,101 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>DataHeist: Cyber Choices — AAA Edition</title>
-<meta name="description" content="A cinematic cyber awareness simulator about Security, Trust, and Budget."/>
+<title>DataHeist: Cyber Choices — Visual Revamp (Offline)</title>
+<meta name="description" content="A cinematic cyber awareness simulator about Security, Trust, and Budget. Offline, single-file."/>
+
+<!-- =========================
+     THEME & GLOBAL STYLES
+     ========================= -->
 <style>
-/* =======================
-   AAA Visual System
-======================= */
 :root{
-  --bg1:#0b0f29; --bg2:#121a3a; --ink:#eaf2ff; --muted:#a7b9d9;
-  --glass:rgba(13,20,41,.68); --stroke:#213154;
-  --good:#16a34a; --bad:#ef4444; --warn:#f59e0b; --accent:#B71C1C;
-  --blue:#5bd6ff; --green:#7dffb7; --gold:#ffd36b;
+  --bg0:#070f24; --bg1:#0b1631; --bg2:#111f43;
+  --ink:#eaf2ff; --muted:#9fb1d0;
+  --glass:rgba(18,30,60,.58); --stroke:#273a63;
+  --cyan:#4de2f8; --crimson:#b71c1c; --lime:#caff70;
+  --good:#16a34a; --bad:#ef4444; --warn:#f59e0b;
+  --glow-cyan:0 0 22px #4de2f833; --glow-gold:0 0 22px #ffd36b33; --glow-green:0 0 22px #7dffb733;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
-  margin:0; color:var(--ink); font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
-  background: radial-gradient(1600px 900px at 70% -10%, #19305d 0%, transparent 50%),
-              radial-gradient(1200px 700px at 10% 110%, #10213f 0%, transparent 55%),
-              linear-gradient(180deg,var(--bg1),var(--bg2));
+  margin:0; color:var(--ink);
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  background:
+    radial-gradient(1200px 600px at 80% -10%, #1a3774 0%, transparent 55%),
+    radial-gradient(900px 500px at -5% 110%, #0e1b3e 0%, transparent 60%),
+    linear-gradient(180deg,var(--bg0),var(--bg1));
   overflow-x:hidden;
 }
 
-/* Parallax / Atmosphere */
-.layer{position:fixed; inset:0; pointer-events:none; z-index:-3}
-#city-back{background:
-  linear-gradient(180deg,rgba(91,214,255,.12),transparent),
-  repeating-linear-gradient(0deg,rgba(255,255,255,.05),rgba(255,255,255,.05) 1px,transparent 1px,transparent 20px);}
-#particles{position:fixed; inset:0; z-index:-2; pointer-events:none; opacity:.35}
-#tone{position:fixed; inset:0; z-index:-1; pointer-events:none; mix-blend-mode:screen; transition:background .6s ease}
+/* Parallax ambience */
+#parallax {position:fixed; inset:0; pointer-events:none; z-index:-3; perspective:1000px;}
+.layer{position:absolute; inset:-10vh -10vw; background-repeat:no-repeat; background-size:cover; opacity:.35; transform:translateZ(0);}
+.layer.l1{ background-image:linear-gradient(180deg,rgba(77,226,248,.12),transparent); transform:translateZ(-90px) scale(1.08); }
+.layer.l2{ background-image:radial-gradient(900px 500px at 40% 30%,rgba(77,226,248,.10),transparent 60%); transform:translateZ(-45px) scale(1.04); }
+.layer.l3{ background-image:radial-gradient(700px 600px at 65% 70%,rgba(199,255,112,.08),transparent 60%); transform:translateZ(-20px) scale(1.02); }
 
-/* Holographic glass UI */
+/* Particle field */
+#particles{position:fixed; inset:0; z-index:-2; opacity:.35; pointer-events:none}
+
+/* Cinematic tone overlay (state-based) */
+#tone{position:fixed; inset:0; z-index:-1; mix-blend-mode:screen; transition:background .6s ease}
+
+/* App container */
 .container{max-width:1200px; margin:0 auto; padding:18px}
-.card{background:var(--glass); border:1px solid var(--stroke); border-radius:16px; box-shadow:0 16px 44px rgba(0,0,0,.45); backdrop-filter:blur(10px)}
+.card{background:var(--glass); border:1px solid var(--stroke); border-radius:16px; box-shadow:0 20px 44px rgba(0,0,0,.45); backdrop-filter:blur(14px) saturate(160%)}
 .panel{padding:16px}
 h1,h2,h3{margin:0 0 8px}
 p{margin:0 0 10px}
 small{color:var(--muted)}
-.grid{display:grid; grid-template-columns:1.35fr .65fr; gap:14px}
+
+/* Grid layout */
+.grid{display:grid; grid-template-columns:1.3fr .7fr; gap:14px}
 @media (max-width:980px){ .grid{grid-template-columns:1fr} }
 
 /* Buttons */
 .btn{
-  background:linear-gradient(135deg,#0f1831,#0c1427); color:#e9f1ff; border:1px solid #2b426d;
-  border-radius:12px; padding:10px 14px; cursor:pointer;
-  transition:transform .08s ease, box-shadow .25s ease, border-color .2s ease, background .2s ease;
+  background:linear-gradient(135deg,#0e1a3a,#0b162f); color:#eaf2ff;
+  border:1px solid #2a3d67; border-radius:999px; padding:10px 16px;
+  cursor:pointer; transition:transform .08s ease, box-shadow .25s ease, border-color .2s ease, background .2s ease;
 }
-.btn:hover{transform:translateY(-1px); box-shadow:0 12px 24px rgba(0,0,0,.4); border-color:#3a5d9b}
-.btn.primary{background:linear-gradient(135deg,#162649,#14213f); border-color:#3a5d9b}
+.btn:hover{transform:translateY(-1px); box-shadow:0 12px 24px rgba(0,0,0,.4), var(--glow-cyan); border-color:#385a93}
+.btn:active{transform:translateY(0)}
+.btn.primary{background:linear-gradient(135deg,#162a59,#0f2046); border-color:#3b5ea2}
 .btn.ghost{background:transparent}
-.btn:disabled{opacity:.6; cursor:not-allowed}
+.btn.small{padding:6px 10px; font-size:12px}
+.kbd{background:#0d1a34;border:1px solid var(--stroke);border-bottom-width:2px;border-radius:8px;padding:2px 8px;color:#c2d4ef}
 
-/* Dice */
+/* Top HUD progress */
+#progress{height:6px; border-radius:999px; background:#0c1630; overflow:hidden}
+#progress > div{height:100%; width:0%; background:linear-gradient(90deg,#4de2f8,#caff70); box-shadow:0 0 10px #4de2f844 inset; transition:width .6s cubic-bezier(.2,.6,.2,1)}
+
+/* Rings (stat gauges) */
+.rings{display:flex; gap:12px; flex-wrap:wrap}
+.ring{position:relative; width:104px; height:104px}
+.ring canvas{position:absolute; inset:0}
+.ring .label{position:absolute; inset:0; display:grid; place-items:center; font-weight:700}
+.ring .label small{display:block; color:#a9bad2; font-weight:500}
+
+/* Dice block */
 #dice{
-  width:72px;height:72px; border-radius:14px; border:1px solid #2a3a60;
-  background:linear-gradient(180deg,#0f1733,#0a1226); display:grid; place-items:center; user-select:none;
-  font-size:28px; box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+  width:78px;height:78px; border-radius:18px; border:1px solid #2c3f69;
+  background:linear-gradient(180deg,#0f1835,#0a142a); display:grid; place-items:center; user-select:none;
+  font-size:30px; box-shadow:inset 0 1px 0 rgba(255,255,255,.06), var(--glow-cyan);
 }
 #dice.spin{animation:die .7s cubic-bezier(.2,.6,.2,1)}
-@keyframes die{0%{transform:rotate(0) scale(1)}50%{transform:rotate(140deg) scale(1.1)}100%{transform:rotate(180deg) scale(1)}}
-
-/* Rings */
-.rings{display:flex; gap:12px; flex-wrap:wrap}
-.ring{position:relative; width:100px; height:100px}
-.ring canvas{position:absolute; inset:0}
-.ring .label{position:absolute; inset:0; display:grid; place-items:center; font-weight:600}
-.ring .label small{display:block; color:#a9bad2; font-weight:400}
+@keyframes die{0%{transform:rotate3d(1,1,0,0deg) scale(1)}50%{transform:rotate3d(1,1,0,160deg) scale(1.08)}100%{transform:rotate3d(1,1,0,180deg) scale(1)}}
 
 /* Choices */
-#choices .btn{width:100%; text-align:left}
+#choices .btn{width:100%; text-align:left; white-space:normal}
 .delta{float:right; font-size:12px}
 .pos{color:var(--good)} .neg{color:var(--bad)} .warn{color:var(--warn)}
 
-/* Sidebar */
-.kbd{background:#0e1828;border:1px solid var(--stroke);border-bottom-width:2px;border-radius:6px;padding:2px 6px;color:#c2d4ef}
-#log{height:240px; overflow:auto; background:#0e1730; border:1px solid var(--stroke); border-radius:12px; padding:10px}
-
 /* Analyst hologram */
 #analyst{
-  position:relative; padding:10px 12px; border-radius:12px;
-  background:linear-gradient(180deg,#142542,#0f1a31);
-  border:1px solid #28426a; color:#dff1ff; box-shadow:0 8px 22px rgba(0,0,0,.35), 0 0 22px #5bd6ff22;
+  position:relative; padding:10px 12px; border-radius:14px;
+  background:linear-gradient(180deg,#13254a,#0f1c36);
+  border:1px solid #29426d; color:#dff1ff; box-shadow:0 8px 22px rgba(0,0,0,.35), 0 0 26px #5bd6ff22;
 }
 #analyst:before{
   content:""; position:absolute; left:-8px; top:16px; width:8px; height:8px; border:1px solid #28426a; border-right:none; border-bottom:none; transform:rotate(45deg);
@@ -92,7 +106,7 @@ small{color:var(--muted)}
 
 /* Toasts */
 .toast{position:fixed; left:50%; bottom:18px; transform:translateX(-50%); z-index:80; pointer-events:none}
-.toast .bubble{background:#0e1828; border:1px solid #2a3a60; padding:10px 14px; border-radius:12px; color:#dff2ff; box-shadow:0 10px 26px rgba(0,0,0,.35), 0 0 18px #85d6ff22; animation:rise 2.2s ease both}
+.toast .bubble{background:#0f1c36; border:1px solid #2a3a60; padding:10px 14px; border-radius:12px; color:#dff2ff; box-shadow:0 10px 26px rgba(0,0,0,.35), 0 0 18px #85d6ff22; animation:rise 2.2s ease both}
 @keyframes rise{from{opacity:0; transform:translate(-50%,10px)} to{opacity:1; transform:translate(-50%,-6px)}}
 
 /* Modal */
@@ -110,12 +124,32 @@ small{color:var(--muted)}
 #lens{position:fixed; inset:0; pointer-events:none; z-index:60; display:none}
 #lens.show{display:block; background:
   radial-gradient(400px 400px at 20% 30%, rgba(91,214,255,.14), transparent 60%),
-  radial-gradient(500px 700px at 80% 60%, rgba(239,68,68,.12), transparent 60%);}
+  radial-gradient(500px 700px at 80% 60%, rgba(239,68,68,.12), transparent 60%);
+  background-blend-mode:screen;
+  animation:scan 6s linear infinite;
+}
+@keyframes scan{
+  0%{filter:contrast(110%) saturate(120%)}
+  50%{filter:contrast(130%) saturate(140%) hue-rotate(10deg)}
+  100%{filter:contrast(110%) saturate(120%)}
+}
+
+/* Progress & badges */
+.badges{display:flex; gap:8px; flex-wrap:wrap}
+.badge{border:1px solid #2b426d; border-radius:999px; padding:4px 10px; color:#cfe0ff; background:#0c1731}
+
+/* Accessibility helpers */
 .visually-hidden{position:absolute !important; height:1px; width:1px; overflow:hidden; clip:rect(1px,1px,1px,1px); white-space:nowrap}
 </style>
 </head>
 <body>
-<!-- Atmosphere -->
+
+<!-- Parallax + ambience -->
+<div id="parallax" aria-hidden="true">
+  <div class="layer l1"></div>
+  <div class="layer l2"></div>
+  <div class="layer l3"></div>
+</div>
 <canvas id="particles" aria-hidden="true"></canvas>
 <div id="tone" aria-hidden="true"></div>
 <canvas id="confetti" aria-hidden="true"></canvas>
@@ -124,18 +158,20 @@ small{color:var(--muted)}
 <div class="container">
   <header class="card panel" style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap">
     <div>
-      <h1>DataHeist: Cyber Choices</h1>
-      <small>Cinematic cyber awareness • AU/VN context • Front-end only</small>
+      <h1 style="letter-spacing:.5px">DataHeist: Cyber Choices</h1>
+      <small>Visual Revamp • AU/VN context • Front-end only</small>
     </div>
     <div style="display:flex; gap:8px; flex-wrap:wrap">
-      <button id="toggleLens" class="btn">🛰️ Cyber Lens</button>
-      <button id="mute" class="btn">🔊 Sound</button>
+      <button id="toggleLens" class="btn small">🛰️ Cyber Lens</button>
+      <button id="mute" class="btn small">🔊 Sound</button>
     </div>
   </header>
 
   <!-- MENU -->
   <main id="view-menu" class="card panel">
     <h2>New Operation</h2>
+    <div id="progress" style="margin:10px 0 6px"><div id="progressFill"></div></div>
+
     <div class="grid" style="margin-top:8px">
       <section class="panel">
         <div style="display:flex; gap:10px; flex-wrap:wrap">
@@ -172,15 +208,15 @@ small{color:var(--muted)}
   <!-- PLAY -->
   <section id="view-play" class="card panel hidden" aria-live="polite">
     <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap">
-      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
-        <span class="btn ghost" style="cursor:default;border-style:dashed">Round <b id="round">1</b>/<span id="total">12</span></span>
-        <span class="btn ghost" id="org-badge" style="cursor:default;border-style:dashed">Org: —</span>
-        <span class="btn ghost" id="diff-badge" style="cursor:default;border-style:dashed">Mode: Casual</span>
+      <div class="badges">
+        <span class="badge">Round <b id="round">1</b>/<span id="total">12</span></span>
+        <span class="badge" id="org-badge">Org: —</span>
+        <span class="badge" id="diff-badge">Mode: Casual</span>
       </div>
       <div class="rings">
-        <div class="ring"><canvas id="ring-sec" width="100" height="100"></canvas><div class="label"><div><span id="sec-num">55</span><small>SEC</small></div></div></div>
-        <div class="ring"><canvas id="ring-tru" width="100" height="100"></canvas><div class="label"><div><span id="tru-num">55</span><small>TRU</small></div></div></div>
-        <div class="ring"><canvas id="ring-bdg" width="100" height="100"></canvas><div class="label"><div><span id="bdg-num">50</span><small>BDG</small></div></div></div>
+        <div class="ring"><canvas id="ring-sec" width="104" height="104"></canvas><div class="label"><div><span id="sec-num">55</span><small>SEC</small></div></div></div>
+        <div class="ring"><canvas id="ring-tru" width="104" height="104"></canvas><div class="label"><div><span id="tru-num">55</span><small>TRU</small></div></div></div>
+        <div class="ring"><canvas id="ring-bdg" width="104" height="104"></canvas><div class="label"><div><span id="bdg-num">50</span><small>BDG</small></div></div></div>
       </div>
       <div style="display:flex; gap:8px; flex-wrap:wrap">
         <button class="btn" id="save">💾 Save</button>
@@ -212,7 +248,7 @@ small{color:var(--muted)}
         <h4 style="margin-top:8px">Legend</h4>
         <p>SEC = Security • TRU = Trust • BDG = Budget</p>
         <h4 style="margin-top:8px">Recent</h4>
-        <div id="log"></div>
+        <div id="log" style="height:240px; overflow:auto; background:#0e1730; border:1px solid var(--stroke); border-radius:12px; padding:10px"></div>
       </aside>
     </div>
   </section>
@@ -221,7 +257,7 @@ small{color:var(--muted)}
   <section id="view-results" class="card panel hidden">
     <h2 id="result-title">Operation Summary</h2>
     <p id="result-body" style="color:#cfe0ff"></p>
-    <canvas id="radar" width="400" height="380" style="max-width:100%"></canvas>
+    <canvas id="radar" width="420" height="400" style="max-width:100%"></canvas>
     <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap">
       <button class="btn" id="download">📄 Download Journey</button>
       <button class="btn primary" id="restart">Play Again</button>
@@ -254,14 +290,14 @@ small{color:var(--muted)}
 
 <div id="toast" class="toast" aria-live="polite"></div>
 
+<!-- =========================
+     SCRIPT (logic preserved)
+     ========================= -->
 <script>
-/* =======================================================
-   Utility & Audio
-======================================================= */
 const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
 const rnd=a=>a[(Math.random()*a.length)|0];
 const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
-const SAVE_KEY='dh_aaa_save_v1';
+const SAVE_KEY='dh_visual_revamp_v1';
 
 const AC=window.AudioContext||window.webkitAudioContext;
 const audio={ctx:null, started:false, master:null, mus:{}, mute:false};
@@ -271,9 +307,8 @@ function bootAudio(){
     audio.ctx=new AC();
     audio.master=audio.ctx.createGain(); audio.master.gain.value=0.12;
     audio.master.connect(audio.ctx.destination);
-    // Ambient layers
-    audio.mus.base=osc(110,'sine',.02);
-    audio.mus.pad=osc(220,'triangle',.015);
+    audio.mus.base=osc(120,'sine',.02);
+    audio.mus.pad=osc(240,'triangle',.015);
     connect(audio.mus.base, audio.master); connect(audio.mus.pad, audio.master);
     audio.started=true;
   }catch(e){}
@@ -293,9 +328,7 @@ function blip(freq=640,dur=.08,type='sine',vol=.07){
 }
 ['click','touchstart','keydown'].forEach(ev=>document.addEventListener(ev,()=>{ if(AC&&!audio.ctx) bootAudio(); if(audio.ctx&&audio.ctx.state==='suspended') audio.ctx.resume(); },{once:true,passive:true}));
 
-/* =======================================================
-   Content: Facts & Cards
-======================================================= */
+/* Facts & Cards */
 const FACTS=[
   "2FA blocks most credential-stuffing attacks.",
   "Restoring from clean backups is the fastest way out of ransomware.",
@@ -303,16 +336,13 @@ const FACTS=[
   "Patching browsers and plugins closes common exploit chains.",
   "Staff awareness cuts phishing click-through significantly.",
   "Zero-trust limits blast radius after compromise.",
-  "Public S3 buckets expose data; use least-privilege.",
-  "Deepfake voice scams target finance approvals.",
   "Use HTTPS + VPN on public Wi-Fi; avoid sensitive logins.",
-  "Malicious USBs are still used for initial access."
+  "Deepfake voice scams target finance approvals."
 ];
 
 const CARDS=[
   { id:"phish_ai_mygov", region:"AU",
-    title:"AI-Generated Phishing (MyGov lookalike)",
-    base:3,
+    title:"AI-Generated Phishing (MyGov lookalike)", base:3,
     text:"A realistic email asks staff to ‘verify benefits’. Domain is slightly misspelled.",
     chain:"ransomware_plugin",
     options:[
@@ -322,8 +352,7 @@ const CARDS=[
     ]
   },
   { id:"sms_spoof_zalo", region:"VN",
-    title:"Banking SMS Spoof via Zalo/OTP Bait",
-    base:2,
+    title:"Banking SMS Spoof via Zalo/OTP Bait", base:2,
     text:"Staff receive a spoofed SMS linking to a fake banking page requesting OTP.",
     options:[
       {label:"Password manager + unique pwds", d:{SEC:+6, TRU:+2, BDG:-2}, tip:"Prevents reuse damage."},
@@ -332,8 +361,8 @@ const CARDS=[
     ]
   },
   { id:"unpatched_browser", region:"AU",
-    title:"Unpatched Browser 0-day Emerges",
-    base:4, text:"A widely-used browser has an active exploit; your fleet is behind on updates.",
+    title:"Unpatched Browser 0-day Emerges", base:4,
+    text:"A widely-used browser has an active exploit; your fleet is behind on updates.",
     options:[
       {label:"Force auto-update & patch now", d:{SEC:+9, TRU:+1, BDG:-3}, tip:"Closes exploit window."},
       {label:"Virtualize sensitive apps", d:{SEC:+6, TRU:+2, BDG:-4}, tip:"Adds isolation."},
@@ -341,8 +370,8 @@ const CARDS=[
     ]
   },
   { id:"public_wifi_mitm", region:"AU",
-    title:"Public Wi-Fi MITM near RMIT City",
-    base:2, text:"Staff connect to café Wi-Fi; credentials observed via evil-twin AP.",
+    title:"Public Wi-Fi MITM near RMIT City", base:2,
+    text:"Staff connect to café Wi-Fi; credentials observed via evil-twin AP.",
     options:[
       {label:"Mandate VPN + HSTS checks", d:{SEC:+7, TRU:+2, BDG:-3}, tip:"Encrypts traffic end-to-end."},
       {label:"Awareness: avoid sensitive logins", d:{SEC:+4, TRU:+3, BDG:-1}, tip:"Reduces exposure."},
@@ -350,8 +379,8 @@ const CARDS=[
     ]
   },
   { id:"malicious_usb_b80", region:"AU",
-    title:"Malicious USB found near Building 80",
-    base:2, text:"A labeled USB stick appears ‘HR Payroll’. Temptation is real.",
+    title:"Malicious USB found near Building 80", base:2,
+    text:"A labeled USB stick appears ‘HR Payroll’. Temptation is real.",
     options:[
       {label:"Disable autorun + block unknown", d:{SEC:+7, TRU:+2, BDG:-2}, tip:"Stops BadUSB."},
       {label:"Awareness: turn in to IT", d:{SEC:+4, TRU:+3, BDG:-1}, tip:"Removes lure."},
@@ -359,95 +388,30 @@ const CARDS=[
     ]
   },
   { id:"password_reuse_portal", region:"VN",
-    title:"Password Reuse on University Portal",
-    base:3, text:"Credentials were reused across multiple services; one provider had a breach.",
+    title:"Password Reuse on University Portal", base:3,
+    text:"Credentials were reused across multiple services; one provider had a breach.",
     options:[
       {label:"Enforce SSO + pwd manager", d:{SEC:+8, TRU:+3, BDG:-3}, tip:"Unique creds + central auth."},
       {label:"2FA & rotation campaign", d:{SEC:+7, TRU:+2, BDG:-2}, tip:"Layers reduce risk."},
       {label:"Ignore", d:{SEC:-10, TRU:-6, BDG:+1}, tip:"Stuffing inevitable.", risky:true}
     ]
-  },
-  { id:"shadow_ai_docs", region:"AU",
-    title:"Shadow AI Tool Uploading Docs",
-    base:3, text:"Team uses an external GenAI tool; confidential notes may be leaving the org.",
-    options:[
-      {label:"Approved AI platform + policy", d:{SEC:+7, TRU:+3, BDG:-3}, tip:"Govern usage safely."},
-      {label:"DLP on outbound traffic", d:{SEC:+6, TRU:+2, BDG:-4}, tip:"Detects sensitive data."},
-      {label:"Let teams decide", d:{SEC:-8, TRU:-4, BDG:+1}, tip:"Data exfil risk.", risky:true}
-    ]
-  },
-  { id:"ransomware_plugin", region:"VN",
-    title:"Ransomware via Outdated Plugin",
-    base:3, text:"A popular CMS plugin has a remote-exec flaw; backups were untested.",
-    options:[
-      {label:"Patch + 3-2-1 backups tested", d:{SEC:+8, TRU:+3, BDG:-4}, tip:"Restorable state matters."},
-      {label:"Segment affected servers", d:{SEC:+6, TRU:+2, BDG:-3}, tip:"Limits blast radius."},
-      {label:"Pay ransom quietly", d:{SEC:-6, TRU:-8, BDG:-6}, tip:"Encourages re-attack.", risky:true}
-    ]
-  },
-  { id:"s3_public_bucket", region:"AU",
-    title:"Public S3 Bucket Discovered",
-    base:2, text:"A misconfigured bucket exposes documents to the internet.",
-    options:[
-      {label:"Lock access + audit logs", d:{SEC:+7, TRU:+3, BDG:-2}, tip:"Least-privilege + visibility."},
-      {label:"Rotate keys + notify affected", d:{SEC:+6, TRU:+4, BDG:-3}, tip:"Transparency builds trust."},
-      {label:"Quietly fix without notice", d:{SEC:+3, TRU:-4, BDG:-1}, tip:"Trust erosion later.", risky:true}
-    ]
-  },
-  { id:"deepfake_cfo", region:"AU",
-    title:"Deepfake CFO Voice Requests Transfer",
-    base:3, text:"Finance receives a voice call like the CFO asking for a large transfer.",
-    options:[
-      {label:"Out-of-band verification", d:{SEC:+7, TRU:+3, BDG:-1}, tip:"Stops approval fraud."},
-      {label:"Delay + multi-sign approval", d:{SEC:+6, TRU:+2, BDG:-2}, tip:"Requires consensus."},
-      {label:"Approve to be helpful", d:{SEC:-10, TRU:-6, BDG:-5}, tip:"Classic BEC pattern.", risky:true}
-    ]
-  },
-  { id:"privacy_mishandle", region:"VN",
-    title:"Privacy Request Mishandled",
-    base:2, text:"A data subject access request was ignored; retention unclear.",
-    options:[
-      {label:"Build DSAR workflow", d:{SEC:+4, TRU:+6, BDG:-3}, tip:"Compliance is trust."},
-      {label:"Data mapping & minimisation", d:{SEC:+6, TRU:+3, BDG:-3}, tip:"Less data = less risk."},
-      {label:"Ignore", d:{SEC:-6, TRU:-7, BDG:+1}, tip:"Regulatory risk grows.", risky:true}
-    ]
-  },
-  { id:"linkedin_se", region:"AU",
-    title:"LinkedIn Social Engineering",
-    base:2, text:"An attacker builds rapport with staff; requests internal info.",
-    options:[
-      {label:"Awareness + reporting channel", d:{SEC:+5, TRU:+4, BDG:-1}, tip:"Culture detects fraud."},
-      {label:"Least-privilege & approvals", d:{SEC:+6, TRU:+2, BDG:-2}, tip:"Access scoped tightly."},
-      {label:"No action", d:{SEC:-7, TRU:-5, BDG:+1}, tip:"Humans are targets.", risky:true}
-    ]
   }
 ];
 
-/* =======================================================
-   State
-======================================================= */
-const S={
-  org:"—", diff:"casual",
-  round:1, total:12,
-  SEC:55, TRU:55, BDG:50,
-  deck:[], used:[], last:-1,
-  deltas:[], rolled:false, severity:0,
-  finished:false, chosenPerk:false,
-  flags:{ // for event chains
-    ignoredPhish:false, ransomwareTriggered:false
-  }
+/* State */
+const S={ org:"—", diff:"casual", round:1, total:12,
+  SEC:55, TRU:55, BDG:50, deck:[], used:[], last:-1,
+  deltas:[], rolled:false, severity:0, finished:false, chosenPerk:false,
+  flags:{ignoredPhish:false, ransomwareTriggered:false}
 };
 
-/* =======================================================
-   UI & Draw Helpers
-======================================================= */
 const numEls={SEC:$('#sec-num'), TRU:$('#tru-num'), BDG:$('#bdg-num')};
 const ringEls={SEC:$('#ring-sec'), TRU:$('#ring-tru'), BDG:$('#ring-bdg')};
 
 function ring(canvas,val,colors=['#93e7ff','#bdf4da']){
-  const ctx=canvas.getContext('2d'), W=canvas.width, H=canvas.height, cx=W/2, cy=H/2, r=W/2-8;
+  const ctx=canvas.getContext('2d'), W=canvas.width, H=canvas.height, cx=W/2, cy=H/2, r=W/2-10;
   ctx.clearRect(0,0,W,H);
-  ctx.strokeStyle='#20324f'; ctx.lineWidth=10; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+  ctx.strokeStyle='#1b2a4a'; ctx.lineWidth=10; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
   const grd=ctx.createLinearGradient(0,0,W,H); grd.addColorStop(0,colors[0]); grd.addColorStop(1,colors[1]);
   const a0=-Math.PI/2, a=a0+(Math.PI*2)*(val/100);
   ctx.strokeStyle=grd; ctx.lineCap='round'; ctx.lineWidth=10; ctx.shadowColor=colors[0]; ctx.shadowBlur=10;
@@ -462,14 +426,14 @@ function setHUD(){
   $('#round').textContent=S.round; $('#total').textContent=S.total;
   $('#org-badge').textContent='Org: '+S.org;
   $('#diff-badge').textContent='Mode: '+(S.diff==='casual'?'Casual':S.diff==='analyst'?'Analyst':'CISO');
-  // Tone layer by posture
+  $('#progressFill').style.width = (100*(S.round-1)/S.total)+'%';
   const tone=$('#tone');
   const min=Math.min(S.SEC,S.TRU,S.BDG);
   const dom=[['SEC',S.SEC],['TRU',S.TRU],['BDG',S.BDG]].sort((a,b)=>b[1]-a[1])[0][0];
   if(min<35){ tone.style.background='radial-gradient(900px 700px at 70% 10%, rgba(239,68,68,.25), transparent 60%)'; }
   else if(min<55){ tone.style.background='radial-gradient(900px 700px at 70% 10%, rgba(255,184,86,.18), transparent 60%)'; }
   else{
-    const col = dom==='SEC'?'rgba(91,214,255,.18)':(dom==='TRU'?'rgba(125,255,183,.18)':'rgba(255,211,107,.18)');
+    const col = dom==='SEC'?'rgba(77,226,248,.18)':(dom==='TRU'?'rgba(125,255,183,.18)':'rgba(255,211,107,.18)');
     tone.style.background=`radial-gradient(900px 700px at 70% 10%, ${col}, transparent 60%)`;
   }
 }
@@ -482,67 +446,54 @@ function analystSay(text){ $('#analyst').textContent='🧠 Analyst: '+text; }
 const confettiCanvas=$('#confetti'), ctxC=confettiCanvas.getContext('2d');
 function confettiBurst(){
   confettiCanvas.width=innerWidth; confettiCanvas.height=innerHeight; confettiCanvas.style.display='block';
-  const pcs=Array.from({length:160},()=>({x:Math.random()*innerWidth,y:-10,r:Math.random()*6+2,c:`hsl(${Math.random()*360},90%,60%)`,vy:2+Math.random()*3,vx:(Math.random()-.5)*2}));
+  const pcs=Array.from({length:140},()=>({x:Math.random()*innerWidth,y:-10,r:Math.random()*6+2,c:`hsl(${Math.random()*360},90%,60%)`,vy:2+Math.random()*3,vx:(Math.random()-.5)*2}));
   let t=0; (function anim(){
     ctxC.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
     pcs.forEach(p=>{p.x+=p.vx;p.y+=p.vy;ctxC.fillStyle=p.c;ctxC.beginPath();ctxC.arc(p.x,p.y,p.r,0,Math.PI*2);ctxC.fill();});
-    if((t+=1)<230) requestAnimationFrame(anim); else confettiCanvas.style.display='none';
+    if((t+=1)<200) requestAnimationFrame(anim); else confettiCanvas.style.display='none';
   })();
 }
 
-/* Parallax particles */
+/* Particle field */
 (function particleInit(){
   const cvs=$('#particles'), x=cvs.getContext('2d'); function resize(){cvs.width=innerWidth;cvs.height=innerHeight;} resize(); addEventListener('resize',resize);
-  const parts=Array.from({length:90},()=>({x:Math.random()*cvs.width,y:Math.random()*cvs.height, vx:(Math.random()-.5)*.4, vy:(Math.random()-.5)*.4, r:Math.random()*2+0.6}));
+  const parts=Array.from({length:90},()=>({x:Math.random()*cvs.width,y:Math.random()*cvs.height, vx:(Math.random()-.5)*.35, vy:(Math.random()-.5)*.35, r:Math.random()*2+0.6}));
   (function anim(){
     x.clearRect(0,0,cvs.width,cvs.height);
     parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy; if(p.x<0||p.x>cvs.width) p.vx*=-1; if(p.y<0||p.y>cvs.height) p.vy*=-1;
-      x.fillStyle='rgba(91,214,255,.25)'; x.beginPath(); x.arc(p.x,p.y,p.r,0,Math.PI*2); x.fill();});
+      x.fillStyle='rgba(77,226,248,.25)'; x.beginPath(); x.arc(p.x,p.y,p.r,0,Math.PI*2); x.fill();});
     requestAnimationFrame(anim);
   })();
 })();
 
-/* =======================================================
-   Deck / Event Flow
-======================================================= */
+/* Deck */
 function buildDeck(){
   S.deck = CARDS.map((_,i)=>i);
-  // shuffle
   for(let i=S.deck.length-1;i>0;i--){const j=(Math.random()*(i+1))|0; [S.deck[i],S.deck[j]]=[S.deck[j],S.deck[i]];}
   S.used=[]; S.last=-1;
 }
 function biasDeck(){
-  // Subtle preference: if a stat is low, bias cards that help it
   const low = ['SEC','TRU','BDG'].sort((a,b)=>S[a]-S[b])[0];
-  if(low==='SEC'){ // push patching/ransomware/phish earlier
-    bumpFront(['unpatched_browser','ransomware_plugin','phish_ai_mygov']);
-  } else if(low==='TRU'){
-    bumpFront(['privacy_mishandle','s3_public_bucket','linkedin_se']);
-  } else {
-    bumpFront(['deepfake_cfo']); // budget hits also come from mistakes
-  }
+  if(low==='SEC'){ bumpFront(['unpatched_browser','phish_ai_mygov']); }
+  else if(low==='TRU'){ bumpFront(['privacy_mishandle','s3_public_bucket','phish_ai_mygov']); }
+  else { bumpFront(['deepfake_cfo']); }
 }
 function bumpFront(ids){
   const set=new Set(ids);
-  const reordered = S.deck.sort((a,b)=>{
-    const A=set.has(CARDS[a].id)?-1:0, B=set.has(CARDS[b].id)?-1:0; return A-B;
-  });
-  S.deck=reordered;
+  S.deck = S.deck.sort((a,b)=> (set.has(CARDS[a].id)?-1:0) - (set.has(CARDS[b].id)?-1:0) );
 }
-
 function pickCardIndex(){
   if(!S.deck.length) buildDeck();
-  // Handle chains: if ignored phish and not yet triggered, force ransomware once
   if(S.flags.ignoredPhish && !S.flags.ransomwareTriggered){
     const idx = CARDS.findIndex(c=>c.id==='ransomware_plugin');
     if(idx>=0){ S.flags.ransomwareTriggered=true; S.last=idx; return idx; }
   }
-  // avoid immediate repeat
   if(S.deck[0]===S.last && S.deck.length>1){ [S.deck[0],S.deck[1]]=[S.deck[1],S.deck[0]]; }
   const idx=S.deck.shift(); S.last=idx; S.used.push(idx);
   return idx;
 }
 
+/* Render card */
 function renderCard(ci){
   const card=CARDS[ci];
   $('#card-title').textContent='Risk: '+card.title;
@@ -569,20 +520,20 @@ function rollDice(){
   setTimeout(()=>{
     d.classList.remove('spin');
     const roll=1+((Math.random()*6)|0); $('#dice').textContent=roll;
-    S.severity = CARDS[S.last].base + roll + diffMod();
-    $('#severity').innerHTML = `Severity: <b>${S.severity}</b> (base ${CARDS[S.last].base} + roll ${roll} + diff ${diffMod()})`;
+    const base = CARDS[S.last].base || 2;
+    S.severity = base + roll + diffMod();
+    $('#severity').innerHTML = `Severity: <b>${S.severity}</b> (base ${base} + roll ${roll} + diff ${diffMod()})`;
     S.rolled=true;
   },700);
 }
 
-/* Apply choice & advance */
+/* Apply choice */
 function applyChoice(card,opt){
   if(!S.rolled){ toast('Roll the risk die first (R or click).'); return; }
   let SEC=S.SEC + (opt.d.SEC||0);
   let TRU=S.TRU + (opt.d.TRU||0);
   let BDG=S.BDG + (opt.d.BDG||0);
 
-  // Severity scaling (good mitigations absorb some severity; risky punished)
   if(opt.d.SEC>=0){
     SEC += Math.max(0, 6 - Math.min(6, S.severity));
     BDG -= Math.ceil(S.severity/3);
@@ -590,8 +541,6 @@ function applyChoice(card,opt){
     SEC -= (S.severity*2);
     TRU -= Math.ceil(S.severity/2);
   }
-
-  // Chains: record phish ignore
   if(card.id==='phish_ai_mygov' && opt.risky) S.flags.ignoredPhish=true;
 
   S.SEC=clamp(SEC,0,100); S.TRU=clamp(TRU,0,100); S.BDG=clamp(BDG,0,100);
@@ -601,20 +550,16 @@ function applyChoice(card,opt){
   addLog(`${card.title} → <span class="${opt.d.SEC>=0?'pos':'neg'}">${opt.label}</span> | SEC ${S.SEC} • TRU ${S.TRU} • BDG ${S.BDG}`);
   toast(rnd(["Risk reduced. Strong call.","Culture improves with clarity.","Resilience rising.","Solid defense choice."]));
 
-  // Analyst reactions
   if(opt.risky){ analystSay("That choice increases risk exposure. Consider layered defenses."); blip(220,.12,'sawtooth',.07); }
   else if(opt.d.TRU>0){ analystSay("Trust grows with transparency and training."); }
   else if(opt.d.SEC>0){ analystSay("Technical posture improving. Keep patching and verifying."); }
 
-  // Snapshots every 4 rounds (except end)
   if(S.round % 4 === 0 && S.round < S.total){ openSnapshot(); return; }
-
-  // Mid perks once (after halfway)
   if(!S.chosenPerk && S.round === Math.ceil(S.total/2)){ openPerks(); return; }
-
   advance();
 }
 
+/* Snapshot */
 function openSnapshot(){
   const m=$('#modal-snap');
   const slice=S.deltas.slice(-4);
@@ -640,6 +585,7 @@ function drawBars(avg){
   }
 }
 
+/* Perks */
 function openPerks(){
   const m=$('#modal-perk'); const wrap=$('#perk-choices'); wrap.innerHTML='';
   const perks=[
@@ -655,23 +601,16 @@ function openPerks(){
   m.classList.add('show');
 }
 
+/* Advance / End */
 function advance(){
   if(S.round>=S.total){ endGame(); return; }
   S.round += 1;
-  // Perk residuals
   if(S.perkSEC){ S.SEC=clamp(S.SEC+1,0,100); S.perkSEC--; }
   if(S.perkTRU){ S.TRU=clamp(S.TRU+1,0,100); S.perkTRU--; }
-  setHUD();
-  biasDeck();
-  renderCard(pickCardIndex());
-  S.rolled=false; S.severity=0;
+  setHUD(); biasDeck(); renderCard(pickCardIndex()); S.rolled=false; S.severity=0;
 }
-
-/* =======================================================
-   Results & Radar
-======================================================= */
 function drawRadar(sec,tru,bdg){
-  const c=$('#radar'),x=c.getContext('2d'),W=c.width,H=c.height,cx=W/2,cy=H/2,r=Math.min(W,H)/2-36;
+  const c=$('#radar'),x=c.getContext('2d'),W=c.width,H=c.height,cx=W/2,cy=H/2,r=Math.min(W,H)/2-44;
   x.clearRect(0,0,W,H); x.strokeStyle='#243145';
   for(let i=1;i<=3;i++){x.beginPath();x.arc(cx,cy,(r*i)/3,0,Math.PI*2);x.stroke()}
   const labs=['SEC','TRU','BDG']; x.fillStyle='#cfe1ff'; x.font='12px system-ui';
@@ -679,9 +618,8 @@ function drawRadar(sec,tru,bdg){
   const vals=[sec,tru,bdg].map(v=>clamp(v,0,100));
   x.beginPath();
   for(let i=0;i<3;i++){const a=(-Math.PI/2)+(i*(2*Math.PI/3)), pr=r*(vals[i]/100), px=cx+Math.cos(a)*pr, py=cy+Math.sin(a)*pr; i?x.lineTo(px,py):x.moveTo(px,py)}
-  x.closePath(); x.fillStyle='rgba(183,28,28,.22)'; x.fill(); x.lineWidth=2; x.strokeStyle='rgba(255,150,150,.85)'; x.stroke();
+  x.closePath(); x.fillStyle='rgba(77,226,248,.18)'; x.fill(); x.lineWidth=2; x.strokeStyle='rgba(199,255,112,.9)'; x.shadowColor='#4de2f8'; x.shadowBlur=20; x.stroke(); x.shadowBlur=0;
 }
-
 function endGame(){
   show('results');
   const {SEC,TRU,BDG}=S;
@@ -690,7 +628,6 @@ function endGame(){
   else if(BDG<20){ title='Budget Collapse 💸'; }
   else if(SEC<50 && TRU>=60){ title='Innovation Overexposed 📉'; }
   else if(SEC>=60 && TRU<50){ title='Tactical Containment — Reputation Bruised 📰'; }
-
   const weakest=[['SEC',SEC],['TRU',TRU],['BDG',BDG]].sort((a,b)=>a[1]-b[1])[0][0];
   const hint = weakest==='SEC' ? 'Prioritise patching, 2FA and testable backups.'
              : weakest==='TRU' ? 'Communicate, document, and disclose responsibly.'
@@ -701,9 +638,7 @@ function endGame(){
   localStorage.removeItem(SAVE_KEY);
 }
 
-/* =======================================================
-   Save / Load / Views
-======================================================= */
+/* Save / Load / Views */
 function save(){ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); toast('Progress saved.'); }
 function load(){ try{ const raw=localStorage.getItem(SAVE_KEY); if(!raw) return false; Object.assign(S, JSON.parse(raw)); return true; }catch(e){ return false; } }
 function show(view){
@@ -712,9 +647,7 @@ function show(view){
   $('#view-results').classList.toggle('hidden', view!=='results');
 }
 
-/* =======================================================
-   Controls
-======================================================= */
+/* Controls */
 $('#start').onclick=()=>{
   S.org=$('#org').value||'RMIT Team'; S.diff=$('#difficulty').value; S.total=+$('#length').value;
   S.round=1; S.SEC=55; S.TRU=55; S.BDG=50; S.deltas=[]; S.finished=false; S.chosenPerk=false; S.flags={ignoredPhish:false,ransomwareTriggered:false};
@@ -739,25 +672,24 @@ Final SEC ${S.SEC} • TRU ${S.TRU} • BDG ${S.BDG}
 $('#roll').onclick=rollDice;
 $('#dice').addEventListener('click', rollDice);
 $('#dice').addEventListener('keydown', e=>{ if(e.key==='Enter' || e.key===' ') rollDice(); });
-
 document.addEventListener('keydown', e=>{
   if($('#view-play').classList.contains('hidden')) return;
   if(e.key.toLowerCase()==='r') $('#roll').click();
   if(e.key.toLowerCase()==='s') $('#save').click();
   if(e.key==='Escape'){ $('#modal-snap').classList.remove('show'); $('#modal-perk').classList.remove('show'); }
-  const map={'1':0,'2':1,'3':2,'4':3};
-  if(map[e.key]!=null){ const btn=$$('#choices .btn')[map[e.key]]; if(btn) btn.click(); }
+  const map={'1':0,'2':1,'3':2,'4':3}; if(map[e.key]!=null){ const btn=$$('#choices .btn')[map[e.key]]; if(btn) btn.click(); }
 });
 $('#toggleLens').onclick=()=> $('#lens').classList.toggle('show');
 $('#mute').onclick=()=>{ audio.mute=!audio.mute; $('#mute').textContent= audio.mute ? '🔈 Muted' : '🔊 Sound'; };
 
-/* =======================================================
-   Init
-======================================================= */
+/* Init view & prebuild */
 function init(){
-  setHUD(); show('menu');
-  // prepare first deck card to avoid nulls after resume
-  S.last = pickCardIndex(); // temp pick (overwritten on start)
+  // Parallax tilt
+  document.addEventListener('mousemove', (e)=>{
+    const rx=(e.clientX/innerWidth - .5)*4, ry=(e.clientY/innerHeight - .5)*4;
+    $$('#parallax .layer').forEach((el,i)=>{ el.style.transform=`translateZ(${(-90+(i*35))}px) scale(${1.02+(i*.02)}) translate(${rx*(i+1)}px, ${ry*(i+1)}px)`; });
+  }, {passive:true});
+  setHUD(); show('menu'); S.last = pickCardIndex();
 }
 init();
 </script>

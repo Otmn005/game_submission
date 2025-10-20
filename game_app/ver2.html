@@ -746,5 +746,51 @@ function init(){ setHUD(); show('menu'); S.last = pickCardIndex(); } init();
 })();
 </script>
 
+
+<!-- Dice Sync Patch v2.1 -->
+<script id="dice-sync-fix-v2_1">
+(function(){
+  const poses={1:[0,0],2:[-90,0],3:[0,-90],4:[0,90],5:[90,0],6:[0,180]};
+  function rotateTo(value){
+    const cube=document.getElementById('neonDiceCube');
+    if(!cube) return;
+    const [rx,ry]=poses[value]||[0,0];
+    cube.classList.remove('neon-land');
+    cube.classList.add('rolling');
+    cube.style.transition='none'; cube.style.transform='rotateX(0deg) rotateY(0deg)'; void cube.offsetWidth;
+    const extraX=720+(Math.random()<0.5?0:360);
+    const extraY=720+(Math.random()<0.5?0:360);
+    cube.style.transition='transform 1000ms cubic-bezier(.2,.7,.2,1)';
+    cube.style.transform=`rotateX(${rx+extraX}deg) rotateY(${ry+extraY}deg)`;
+    setTimeout(()=>{
+      cube.classList.remove('rolling');
+      cube.classList.add('neon-land');
+    },1020);
+  }
+
+  // Hook rollDice
+  if(typeof window.rollDice==='function' && !window.rollDicePatched){
+    const orig=window.rollDice;
+    window.rollDice=function(...a){
+      const result=orig.apply(this,a);
+      try{
+        // capture actual rolled number from logic by parsing severity text
+        const sev=document.getElementById('severity');
+        if(sev){
+          const txt=sev.textContent||'';
+          const m=txt.match(/roll\s*(\d+)/i);
+          if(m){
+            const val=parseInt(m[1]);
+            if(val>=1 && val<=6){ rotateTo(val); }
+          }
+        }
+      }catch(e){}
+      return result;
+    };
+    window.rollDicePatched=true;
+  }
+})();
+</script>
+
 </body>
 </html>

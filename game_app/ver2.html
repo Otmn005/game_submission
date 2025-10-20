@@ -3,88 +3,48 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>DataHeist: Cyber Choices — Cyber Blue Neon v2 (Offline)</title>
-<meta name="description" content="Cinematic cyber awareness simulator. Offline single-file. Cyber Blue Neon theme.">
+<title>DataHeist: Cyber Choices — Cyber Blue Neon v3 (Offline)</title>
+<meta name="description" content="Cinematic cyber awareness simulator. Offline single-file. Cyber Blue Neon theme. v3 balance + dice fix + results credits">
 
 <style>
 /* =============================
-   THEME — Cyber Blue Neon
+   THEME — Cyber Blue Neon v3
    ============================= */
 :root{
-  --bg0:#050b1a; --bg1:#091a38; --bg2:#0e1f4c;
+  --bg0:#050b1a; --bg1:#091a38;
   --ink:#eaf2ff; --muted:#9fb1d0;
-  --glass:rgba(10,22,48,.58); --stroke:#20406e;
+  --glass:rgba(10,22,48,.58); --stroke:#29426d;
   --cyan:#4de2f8; --lime:#caff70; --gold:#ffd36b;
   --good:#16a34a; --bad:#ef4444; --warn:#f59e0b;
 }
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0; color:var(--ink);
-  font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+*{box-sizing:border-box} html,body{height:100%}
+body{ margin:0; color:var(--ink); font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
   background:
     radial-gradient(1200px 600px at 80% -10%, #174ea3 0%, transparent 55%),
     radial-gradient(900px 500px at -5% 110%, #0b1d46 0%, transparent 60%),
-    linear-gradient(180deg,var(--bg0),var(--bg1));
-  overflow-x:hidden;
-}
+    linear-gradient(180deg,var(--bg0),var(--bg1)); overflow-x:hidden; }
 
-/* Intro splash */
-#splash{position:fixed; inset:0; display:grid; place-items:center; z-index:200; background:linear-gradient(180deg,#040915,#071936);}
-#splash .title{font-size:clamp(28px,5vw,54px); letter-spacing:.08em; text-transform:uppercase; text-align:center;
-  text-shadow:0 0 16px rgba(77,226,248,.35), 0 0 36px rgba(77,226,248,.22);}
-#splash .press{margin-top:14px; color:#a9c2ec; animation:blink 1.2s ease-in-out infinite alternate;}
-@keyframes blink{from{opacity:.65} to{opacity:1}}
-#splash.hide{animation:fadeOut .7s ease both}
-@keyframes fadeOut{to{opacity:0; visibility:hidden}}
-
-/* Parallax ambience */
-#parallax{position:fixed; inset:0; pointer-events:none; z-index:-3; perspective:1000px}
-.layer{position:absolute; inset:-10vh -10vw; background-repeat:no-repeat; background-size:cover; opacity:.4; transform:translateZ(0)}
-.layer.l1{ background-image:radial-gradient(1000px 600px at 20% 10%, rgba(77,226,248,.12), transparent 60%);
-  transform:translateZ(-100px) scale(1.1); filter:blur(2px)}
-.layer.l2{ background-image:radial-gradient(900px 700px at 80% 80%, rgba(202,255,112,.10), transparent 60%);
-  transform:translateZ(-60px) scale(1.06)}
-.layer.l3{ background-image:linear-gradient(180deg, rgba(45,146,255,.10), transparent 40%);
-  transform:translateZ(-30px) scale(1.03)}
-
-/* Particle rain */
-#particles{position:fixed; inset:0; z-index:-2; opacity:.45; pointer-events:none}
-
-/* Tone overlay + hex grid */
-#tone{position:fixed; inset:0; z-index:-1; mix-blend-mode:screen; transition:background .6s ease}
-#grid{position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:.15; background:
-  radial-gradient(circle at 50% 50%, rgba(77,226,248,.18), transparent 40%),
-  repeating-linear-gradient(60deg, rgba(77,226,248,.25) 0 2px, transparent 2px 30px),
-  repeating-linear-gradient(-60deg, rgba(77,226,248,.15) 0 2px, transparent 2px 30px);
-  animation:gridMove 18s linear infinite;
-}
-@keyframes gridMove{from{transform:translateY(0)} to{transform:translateY(-40px)}}
-
-/* Container & cards */
-.container{max-width:1200px;margin:0 auto;padding:18px}
+/* Glass cards */
 .card{background:var(--glass); border:1px solid var(--stroke); border-radius:16px; backdrop-filter:blur(14px) saturate(170%);
   box-shadow:0 24px 48px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.03)}
-.panel{padding:16px}
-h1,h2,h3{margin:0 0 8px}
-p{margin:0 0 10px}
-small{color:var(--muted)}
+.panel{padding:16px} .container{max-width:1200px;margin:0 auto;padding:18px}
+h1,h2,h3{margin:0 0 8px} p{margin:0 0 10px} small{color:var(--muted)}
+.grid{display:grid; grid-template-columns:1.2fr .8fr; gap:14px} @media (max-width:980px){.grid{grid-template-columns:1fr}}
 
-/* Grid layout */
-.grid{display:grid; grid-template-columns:1.25fr .75fr; gap:14px}
-@media (max-width:980px){ .grid{grid-template-columns:1fr} }
-
-/* Buttons */
-.btn{background:linear-gradient(135deg,#0d1e44,#0a1734); color:#eaf2ff;
-  border:1px solid #2a3d67; border-radius:999px; padding:10px 16px; cursor:pointer;
+/* Buttons + inputs */
+.btn{background:linear-gradient(135deg,#0d1e44,#0a1734); color:#eaf2ff; border:1px solid #2a3d67; border-radius:999px; padding:10px 16px; cursor:pointer;
   transition:transform .08s ease, box-shadow .25s ease, border-color .2s ease, background .2s ease;}
 .btn:hover{transform:translateY(-1px); box-shadow:0 12px 24px rgba(0,0,0,.4), 0 0 22px rgba(77,226,248,.35); border-color:#3a5e9f}
-.btn:active{transform:translateY(0)}
-.btn.primary{background:linear-gradient(135deg,#143069,#0f2248); border-color:#3b62a6; box-shadow:0 0 22px rgba(77,226,248,.25) inset}
+.btn:active{transform:translateY(0)} .btn.primary{background:linear-gradient(135deg,#143069,#0f2248); border-color:#3b62a6; box-shadow:0 0 22px rgba(77,226,248,.25) inset}
 .btn.small{padding:6px 10px; font-size:12px}
-.kbd{background:#0d1a34;border:1px solid #2c4272;border-bottom-width:2px;border-radius:8px;padding:2px 8px;color:#c2d4ef}
 
-/* Top progress */
+input,select{width:100%; background:rgba(10,20,40,.7); border:1px solid #2a4a7a; color:#eaf4ff; border-radius:12px; padding:8px 10px;
+  transition:box-shadow .2s ease, border-color .2s ease; }
+input::placeholder{color:#9fb3d6}
+select:hover,input:focus{border-color:var(--cyan); box-shadow:0 0 12px rgba(77,226,248,.4); outline:none}
+label{display:block}
+
+/* Progress */
 #progress{height:6px;border-radius:999px;background:#0b1530;overflow:hidden}
 #progress>div{height:100%;width:0%;background:linear-gradient(90deg,#4de2f8,#caff70);box-shadow:0 0 10px #4de2f844 inset;transition:width .6s cubic-bezier(.2,.6,.2,1)}
 
@@ -95,32 +55,35 @@ small{color:var(--muted)}
 .ring .label{position:absolute;inset:0;display:grid;place-items:center;font-weight:700}
 .ring .label small{display:block;color:#a9bad2;font-weight:500}
 
-/* 3D Dice Cube */
+/* Dice */
 #diceWrap{position:relative;width:78px;height:78px;perspective:600px}
-#dice{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.2,.7,.2,1)}
+#dice{position:absolute;inset:0;transform-style:preserve-3d}
 .face{position:absolute;width:100%;height:100%;display:grid;place-items:center;
   background:linear-gradient(180deg,#0f1835,#0a142a);border:1px solid #2c3f69;border-radius:18px;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 22px rgba(77,226,248,.25); color:#eaf4ff; font-size:26px; font-weight:700;
-}
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 22px rgba(77,226,248,.25); color:#eaf4ff; font-size:26px; font-weight:700; }
 .face::after{content:attr(data-n); filter:drop-shadow(0 0 10px rgba(77,226,248,.65));}
-/* Faces positions */
 .front{transform:translateZ(39px)} .back{transform:rotateY(180deg) translateZ(39px)}
 .right{transform:rotateY(90deg) translateZ(39px)} .left{transform:rotateY(-90deg) translateZ(39px)}
 .top{transform:rotateX(90deg) translateZ(39px)} .bottom{transform:rotateX(-90deg) translateZ(39px)}
-/* Roll animation trail */
-#dice.rolling{filter:brightness(1.2) drop-shadow(0 0 12px rgba(77,226,248,.7))}
+.rollAnim{animation:roll 0.85s cubic-bezier(.2,.7,.2,1) forwards, glow 0.85s ease forwards}
+@keyframes roll{
+  0%{transform:rotateX(0deg) rotateY(0deg)}
+  25%{transform:rotateX(180deg) rotateY(90deg)}
+  50%{transform:rotateX(360deg) rotateY(180deg)}
+  75%{transform:rotateX(540deg) rotateY(270deg)}
+  100%{transform:rotateX(var(--rx)) rotateY(var(--ry))}
+}
+@keyframes glow{0%{filter:brightness(1)}30%{filter:brightness(1.2) drop-shadow(0 0 12px rgba(77,226,248,.7))}100%{filter:brightness(1)}}
 
 /* Choices */
 #choices .btn{width:100%;text-align:left;white-space:normal}
-.delta{float:right;font-size:12px}
-.pos{color:var(--good)} .neg{color:var(--bad)} .warn{color:var(--warn)}
+.delta{float:right;font-size:12px} .pos{color:var(--good)} .neg{color:var(--bad)} .warn{color:var(--warn)}
 
-/* Analyst bubble */
+/* Analyst */
 #analyst{position:relative;padding:10px 12px;border-radius:14px;background:linear-gradient(180deg,#13254a,#0f1c36);
   border:1px solid #29426d;color:#dff1ff;box-shadow:0 8px 22px rgba(0,0,0,.35),0 0 26px #5bd6ff22}
-#analyst:before{content:"";position:absolute;left:-8px;top:16px;width:8px;height:8px;border:1px solid #28426a;border-right:none;border-bottom:none;transform:rotate(45deg);background:linear-gradient(180deg,#142542,#0f1a31)}
 
-/* Toasts */
+/* Toast */
 .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:80;pointer-events:none}
 .toast .bubble{background:#0f1c36;border:1px solid #2a3a60;padding:10px 14px;border-radius:12px;color:#dff2ff;
   box-shadow:0 10px 26px rgba(0,0,0,.35),0 0 18px #85d6ff22;animation:rise 2.2s ease both}
@@ -129,64 +92,30 @@ small{color:var(--muted)}
 /* Modal */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:85}
 .modal.show{display:flex}
-.modal .box{background:linear-gradient(180deg,#14223f,#0f1a2b);border:1px solid #29426d;border-radius:16px;padding:18px;max-width:780px;width:92%;
+.modal .box{background:linear-gradient(180deg,#14223f,#0f1a2b);border:1px solid var(--stroke);border-radius:16px;padding:18px;max-width:780px;width:92%;
   box-shadow:0 20px 44px rgba(0,0,0,.5)}
 
-/* Confetti (sparks) */
-#confetti{position:fixed;inset:0;pointer-events:none;display:none;z-index:90}
+/* Results grid */
+.results-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}
+@media (max-width:980px){.results-grid{grid-template-columns:1fr}}
+#credits{background:linear-gradient(180deg,#0d1a36,#0b152a);border:1px solid var(--stroke);padding:14px;border-radius:14px}
 
-/* Views */
+/* Hidden */
 .hidden{display:none}
 
-/* Cyber Lens */
-#lens{position:fixed;inset:0;pointer-events:none;z-index:60;display:none}
-#lens.show{display:block;background:
-  radial-gradient(400px 400px at 20% 30%, rgba(91,214,255,.18), transparent 60%),
-  radial-gradient(600px 700px at 80% 60%, rgba(239,68,68,.12), transparent 60%);
-  background-blend-mode:screen;animation:scan 6s linear infinite}
-@keyframes scan{0%{filter:contrast(110%) saturate(120%)}50%{filter:contrast(130%) saturate(140%) hue-rotate(10deg)}100%{filter:contrast(110%) saturate(120%)}}
-
-/* Stats badges */
-.badges{display:flex;gap:8px;flex-wrap:wrap}
-.badge{border:1px solid #2b426d;border-radius:999px;padding:4px 10px;color:#cfe0ff;background:#0c1731}
-
-/* Accessibility */
-.visually-hidden{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
+/* Focus */
+:focus{outline:none} .btn:focus, input:focus, select:focus{box-shadow:0 0 0 2px rgba(77,226,248,.6) inset, 0 0 0 2px rgba(77,226,248,.3)}
 </style>
 </head>
 <body>
-
-<!-- Intro Splash -->
-<div id="splash" role="dialog" aria-label="Intro">
-  <div>
-    <div class="title">DATAHEIST<br><small style="font-weight:500;opacity:.85">Cyber Choices</small></div>
-    <div class="press">Press any key to start</div>
-  </div>
-</div>
-
-<!-- Parallax + ambience -->
-<div id="parallax" aria-hidden="true">
-  <div class="layer l1"></div>
-  <div class="layer l2"></div>
-  <div class="layer l3"></div>
-</div>
-<canvas id="particles" aria-hidden="true"></canvas>
-<div id="tone" aria-hidden="true"></div>
-<div id="grid" aria-hidden="true"></div>
-<canvas id="confetti" aria-hidden="true"></canvas>
-<div id="lens" aria-hidden="true"></div>
-
 <div class="container">
   <header class="card panel" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
-    <div>
-      <h1 style="letter-spacing:.5px">DataHeist: Cyber Choices</h1>
-      <small>Cyber Blue Neon • AU/VN context • Front-end only</small>
-    </div>
+    <div><h1>DataHeist: Cyber Choices</h1><small>Cyber Blue Neon v3 • AU/VN context • Front-end only</small></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
       <label class="btn small" style="display:flex;align-items:center;gap:8px">🔊
         <input id="vol" type="range" min="0" max="1" step="0.01" style="width:120px" aria-label="Volume">
       </label>
-      <button id="toggleLens" class="btn small">🛰️ Cyber Lens</button>
+      <button id="save" class="btn small">💾 Save</button>
     </div>
   </header>
 
@@ -194,31 +123,34 @@ small{color:var(--muted)}
   <main id="view-menu" class="card panel">
     <h2>New Operation</h2>
     <div id="progress" style="margin:10px 0 6px"><div id="progressFill"></div></div>
-
     <div class="grid" style="margin-top:8px">
       <section class="panel">
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <label style="flex:1 1 240px">Organisation<br><input id="org" placeholder="RMIT Lab / SME / Startup" style="width:100%"></label>
-          <label style="flex:1 1 160px">Difficulty<br>
-            <select id="difficulty" style="width:100%">
-              <option value="casual">Casual</option>
-              <option value="analyst">Analyst</option>
-              <option value="ciso">CISO</option>
-            </select>
-          </label>
-          <label style="flex:1 1 160px">Game Length<br>
-            <select id="length" style="width:100%">
-              <option value="6">Fast (6)</option>
-              <option value="12" selected>Standard (12)</option>
-              <option value="18">Long (18)</option>
-            </select>
-          </label>
+        <div class="card panel" style="background:linear-gradient(180deg,rgba(15,30,60,.6),rgba(12,22,44,.6)); border-color:#34548a">
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <label style="flex:1 1 240px">Organisation
+              <input id="org" placeholder="RMIT Lab / SME / Startup">
+            </label>
+            <label style="flex:1 1 160px">Difficulty
+              <select id="difficulty">
+                <option value="casual">Casual</option>
+                <option value="analyst">Analyst</option>
+                <option value="ciso">CISO</option>
+              </select>
+            </label>
+            <label style="flex:1 1 160px">Game Length
+              <select id="length">
+                <option value="6">Fast (6)</option>
+                <option value="12" selected>Standard (12)</option>
+                <option value="18">Long (18)</option>
+              </select>
+            </label>
+          </div>
+          <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn primary" id="start">Start</button>
+            <button class="btn" id="resume">Continue</button>
+          </div>
+          <p style="color:var(--muted);margin-top:8px">Shortcuts: R roll • 1–4 pick • S save • Esc close</p>
         </div>
-        <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn primary" id="start">Start</button>
-          <button class="btn" id="resume">Continue</button>
-        </div>
-        <p style="color:var(--muted);margin-top:8px">Shortcuts: <span class="kbd">R</span> roll • <span class="kbd">1–4</span> pick • <span class="kbd">S</span> save • <span class="kbd">Esc</span> close</p>
       </section>
       <aside class="panel card">
         <h3>How to play</h3>
@@ -242,7 +174,6 @@ small{color:var(--muted)}
         <div class="ring"><canvas id="ring-bdg" width="104" height="104"></canvas><div class="label"><div><span id="bdg-num">50</span><small>BDG</small></div></div></div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn" id="save">💾 Save</button>
         <button class="btn" id="end">End Early</button>
       </div>
     </div>
@@ -254,7 +185,7 @@ small{color:var(--muted)}
         <p id="card-region" style="color:#9fb3d6"></p>
         <div style="display:flex;align-items:center;gap:12px;margin:10px 0">
           <div id="diceWrap" role="button" tabindex="0" aria-label="Risk die">
-            <div id="dice" aria-hidden="true">
+            <div id="dice">
               <div class="face front" data-n="1"></div>
               <div class="face back" data-n="6"></div>
               <div class="face right" data-n="3"></div>
@@ -284,66 +215,50 @@ small{color:var(--muted)}
 
   <!-- RESULTS -->
   <section id="view-results" class="card panel hidden">
-    <h2 id="result-title">Operation Summary</h2>
-    <p id="result-body" style="color:#cfe0ff"></p>
-    <canvas id="radar" width="420" height="400" style="max-width:100%"></canvas>
-    <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
-      <button class="btn" id="download">📄 Download Journey</button>
-      <button class="btn primary" id="restart">Play Again</button>
-      <button class="btn" id="menu">Back to Menu</button>
+    <div class="results-grid">
+      <div>
+        <h2 id="result-title">Operation Summary</h2>
+        <p id="result-body" style="color:#cfe0ff"></p>
+        <canvas id="radar" width="420" height="400" style="max-width:100%"></canvas>
+        <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+          <button class="btn" id="download">📄 Download Journey</button>
+          <button class="btn primary" id="restart">Play Again</button>
+          <button class="btn" id="menu">Back to Menu</button>
+        </div>
+      </div>
+      <aside id="credits" class="card">
+        <h3>Thank you for playing</h3>
+        <p>Made with care by <b>Team Trinity — RMIT City Campus (Australia)</b>.</p>
+        <h4 style="margin-top:8px">Cyber Awareness Resources</h4>
+        <ul style="margin:6px 0 0 16px">
+          <li>Australia — <span>Cyber.gov.au (ACSC)</span></li>
+          <li>eSafety Commissioner — <span>esafety.gov.au</span></li>
+          <li>Vietnam — <span>VNCERT/CC</span></li>
+          <li>Guide — <span>Stay Smart Online</span></li>
+        </ul>
+        <p style="margin-top:8px;color:#9fb1c8">Together, we build a safer digital future.</p>
+      </aside>
     </div>
-    <p style="margin-top:10px;color:#9fb1c8">Help: Australia — cyber.gov.au, esafety.gov.au • Vietnam — VNCERT/CC</p>
   </section>
 
   <footer class="panel" style="text-align:center;color:#9fb1c8">© 2025 The Trinity — RMIT City Campus</footer>
 </div>
 
-<!-- Snapshot Modal -->
-<div id="modal-snap" class="modal" role="dialog" aria-modal="true" aria-label="Posture Snapshot">
-  <div class="box">
-    <h3>Posture Snapshot</h3>
-    <canvas id="bar4" width="520" height="260" style="max-width:100%"></canvas>
-    <p id="snap-msg" style="text-align:center;color:#cfe0ff"></p>
-    <div style="text-align:center;margin-top:8px"><button class="btn primary" id="snap-continue">Continue</button></div>
-  </div>
-</div>
-
-<!-- Perks Modal -->
-<div id="modal-perk" class="modal" role="dialog" aria-modal="true" aria-label="Perk Selection">
-  <div class="box">
-    <h3>Choose a Perk</h3>
-    <p style="color:#cfe0ff">Pick one initiative to boost your posture for the remaining rounds.</p>
-    <div id="perk-choices" style="display:flex;flex-direction:column;gap:8px;margin-top:8px"></div>
-  </div>
-</div>
-
 <div id="toast" class="toast" aria-live="polite"></div>
 
 <script>
-/* ========= Helpers ========= */
+/* ========= Core helpers ========= */
 const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
 const rnd=a=>a[(Math.random()*a.length)|0];
 const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
-const SAVE_KEY='dh_neon_v2';
+const SAVE_KEY='dh_neon_v3';
 
 /* ========= Audio ========= */
 const AC=window.AudioContext||window.webkitAudioContext;
-const audio={ctx:null, started:false, master:null, base:null, pad:null, vol:0.12};
+const audio={ctx:null, started:false, master:null, vol:0.12};
 function bootAudio(){
   if(audio.started) return;
-  try{
-    audio.ctx=new AC();
-    audio.master=audio.ctx.createGain(); audio.master.gain.value=audio.vol;
-    audio.master.connect(audio.ctx.destination);
-    audio.base=osc(110,'sine',.02); audio.pad=osc(220,'triangle',.015);
-    connect(audio.base,audio.master); connect(audio.pad,audio.master);
-    audio.started=true;
-  }catch(e){}
-}
-function connect(n,d){ n&&n.connect&&n.connect(d); }
-function osc(freq,type='sine',gain=0.02){
-  const o=audio.ctx.createOscillator(), g=audio.ctx.createGain();
-  o.type=type; o.frequency.value=freq; g.gain.value=gain; o.connect(g); o.start(); return g;
+  try{ audio.ctx=new AC(); audio.master=audio.ctx.createGain(); audio.master.gain.value=audio.vol; audio.master.connect(audio.ctx.destination); audio.started=true; }catch(e){}
 }
 function sfx(freq=640,dur=.09,type='sine',vol=.08){
   if(!audio.ctx) return;
@@ -352,51 +267,50 @@ function sfx(freq=640,dur=.09,type='sine',vol=.08){
   o.start(); g.gain.exponentialRampToValueAtTime(1e-4, audio.ctx.currentTime+dur); o.stop(audio.ctx.currentTime+dur+.03);
 }
 ['click','touchstart','keydown'].forEach(ev=>document.addEventListener(ev,()=>{ if(AC&&!audio.ctx) bootAudio(); if(audio.ctx&&audio.ctx.state==='suspended') audio.ctx.resume(); },{once:true,passive:true}));
-$('#vol').addEventListener('input',e=>{ audio.vol=+e.target.value; if(audio.master){ audio.master.gain.value=audio.vol; } localStorage.setItem('dh_vol', audio.vol); });
-(function restoreVol(){ const v=localStorage.getItem('dh_vol'); if(v){ $('#vol').value=v; audio.vol=+v; } else { $('#vol').value=audio.vol; } })();
+$('#vol').addEventListener('input',e=>{ const v=+e.target.value; audio.vol=v; if(audio.master){ audio.master.gain.value=v; } localStorage.setItem('dh_vol', v); });
+(function restoreVol(){ const v=localStorage.getItem('dh_vol'); $('#vol').value = v?+v:audio.vol; })();
 
 /* ========= Facts & Cards ========= */
 const FACTS=[
  "2FA blocks most credential-stuffing attacks.","Restoring from clean backups is the fastest way out of ransomware.",
  "Password managers reduce reuse and weak passwords.","Patching browsers/plugins closes common exploit chains.",
- "Staff awareness cuts phishing click-through significantly.","Zero-trust limits blast radius after compromise.",
- "Use HTTPS + VPN on public Wi-Fi; avoid sensitive logins.","Deepfake voice scams target finance approvals."
+ "Staff awareness cuts phishing click-through significantly.","Zero-trust limits blast radius after compromise."
 ];
 const CARDS=[
- { id:"phish_ai_mygov", region:"AU", title:"AI-Generated Phishing (MyGov lookalike)", base:3, text:"A realistic email asks staff to ‘verify benefits’. Domain is slightly misspelled.", chain:"ransomware_plugin",
+ { id:"phish_ai_mygov", region:"AU", title:"AI-Generated Phishing (MyGov lookalike)", base:3, text:"Realistic email asks staff to verify benefits. Slight domain misspelling.",
    options:[
-     {label:"Enforce 2FA across accounts", d:{SEC:+9, TRU:+3, BDG:-3}, tip:"2FA breaks credential-stuffing."},
-     {label:"Run phishing drill + awareness", d:{SEC:+5, TRU:+5, BDG:-2}, tip:"Training reduces clicks."},
+     {label:"Enforce 2FA across accounts", d:{SEC:+9, TRU:+3, BDG:-2}, tip:"2FA breaks credential-stuffing."},
+     {label:"Run phishing drill + awareness", d:{SEC:+5, TRU:+5, BDG:-1}, tip:"Training reduces clicks."},
      {label:"Ignore for now", d:{SEC:-10, TRU:-6, BDG:+1}, tip:"Delay equals exposure.", risky:true}
    ]},
- { id:"sms_spoof_zalo", region:"VN", title:"Banking SMS Spoof via Zalo/OTP Bait", base:2, text:"Staff receive a spoofed SMS linking to a fake banking page requesting OTP.",
+ { id:"sms_spoof_zalo", region:"VN", title:"Banking SMS Spoof via Zalo/OTP Bait", base:2, text:"Spoofed SMS links to a fake banking page requesting OTP.",
    options:[
-     {label:"Password manager + unique pwds", d:{SEC:+6, TRU:+2, BDG:-2}, tip:"Prevents reuse damage."},
-     {label:"2FA + out-of-band confirmations", d:{SEC:+7, TRU:+3, BDG:-3}, tip:"Stops OTP theft impact."},
+     {label:"Password manager + unique pwds", d:{SEC:+6, TRU:+2, BDG:-1}, tip:"Prevents reuse damage."},
+     {label:"2FA + out-of-band confirmations", d:{SEC:+7, TRU:+3, BDG:-2}, tip:"Stops OTP theft impact."},
      {label:"Ignore", d:{SEC:-8, TRU:-5, BDG:+1}, tip:"Attackers automate resend.", risky:true}
    ]},
- { id:"unpatched_browser", region:"AU", title:"Unpatched Browser 0-day Emerges", base:4, text:"A widely-used browser has an active exploit; your fleet is behind on updates.",
+ { id:"unpatched_browser", region:"AU", title:"Unpatched Browser 0-day Emerges", base:4, text:"Widely-used browser has an active exploit; your fleet lags updates.",
    options:[
-     {label:"Force auto-update & patch now", d:{SEC:+9, TRU:+1, BDG:-3}, tip:"Closes exploit window."},
-     {label:"Virtualize sensitive apps", d:{SEC:+6, TRU:+2, BDG:-4}, tip:"Adds isolation."},
+     {label:"Force auto-update & patch now", d:{SEC:+9, TRU:+1, BDG:-2}, tip:"Closes exploit window."},
+     {label:"Virtualize sensitive apps", d:{SEC:+6, TRU:+2, BDG:-3}, tip:"Adds isolation."},
      {label:"Delay a week", d:{SEC:-9, TRU:-3, BDG:+1}, tip:"Risk compounds daily.", risky:true}
    ]},
- { id:"public_wifi_mitm", region:"AU", title:"Public Wi-Fi MITM near RMIT City", base:2, text:"Staff connect to café Wi-Fi; credentials observed via evil-twin AP.",
+ { id:"public_wifi_mitm", region:"AU", title:"Public Wi-Fi MITM near RMIT City", base:2, text:"Café Wi-Fi evil-twin captures credentials.",
    options:[
-     {label:"Mandate VPN + HSTS checks", d:{SEC:+7, TRU:+2, BDG:-3}, tip:"Encrypts traffic end-to-end."},
+     {label:"Mandate VPN + HSTS checks", d:{SEC:+7, TRU:+2, BDG:-2}, tip:"Encrypts traffic end-to-end."},
      {label:"Awareness: avoid sensitive logins", d:{SEC:+4, TRU:+3, BDG:-1}, tip:"Reduces exposure."},
      {label:"Do nothing", d:{SEC:-7, TRU:-4, BDG:+1}, tip:"Credentials at risk.", risky:true}
    ]},
- { id:"malicious_usb_b80", region:"AU", title:"Malicious USB found near Building 80", base:2, text:"A labeled USB stick appears ‘HR Payroll’. Temptation is real.",
+ { id:"malicious_usb_b80", region:"AU", title:"Malicious USB found near Building 80", base:2, text:"A labeled USB stick ‘HR Payroll’ appears. Temptation is real.",
    options:[
-     {label:"Disable autorun + block unknown", d:{SEC:+7, TRU:+2, BDG:-2}, tip:"Stops BadUSB."},
+     {label:"Disable autorun + block unknown", d:{SEC:+7, TRU:+2, BDG:-1}, tip:"Stops BadUSB."},
      {label:"Awareness: turn in to IT", d:{SEC:+4, TRU:+3, BDG:-1}, tip:"Removes lure."},
      {label:"Plug it in quickly", d:{SEC:-10, TRU:-5, BDG:+0}, tip:"Classic initial access.", risky:true}
    ]},
- { id:"password_reuse_portal", region:"VN", title:"Password Reuse on University Portal", base:3, text:"Credentials were reused across multiple services; one provider had a breach.",
+ { id:"password_reuse_portal", region:"VN", title:"Password Reuse on University Portal", base:3, text:"Credentials reused across services; one provider breached.",
    options:[
-     {label:"Enforce SSO + pwd manager", d:{SEC:+8, TRU:+3, BDG:-3}, tip:"Unique creds + central auth."},
-     {label:"2FA & rotation campaign", d:{SEC:+7, TRU:+2, BDG:-2}, tip:"Layers reduce risk."},
+     {label:"Enforce SSO + manager", d:{SEC:+8, TRU:+3, BDG:-2}, tip:"Unique creds + central auth."},
+     {label:"2FA & rotation campaign", d:{SEC:+7, TRU:+2, BDG:-1}, tip:"Layers reduce risk."},
      {label:"Ignore", d:{SEC:-10, TRU:-6, BDG:+1}, tip:"Stuffing inevitable.", risky:true}
    ]}
 ];
@@ -404,12 +318,12 @@ const CARDS=[
 /* ========= State ========= */
 const S={ org:"—", diff:"casual", round:1, total:12,
   SEC:55, TRU:55, BDG:50, deck:[], used:[], last:-1,
-  deltas:[], rolled:false, severity:0, finished:false, chosenPerk:false,
-  perkSEC:0, perkTRU:0,
-  flags:{ignoredPhish:false, ransomwareTriggered:false}
+  deltas:[], rolled:false, severity:0, chosenPerk:false,
+  perkSEC:0, perkTRU:0
 };
 const numEls={SEC:$('#sec-num'), TRU:$('#tru-num'), BDG:$('#bdg-num')};
 const ringEls={SEC:$('#ring-sec'), TRU:$('#ring-tru'), BDG:$('#ring-bdg')};
+
 function ring(canvas,val,colors=['#93e7ff','#bdf4da']){
   const ctx=canvas.getContext('2d'), W=canvas.width, H=canvas.height, cx=W/2, cy=H/2, r=W/2-10;
   ctx.clearRect(0,0,W,H);
@@ -428,40 +342,10 @@ function setHUD(){
   $('#org-badge').textContent='Org: '+S.org;
   $('#diff-badge').textContent='Mode: '+(S.diff==='casual'?'Casual':S.diff==='analyst'?'Analyst':'CISO');
   $('#progressFill').style.width = (100*(S.round-1)/S.total)+'%';
-  const tone=$('#tone');
-  const min=Math.min(S.SEC,S.TRU,S.BDG);
-  const dom=[['SEC',S.SEC],['TRU',S.TRU],['BDG',S.BDG]].sort((a,b)=>b[1]-a[1])[0][0];
-  if(min<35){ tone.style.background='radial-gradient(900px 700px at 70% 10%, rgba(239,68,68,.28), transparent 60%)'; }
-  else if(min<55){ tone.style.background='radial-gradient(900px 700px at 70% 10%, rgba(255,184,86,.22), transparent 60%)'; }
-  else{ const col=dom==='SEC'?'rgba(77,226,248,.28)':(dom==='TRU'?'rgba(125,255,183,.22)':'rgba(255,211,107,.22)'); tone.style.background=`radial-gradient(900px 700px at 70% 10%, ${col}, transparent 60%)`; }
 }
 function addLog(html){ const p=document.createElement('p'); p.innerHTML=html; $('#log').prepend(p); }
 function toast(msg){ const t=$('#toast'); const b=document.createElement('div'); b.className='bubble'; b.textContent=msg; t.appendChild(b); setTimeout(()=>b.remove(),2200); }
 function analystSay(text){ $('#analyst').textContent='🧠 Analyst: '+text; }
-
-/* ========= Confetti (electric sparks) ========= */
-const confettiCanvas=$('#confetti'), ctxC=confettiCanvas.getContext('2d');
-function confettiBurst(){
-  confettiCanvas.width=innerWidth; confettiCanvas.height=innerHeight; confettiCanvas.style.display='block';
-  const pcs=Array.from({length:140},()=>({x:Math.random()*innerWidth,y:-10,l:8+Math.random()*18,c:`hsl(${190+Math.random()*40},90%,60%)`,vy:2+Math.random()*3,vx:(Math.random()-.5)*2}));
-  let t=0; (function anim(){
-    ctxC.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
-    pcs.forEach(p=>{p.x+=p.vx;p.y+=p.vy;ctxC.strokeStyle=p.c;ctxC.lineWidth=2;ctxC.beginPath();ctxC.moveTo(p.x,p.y);ctxC.lineTo(p.x,p.y+p.l);ctxC.stroke();});
-    if((t+=1)<200) requestAnimationFrame(anim); else confettiCanvas.style.display='none';
-  })();
-}
-
-/* ========= Particle rain ========= */
-(function particleInit(){
-  const cvs=$('#particles'), x=cvs.getContext('2d'); function resize(){cvs.width=innerWidth;cvs.height=innerHeight;} resize(); addEventListener('resize',resize);
-  const parts=Array.from({length:110},()=>({x:Math.random()*cvs.width,y:Math.random()*cvs.height, vy:.6+Math.random()*1.2, len:6+Math.random()*14}));
-  (function anim(){
-    x.clearRect(0,0,cvs.width,cvs.height);
-    x.strokeStyle='rgba(77,226,248,.35)'; x.lineWidth=1.2;
-    parts.forEach(p=>{ p.y+=p.vy; if(p.y>cvs.height){ p.y=-10; p.x=Math.random()*cvs.width; } x.beginPath(); x.moveTo(p.x,p.y); x.lineTo(p.x,p.y+p.len); x.stroke(); });
-    requestAnimationFrame(anim);
-  })();
-})();
 
 /* ========= Deck ========= */
 function buildDeck(){ S.deck = CARDS.map((_,i)=>i); for(let i=S.deck.length-1;i>0;i--){const j=(Math.random()*(i+1))|0; [S.deck[i],S.deck[j]]=[S.deck[j],S.deck[i]];} S.used=[]; S.last=-1; }
@@ -489,69 +373,50 @@ function renderCard(ci){
   });
 }
 
-/* ========= Dice logic (persistent cube) ========= */
-let diceRot={x:0,y:0};
-function resetDice(){ const d=$('#dice'); diceRot={x:0,y:0}; d.style.transform=`rotateX(0deg) rotateY(0deg)`; d.classList.remove('rolling'); }
-function diffMod(){ return S.diff==='casual'?0:(S.diff==='analyst'?1:2); }
+/* ========= Dice (stable roll) ========= */
+function resetDice(){ const d=$('#dice'); d.style.animation='none'; d.offsetHeight; d.style.setProperty('--rx','0deg'); d.style.setProperty('--ry','0deg'); d.style.transform='rotateX(0deg) rotateY(0deg)'; }
 function rollDice(){
-  const d=$('#dice'); d.classList.add('rolling'); sfx(540,.08,'sine',.06);
+  sfx(540,.08,'sine',.06);
   const roll = 1 + ((Math.random()*6)|0);
-  // Rotate to show specific face on front:
-  // Map desired face to rotations (approx cubes): 1 front(0,0) 2 bottom(-90,0) 3 right(0,-90) 4 left(0,90) 5 top(90,0) 6 back(0,180)
-  const poses={1:[0,0],2:[-90,0],3:[0,-90],4:[0,90],5:[90,0],6:[0,180]};
-  const [rx,ry]=poses[roll];
-  diceRot.x+= rx - (diceRot.x%360); diceRot.y+= ry - (diceRot.y%360);
-  // Add extra spins for flair
-  diceRot.x += 360*(1+((Math.random()*2)|0));
-  diceRot.y += 360*(1+((Math.random()*2)|0));
-  requestAnimationFrame(()=>{ d.style.transform=`rotateX(${diceRot.x}deg) rotateY(${diceRot.y}deg)`; });
+  const poses={1:[0,0],2:[-90,0],3:[0,-90],4:[0,90],5:[90,0],6:[0,180]}; const [rx,ry]=poses[roll];
+  const d=$('#dice'); d.style.animation='none'; d.offsetHeight; d.style.setProperty('--rx', rx+'deg'); d.style.setProperty('--ry', ry+'deg'); d.style.animation='rollAnim 0.85s cubic-bezier(.2,.7,.2,1) forwards, glow 0.85s ease forwards';
   setTimeout(()=>{
-    d.classList.remove('rolling');
     sfx(880,.06,'triangle',.06);
     const base = CARDS[S.last].base || 2;
-    S.severity = base + roll + diffMod();
-    $('#severity').innerHTML = `Severity: <b>${S.severity}</b> (base ${base} + roll ${roll} + diff ${diffMod()})`;
+    S.severity = base + roll + (S.diff==='casual'?0:(S.diff==='analyst'?1:2));
+    $('#severity').innerHTML = `Severity: <b>${S.severity}</b> (roll ${roll})`;
     S.rolled=true;
-  }, 820);
+  }, 860);
 }
 
-/* ========= Apply choice ========= */
+/* ========= Apply choice (with BDG rebalance) ========= */
 function applyChoice(card,opt){
   if(!S.rolled){ toast('Roll the risk die first (R or click).'); return; }
   let SEC=S.SEC + (opt.d.SEC||0), TRU=S.TRU + (opt.d.TRU||0), BDG=S.BDG + (opt.d.BDG||0);
-  if(opt.d.SEC>=0){ SEC += Math.max(0, 6 - Math.min(6, S.severity)); BDG -= Math.ceil(S.severity/3); } else { SEC -= (S.severity*2); TRU -= Math.ceil(S.severity/2); }
+  if(opt.d.SEC>=0){ SEC += Math.max(0, 6 - Math.min(6, S.severity)); BDG -= Math.ceil(S.severity/4); } else { SEC -= (S.severity*2); TRU -= Math.ceil(S.severity/2); }
+  // Passive recovery for good posture:
+  if(S.SEC>=60 && S.TRU>=60) BDG += 1;
   S.SEC=clamp(SEC,0,100); S.TRU=clamp(TRU,0,100); S.BDG=clamp(BDG,0,100); S.deltas.push({SEC:(opt.d.SEC||0), TRU:(opt.d.TRU||0), BDG:(opt.d.BDG||0)});
   setHUD(); $('#tip').textContent='Why: '+(opt.tip||''); addLog(`${card.title} → <span class="${opt.d.SEC>=0?'pos':'neg'}">${opt.label}</span> | SEC ${S.SEC} • TRU ${S.TRU} • BDG ${S.BDG}`); toast(rnd(["Risk reduced. Strong call.","Culture improves with clarity.","Resilience rising.","Solid defense choice."]));
   if(opt.risky){ analystSay("That choice increases risk exposure. Consider layered defenses."); sfx(220,.12,'sawtooth',.07); } else if(opt.d.TRU>0){ analystSay("Trust grows with transparency and training."); } else if(opt.d.SEC>0){ analystSay("Technical posture improving. Keep patching and verifying."); }
-  if(S.round % 4 === 0 && S.round < S.total){ openSnapshot(); return; }
   if(!S.chosenPerk && S.round === Math.ceil(S.total/2)){ openPerks(); return; }
   advance();
 }
 
-/* ========= Snapshot ========= */
-function openSnapshot(){ const m=$('#modal-snap'); const slice=S.deltas.slice(-4);
-  const sums=slice.reduce((a,d)=>({SEC:a.SEC+d.SEC,TRU:a.TRU+d.TRU,BDG:a.BDG+d.BDG}),{SEC:0,TRU:0,BDG:0});
-  const avg={SEC:slice.length?Math.round(sums.SEC/slice.length):0, TRU:slice.length?Math.round(sums.TRU/slice.length):0, BDG:slice.length?Math.round(sums.BDG/slice.length):0};
-  drawBars(avg); $('#snap-msg').textContent = avg.SEC>=avg.TRU ? "Security posture improving — keep culture engaged." : "Trust rising — maintain technical depth.";
-  m.classList.add('show'); $('#snap-continue').onclick=()=>{ m.classList.remove('show'); advance(); };
-}
-function drawBars(avg){ const c=$('#bar4'),x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); const labels=['SEC','TRU','BDG'],vals=[avg.SEC,avg.TRU,avg.BDG]; x.font='12px system-ui';
-  for(let i=0;i<3;i++){ const v=vals[i], x0=80+i*140; x.fillStyle='#102035'; x.fillRect(x0,200,90,-140); x.strokeStyle='#22344f'; x.strokeRect(x0,60,90,140);
-    x.fillStyle=v>=0?'#16a34a':'#ef4444'; const h=Math.min(140,Math.abs(v)); x.fillRect(x0,200,90,-Math.sign(v)*h); x.fillStyle='#cfe1ff'; x.textAlign='center'; x.fillText(labels[i], x0+45, 218); x.fillText((v>=0?'+':'')+v, x0+45, 54); } }
-
 /* ========= Perks ========= */
-function openPerks(){ const m=$('#modal-perk'); const wrap=$('#perk-choices'); wrap.innerHTML='';
+function openPerks(){ const wrap=document.createElement('div'); wrap.innerHTML=''; const m=document.createElement('div'); m.className='modal show'; m.innerHTML=`<div class="box"><h3>Choose a Perk</h3><div id="perk-choices" style="display:flex;flex-direction:column;gap:8px;margin-top:8px"></div></div>`; document.body.appendChild(m);
+  const pc=m.querySelector('#perk-choices');
   const perks=[
     {name:'Crisis Response',desc:'+5 SEC now, +1 SEC next 3 rounds',apply:()=>{S.SEC=clamp(S.SEC+5,0,100); S.perkSEC=3;}},
     {name:'Awareness Program',desc:'+4 TRU now, +1 TRU next 3 rounds',apply:()=>{S.TRU=clamp(S.TRU+4,0,100); S.perkTRU=3;}},
-    {name:'Zero-Trust Upgrade',desc:'+3 SEC & +2 TRU, −2 BDG',apply:()=>{S.SEC=clamp(S.SEC+3,0,100); S.TRU=clamp(S.TRU+2,0,100); S.BDG=clamp(S.BDG-2,0,100);}}
+    {name:'Zero-Trust Upgrade',desc:'+3 SEC & +2 TRU, −1 BDG',apply:()=>{S.SEC=clamp(S.SEC+3,0,100); S.TRU=clamp(S.TRU+2,0,100); S.BDG=clamp(S.BDG-1,0,100);}}
   ];
-  perks.forEach(p=>{ const b=document.createElement('button'); b.className='btn'; b.innerHTML=`<b>${p.name}</b> — <small>${p.desc}</small>`; b.onclick=()=>{ p.apply(); S.chosenPerk=true; setHUD(); m.classList.remove('show'); advance(); }; wrap.appendChild(b); });
-  m.classList.add('show');
+  perks.forEach(p=>{ const b=document.createElement('button'); b.className='btn'; b.innerHTML=`<b>${p.name}</b> — <small>${p.desc}</small>`; b.onclick=()=>{ p.apply(); S.chosenPerk=true; setHUD(); m.remove(); advance(); }; pc.appendChild(b); });
 }
 
 /* ========= Advance & End ========= */
-function advance(){ if(S.round>=S.total){ endGame(); return; } S.round += 1; if(S.perkSEC){ S.SEC=clamp(S.SEC+1,0,100); S.perkSEC--; } if(S.perkTRU){ S.TRU=clamp(S.TRU+1,0,100); S.perkTRU--; } setHUD(); biasDeck(); renderCard(pickCardIndex()); S.rolled=false; S.severity=0; }
+function advance(){ if(S.round>=S.total){ endGame(); return; } S.round += 1; if(S.perkSEC){ S.SEC=clamp(S.SEC+1,0,100); S.perkSEC--; } if(S.perkTRU){ S.TRU=clamp(S.TRU+1,0,100); S.perkTRU--; }
+  setHUD(); biasDeck(); renderCard(pickCardIndex()); S.rolled=false; S.severity=0; }
 function drawRadar(sec,tru,bdg){ const c=$('#radar'),x=c.getContext('2d'),W=c.width,H=c.height,cx=W/2,cy=H/2,r=Math.min(W,H)/2-44; x.clearRect(0,0,W,H); x.strokeStyle='#243145';
   for(let i=1;i<=3;i++){x.beginPath();x.arc(cx,cy,(r*i)/3,0,Math.PI*2);x.stroke()}
   const labs=['SEC','TRU','BDG']; x.fillStyle='#cfe1ff'; x.font='12px system-ui';
@@ -561,7 +426,7 @@ function drawRadar(sec,tru,bdg){ const c=$('#radar'),x=c.getContext('2d'),W=c.wi
   x.closePath(); x.fillStyle='rgba(77,226,248,.18)'; x.fill(); x.lineWidth=2; x.strokeStyle='rgba(77,226,248,.95)'; x.shadowColor='#4de2f8'; x.shadowBlur=28; x.stroke(); x.shadowBlur=0;
 }
 function endGame(){ show('results'); const {SEC,TRU,BDG}=S; let title='Solid Outcome ✅', body=`SEC ${SEC}, TRU ${TRU}, BDG ${BDG}.`;
-  if(SEC>=80 && TRU>=70 && BDG>=40){ title='Cyber-Resilient Visionary 🏆'; confettiBurst(); analystSay("Outstanding posture across people and technology."); }
+  if(SEC>=80 && TRU>=70 && BDG>=40){ title='Cyber-Resilient Visionary 🏆'; }
   else if(BDG<20){ title='Budget Collapse 💸'; } else if(SEC<50 && TRU>=60){ title='Innovation Overexposed 📉'; } else if(SEC>=60 && TRU<50){ title='Tactical Containment — Reputation Bruised 📰'; }
   const weakest=[['SEC',SEC],['TRU',TRU],['BDG',BDG]].sort((a,b)=>a[1]-b[1])[0][0];
   const hint = weakest==='SEC' ? 'Prioritise patching, 2FA and testable backups.' : weakest==='TRU' ? 'Communicate, document, and disclose responsibly.' : 'Invest where impact is highest; avoid false economies.';
@@ -575,7 +440,7 @@ function show(view){ $('#view-menu').classList.toggle('hidden', view!=='menu'); 
 
 /* ========= Controls ========= */
 $('#start').onclick=()=>{ S.org=$('#org').value||'RMIT Team'; S.diff=$('#difficulty').value; S.total=+$('#length').value;
-  S.round=1; S.SEC=55; S.TRU=55; S.BDG=50; S.deltas=[]; S.finished=false; S.chosenPerk=false; S.flags={ignoredPhish:false,ransomwareTriggered:false}; buildDeck(); biasDeck(); show('play'); setHUD(); renderCard(pickCardIndex()); save(); analystSay("Baseline established. We’ll adapt to your decisions."); };
+  S.round=1; S.SEC=55; S.TRU=55; S.BDG=50; S.deltas=[]; S.chosenPerk=false; buildDeck(); biasDeck(); show('play'); setHUD(); renderCard(pickCardIndex()); save(); analystSay("Baseline established. We’ll adapt to your decisions."); };
 $('#resume').onclick=()=>{ if(load()){ show('play'); setHUD(); renderCard(S.last>=0?S.last:pickCardIndex()); } else $('#start').click(); };
 $('#save').onclick=save; $('#end').onclick=()=> endGame(); $('#restart').onclick=()=> show('menu'); $('#menu').onclick=()=> show('menu');
 $('#download').onclick=()=>{ const txt=`DataHeist — Summary
@@ -585,20 +450,10 @@ Rounds: ${S.total}
 Final SEC ${S.SEC} • TRU ${S.TRU} • BDG ${S.BDG}
 `; const blob=new Blob([txt],{type:'text/plain'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='dataheist_summary.txt'; a.click(); URL.revokeObjectURL(url); };
 $('#roll').onclick=rollDice; $('#diceWrap').addEventListener('click', rollDice); $('#diceWrap').addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' ') rollDice(); });
-document.addEventListener('keydown', e=>{ if($('#view-play').classList.contains('hidden')) return; if(e.key.toLowerCase()==='r') $('#roll').click(); if(e.key.toLowerCase()==='s') $('#save').click(); if(e.key==='Escape'){ $('#modal-snap').classList.remove('show'); $('#modal-perk').classList.remove('show'); } const map={'1':0,'2':1,'3':2,'4':3}; if(map[e.key]!=null){ const btn=$$('#choices .btn')[map[e.key]]; if(btn) btn.click(); } });
-$('#toggleLens').onclick=()=> $('#lens').classList.toggle('show');
+document.addEventListener('keydown', e=>{ if($('#view-play').classList.contains('hidden')) return; if(e.key.toLowerCase()==='r') $('#roll').click(); if(e.key.toLowerCase()==='s') $('#save').click(); if(e.key==='Escape'){ $$('.modal.show').forEach(m=>m.remove()); } const map={'1':0,'2':1,'3':2,'4':3}; if(map[e.key]!=null){ const btn=$$('#choices .btn')[map[e.key]]; if(btn) btn.click(); } });
 
-/* ========= Intro Splash ========= */
-function hideSplash(){ const sp=$('#splash'); sp.classList.add('hide'); setTimeout(()=>sp.remove(),700); }
-document.addEventListener('keydown',()=>{ hideSplash(); });
-document.addEventListener('click',()=>{ hideSplash(); });
-
-/* ========= Parallax tilt ========= */
-document.addEventListener('mousemove', (e)=>{ const rx=(e.clientX/innerWidth - .5)*4, ry=(e.clientY/innerHeight - .5)*4; $$('#parallax .layer').forEach((el,i)=>{ el.style.transform=`translateZ(${(-100+(i*40))}px) scale(${1.03+(i*.02)}) translate(${rx*(i+1)}px, ${ry*(i+1)}px)`; }); }, {passive:true});
-
-/* ========= Init ========= */
-function init(){ setHUD(); show('menu'); S.last = pickCardIndex(); }
-init();
+/* ========= Deck init ========= */
+function init(){ setHUD(); show('menu'); S.last = pickCardIndex(); } init();
 </script>
 </body>
 </html>

@@ -710,6 +710,41 @@ function init(){ setHUD(); show('menu'); S.last = pickCardIndex(); } init();
 })();
 </script>
 
+
+<!-- Dice Sync Patch -->
+<script id="dice-sync-fix">
+(function(){
+  const poses = {1:[0,0], 2:[-90,0], 3:[0,-90], 4:[0,90], 5:[90,0], 6:[0,180]};
+  function animateDiceVisualTrueValue(val){
+    const cube=document.getElementById('neonDiceCube'); if(!cube) return;
+    const [rx,ry]=poses[val]||[0,0];
+    cube.classList.remove('neon-land');
+    cube.classList.add('rolling');
+    cube.style.transition='none'; cube.style.transform='rotateX(0deg) rotateY(0deg)'; void cube.offsetWidth;
+    const extraX=720+(Math.random()<0.5?0:360), extraY=720+(Math.random()<0.5?0:360);
+    cube.style.transition='transform 1000ms cubic-bezier(.2,.7,.2,1)';
+    cube.style.transform=`rotateX(${rx+extraX}deg) rotateY(${ry+extraY}deg)`;
+    setTimeout(()=>{cube.classList.remove('rolling'); cube.classList.add('neon-land');},1020);
+  }
+
+  // hook global rollDice if present
+  const origRoll=window.rollDice;
+  if(typeof origRoll==='function'){
+    window.rollDice=function(...a){
+      const res=origRoll.apply(this,a);
+      try{
+        // find roll value by reading severity or log output
+        const sevEl=document.getElementById('severity');
+        if(sevEl){
+          const txt=sevEl.textContent||''; const m=txt.match(/roll\s*(\d)/i);
+          if(m){ const val=parseInt(m[1]); animateDiceVisualTrueValue(val); }
+        }
+      }catch(e){}
+      return res;
+    }
+  }
+})();
+</script>
+
 </body>
 </html>
-

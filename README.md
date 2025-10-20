@@ -1,7 +1,7 @@
 # game_submission
 
 RMIT GenAI &amp; Cybersecurity Hackathon 2025 – Challenge 3: Vibe Coding
-# DataHeist — Cyber Choices (Neon Cinematic Edition)
+# DataHeist — Cyber Guardian (Neon Cinematic Edition)
 **Team:** The Trinity — RMIT City Campus  
 **What:** Browser-only, front-end single-file game teaching cyber awareness via scenario-driven choices.  
 **How to run:** Open `game_app/index.html` in any modern browser (Chrome/Edge/Firefox). No server or internet required.

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>DataHeist: Cyber Choices — v3.3 (Full Cinematic)</title>
-<meta name="description" content="Full DataHeist build with silent cinematic intro and stable 3D dice. Single-file, offline.">
+<title>DataHeist: Cyber Choices — v3.4 (Full Playable)</title>
+<meta name="description" content="Full DataHeist build (12-round default, selectable length), silent intro, upright 3D dice, complete gameplay. Single-file, offline.">
 <style>
 :root{
   --bg0:#060a17; --bg1:#0c1734; --ink:#eaf2ff; --muted:#a7b8d6;
@@ -25,6 +25,7 @@ small{color:var(--muted)}
 .card{background:var(--panel); border:1px solid var(--stroke); border-radius:14px; backdrop-filter:blur(12px) saturate(160%);
   box-shadow:0 20px 40px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.03)}
 .panel{padding:14px}
+.hidden{display:none}
 
 /* Buttons & inputs */
 .btn{background:linear-gradient(135deg,#0c1f46,#0a1734); color:#eaf2ff; border:1px solid #2a3f6a; border-radius:999px; padding:10px 16px; cursor:pointer;
@@ -84,7 +85,6 @@ label{display:block}
 #credits{background:linear-gradient(180deg,#0d1a36,#0b152a);border:1px solid var(--stroke);padding:14px;border-radius:12px}
 
 /* Intro splash */
-.hidden{display:none}
 .fadeOut{animation:fadeOut .9s ease both} @keyframes fadeOut{to{opacity:0;visibility:hidden}}
 #intro{position:fixed;inset:0;display:grid;place-items:center;background:linear-gradient(180deg,#071126,#0b1d3c);
   z-index:100;color:var(--accent);text-align:center}
@@ -240,7 +240,7 @@ label{display:block}
 /* ===== Utilities ===== */
 const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-const SAVE_KEY='dh_v33_full';
+const SAVE_KEY='dh_v34_full';
 
 /* ===== Intro control (silent 3s, then fade to menu) ===== */
 const intro=document.getElementById('intro');
@@ -254,12 +254,7 @@ function toast(msg){ const t=$('#toast'); const b=document.createElement('div');
 function analystSay(text){ $('#analyst').textContent='🧠 Analyst: '+text; }
 function addLog(html){ const p=document.createElement('p'); p.innerHTML=html; $('#log').prepend(p); }
 
-/* ===== Facts / Cards ===== */
-const FACTS=[
- "2FA blocks most credential-stuffing attacks.","Restoring from clean backups is the fastest way out of ransomware.",
- "Password managers reduce reuse and weak passwords.","Patching browsers/plugins closes common exploit chains.",
- "Staff awareness cuts phishing click-through significantly.","Zero-trust limits blast radius after compromise."
-];
+/* ===== Cards ===== */
 const CARDS=[
  { id:"phish_ai_mygov", region:"AU", title:"AI-Generated Phishing (MyGov lookalike)", base:3, text:"Realistic email asks staff to verify benefits. Slight domain misspelling.",
    options:[
@@ -329,7 +324,7 @@ function setHUD(){
 /* ===== Deck control ===== */
 function buildDeck(){ S.deck = CARDS.map((_,i)=>i); for(let i=S.deck.length-1;i>0;i--){const j=(Math.random()*(i+1))|0; [S.deck[i],S.deck[j]]=[S.deck[j],S.deck[i]];} S.used=[]; S.last=-1; }
 function bumpFront(ids){ const set=new Set(ids); S.deck = S.deck.sort((a,b)=> (set.has(CARDS[a].id)?-1:0) - (set.has(CARDS[b].id)?-1:0) ); }
-function biasDeck(){ const low=['SEC','TRU','BDG'].sort((a,b)=>S[a]-S[b])[0]; if(low==='SEC'){bumpFront(['unpatched_browser','phish_ai_mygov']);} else if(low==='TRU'){bumpFront(['phish_ai_mygov']);} }
+function biasDeck(){ const low=['SEC','TRU','BDG'].sort((a,b)=>S[a]-S[b])[0]; if(low==='SEC'){bumpFront(['unpatched_browser','phish_ai_mygov']);} else if(low==='TRU'){bumpFront(['phish_ai_mygov']);} else if(low==='BDG'){bumpFront(['public_wifi_mitm']);} }
 function pickCardIndex(){ if(!S.deck.length) buildDeck(); if(S.deck[0]===S.last && S.deck.length>1){ [S.deck[0],S.deck[1]]=[S.deck[1],S.deck[0]]; } const idx=S.deck.shift(); S.last=idx; S.used.push(idx); return idx; }
 
 /* ===== Render card ===== */
@@ -374,13 +369,12 @@ function rollDice(){
 /* ===== Apply choice (balanced BDG) ===== */
 function applyChoice(card,opt){
   if(!S.rolled){ toast('Roll the risk die first (R or click).'); return; }
-  if(S.BDG<40) S.BDG = clamp(S.BDG+1,0,100); // small safety
+  if(S.BDG<40) S.BDG = clamp(S.BDG+1,0,100);
   let SEC=S.SEC + (opt.d.SEC||0), TRU=S.TRU + (opt.d.TRU||0), BDG=S.BDG + (opt.d.BDG||0);
   if(opt.d.SEC>=0){ SEC += Math.max(0, 6 - Math.min(6, S.severity)); BDG -= Math.ceil(S.severity/4); } else { SEC -= (S.severity*2); TRU -= Math.ceil(S.severity/2); }
-  if(S.SEC>=60 && S.TRU>=60) BDG += 1;
+  if(S.SEC>=60 && S.TRU>=60) BDG += 1; // passive regen when posture is strong
   S.SEC=clamp(SEC,0,100); S.TRU=clamp(TRU,0,100); S.BDG=clamp(BDG,0,100);
   setHUD(); $('#tip').textContent='Why: '+(opt.tip||''); addLog(`${card.title} → <b>${opt.label}</b> | SEC ${S.SEC} • TRU ${S.TRU} • BDG ${S.BDG}`);
-  if(opt.risky){ analystSay("That choice increases risk exposure. Consider layered defenses."); } else if(opt.d.TRU>0){ analystSay("Trust grows with transparency and training."); } else if(opt.d.SEC>0){ analystSay("Technical posture improving. Keep patching and verifying."); }
   if(!S.chosenPerk && S.round === Math.ceil(S.total/2)){ openPerks(); return; }
   advance();
 }
